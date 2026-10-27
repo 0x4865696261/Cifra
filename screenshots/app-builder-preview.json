@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Cifra",
+      "hasCanvas": false,
+      "bodyTextLen": 2325,
+      "bodyTextHash": "b3212edbb986f02d7ada77e3fca256b93b09d60c1fe3749c625d858398f5ef1d",
+      "bodyTextPrefix": "Saltar al contenido Cifra Estudio Matemáticas Biblioteca Lenguaj",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Cifra",
+      "hasCanvas": false,
+      "bodyTextLen": 2325,
+      "bodyTextHash": "b3212edbb986f02d7ada77e3fca256b93b09d60c1fe3749c625d858398f5ef1d",
+      "bodyTextPrefix": "Saltar al contenido Cifra Estudio Matemáticas Biblioteca Lenguaj",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

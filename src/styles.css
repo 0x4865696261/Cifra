@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Fraunces", "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --color-paper: #f3efe6;
+  --color-ink: #1c1916;
+  --color-muted: #6f675e;
+  --color-line: #ddd4c6;
+  --color-copper: #b4532a;
+
+  --radius-sm: 0.125rem;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-copper);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--color-copper);
+    color: var(--color-paper);
+  }
+
+  .tap {
+    transition: scale 150ms ease-out;
+  }
+
+  .tap:active:not(:disabled) {
+    scale: 0.96;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tap {
+      transition: none;
+    }
+
+    .tap:active:not(:disabled) {
+      scale: 1;
+    }
+  }
+}

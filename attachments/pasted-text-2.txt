@@ -1,0 +1,23 @@
+Quiero que empieces a construir la plataforma siguiendo la visión que acabamos de definir. No quiero que te limites a resumirla, proponer ideas o explicarme lo que podríamos hacer. Quiero que empieces a convertirla en un producto real.
+
+Lo más importante es que entiendas que no quiero otro chat de inteligencia artificial que escribe código. Quiero una plataforma completa para aprender a entender el software, desde los conceptos matemáticos más básicos hasta los lenguajes, algoritmos y sistemas más avanzados. La IA debe enseñar, explicar sus decisiones y ayudar a las personas a comprender el código, no limitarse a generar respuestas.
+
+Empieza diseñando y construyendo una base que permita hacer realidad toda esa visión. Quiero una identidad visual propia, una interfaz cuidada, una navegación bien pensada y una arquitectura que permita ampliar el producto sin tener que rehacerlo cada vez que añadamos una funcionalidad.
+
+La primera versión debe incluir una experiencia real para introducir código, analizarlo, comprender cómo funciona y recibir explicaciones adaptadas al nivel del usuario. También quiero que empieces a desarrollar la conexión entre las matemáticas y la programación, para que se pueda pasar del razonamiento matemático al pseudocódigo y de ahí a una implementación real. Estas partes deben estar conectadas desde el principio, aunque después vayamos ampliándolas.
+
+Quiero que prestes especial atención al sistema de skills de la IA. La plataforma debe estar preparada para utilizar conocimientos especializados en pedagogía, análisis de código, matemáticas, algoritmos, depuración y optimización. La IA debe escribir código sencillo siempre que sea suficiente y explicar de forma natural cualquier técnica avanzada que necesite utilizar.
+
+En cuanto al diseño, no quiero una plantilla genérica ni una página llena de tarjetas que parecen importantes, pero que no llevan a ninguna parte. Quiero una web con personalidad, visualmente excelente, fácil de utilizar y diseñada para que alguien pueda pasar horas aprendiendo y trabajando en ella. Dedica el tiempo necesario a diseñar bien la experiencia, pero asegúrate de que el resultado también sea funcional.
+
+No intentes desarrollar toda la plataforma de golpe ni rellenes la interfaz con funcionalidades ficticias. Construye cada parte de manera progresiva y comprueba que funciona antes de darla por terminada. Si alguna función necesita una API, un modelo de IA, una base de datos o un entorno de ejecución externo, prepara la integración correctamente y explícame qué necesitas para activarla.
+
+Quiero que tomes decisiones técnicas razonables por tu cuenta, sin preguntarme por cada detalle. Si encuentras una decisión importante que pueda cambiar considerablemente el producto, explícame las alternativas y recomiéndame la mejor.
+
+Empieza por examinar el entorno de desarrollo y los archivos existentes, si los hay. Después, establece la arquitectura y el diseño necesarios y comienza a implementar el producto directamente. No borres ni sustituyas trabajo existente sin comprobar antes qué hace.
+
+Mi objetivo es que esta primera versión sea el comienzo de una plataforma enorme, no una demo desechable. Por eso, aunque empecemos con un conjunto limitado de funcionalidades, quiero que estén bien construidas y que puedan ampliarse en el futuro.
+
+No quiero que te limites a decirme qué vas a hacer. Quiero que lo hagas. Trabaja directamente en el proyecto, crea los archivos necesarios, implementa las funcionalidades, ejecuta las pruebas que puedas y corrige los problemas que encuentres.
+
+Cuando termines esta primera fase, quiero poder ver y utilizar lo que has construido, entender qué funciona realmente y saber qué queda pendiente para continuar desarrollando la plataforma.
