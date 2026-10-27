@@ -1,4 +1,4 @@
-import{i as e,t}from"./react-DB-4Zxce.js";import{t as n}from"./link-FStLKvPX.js";import{r}from"./useRouter-CnG7R4es.js";import{f as i,o as a}from"./index-B4LP2cPe.js";import{t as o}from"./code-block-BfgKoXEe.js";import{i as s,r as c}from"./structure-DKJFQvUM.js";var l=e(t()),u=[{id:`python`,label:`Python`,code:`def frecuencias(texto: str) -> dict[str, int]:
+import{i as e,t}from"./react-DB-4Zxce.js";import{t as n}from"./link-FStLKvPX.js";import{r}from"./useRouter-CnG7R4es.js";import{f as i,o as a}from"./index-FO5xSMVU.js";import{t as o}from"./code-block-BfgKoXEe.js";import{i as s,r as c}from"./structure-DKJFQvUM.js";var l=e(t()),u=[{id:`python`,label:`Python`,code:`def frecuencias(texto: str) -> dict[str, int]:
     conteo: dict[str, int] = {}
     for palabra in texto.lower().split():
         conteo[palabra] = conteo.get(palabra, 0) + 1
