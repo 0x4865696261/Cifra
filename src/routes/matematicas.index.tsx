@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { mathTopics } from "@/lib/content/math";
 
-export const Route = createFileRoute("/matematicas")({
+export const Route = createFileRoute("/matematicas/")({
   head: () => ({ meta: [{ title: "Matemáticas — Cifra" }] }),
   component: MathIndex,
 });

@@ -1,4 +1,3 @@
-import { genericOAuthClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import { runPreSignInSignOut, runSignOut } from "../../../scripts/sign-out-plan.mjs";
 import { GROK_PROVIDERS } from "./providers";
@@ -17,8 +16,9 @@ import { GROK_PROVIDERS } from "./providers";
  * leaves the bearer token in place, and `onRequest` keeps re-attaching it, so
  * the visitor stays signed in.
  */
+// The generic-OAuth client plugin is gone in better-auth 1.x (≥1.7): federated
+// providers are core, so `signIn.social` works without registering plugins.
 export const authClient = createAuthClient({
-  plugins: [genericOAuthClient()],
   fetchOptions: {
     onRequest(ctx) {
       const token = getBearerToken();
@@ -143,8 +143,10 @@ export async function signIn(
     return;
   }
 
-  const { data, error } = await authClient.signIn.oauth2({
-    providerId,
+  // `provider` — not `providerId` — since better-auth 1.7, where generic OAuth
+  // providers are regular social providers.
+  const { data, error } = await authClient.signIn.social({
+    provider: providerId,
     callbackURL,
     errorCallbackURL,
   });

@@ -104,6 +104,12 @@ export function isMainModule(moduleUrl) {
   }
 }
 
+/** Quote one argument for a Windows command line: wrap in quotes when needed. */
+export function quote(arg) {
+  if (arg === "" || /[\s"]/.test(arg)) return `"${String(arg).replace(/"/g, '\\"')}"`;
+  return arg;
+}
+
 function main(argv) {
   const [command, ...args] = argv;
   if (!command) {
@@ -111,7 +117,13 @@ function main(argv) {
     process.exit(2);
   }
   const env = mergeAppEnv(readAppEnv(projectRoot()), process.env);
-  const child = spawn(command, args, { stdio: "inherit", env });
+  // On Windows, spawn without a shell cannot run `.cmd` shims like `vite.cmd`
+  // (it would fail with ENOENT). A shell resolves the shim, but then args are a
+  // command line — quote each so paths with spaces survive (e.g. this repo's).
+  const onWindows = process.platform === "win32";
+  const child = onWindows
+    ? spawn(env.comspec ?? "cmd", ["/d", "/s", "/c", [command, ...args].map(quote).join(" ")], { stdio: "inherit", env })
+    : spawn(command, args, { stdio: "inherit", env });
   // The dev server is long-running and is stopped by signalling this wrapper.
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
     process.on(signal, () => child.kill(signal));
