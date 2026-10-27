@@ -10,21 +10,16 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as BibliotecaRouteImport } from './routes/biblioteca'
 import { Route as EstudioRouteImport } from './routes/estudio'
 import { Route as LenguajesRouteImport } from './routes/lenguajes'
-import { Route as MatematicasRouteImport } from './routes/matematicas'
+import { Route as BibliotecaIndexRouteImport } from './routes/biblioteca.index'
 import { Route as BibliotecaSlugRouteImport } from './routes/biblioteca.$slug'
+import { Route as MatematicasIndexRouteImport } from './routes/matematicas.index'
 import { Route as MatematicasSlugRouteImport } from './routes/matematicas.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BibliotecaRoute = BibliotecaRouteImport.update({
-  id: '/biblioteca',
-  path: '/biblioteca',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EstudioRoute = EstudioRouteImport.update({
@@ -37,86 +32,93 @@ const LenguajesRoute = LenguajesRouteImport.update({
   path: '/lenguajes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MatematicasRoute = MatematicasRouteImport.update({
-  id: '/matematicas',
-  path: '/matematicas',
+const BibliotecaIndexRoute = BibliotecaIndexRouteImport.update({
+  id: '/biblioteca/',
+  path: '/biblioteca/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BibliotecaSlugRoute = BibliotecaSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => BibliotecaRoute,
+  id: '/biblioteca/$slug',
+  path: '/biblioteca/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatematicasIndexRoute = MatematicasIndexRouteImport.update({
+  id: '/matematicas/',
+  path: '/matematicas/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MatematicasSlugRoute = MatematicasSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => MatematicasRoute,
+  id: '/matematicas/$slug',
+  path: '/matematicas/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/biblioteca': typeof BibliotecaRouteWithChildren
   '/estudio': typeof EstudioRoute
   '/lenguajes': typeof LenguajesRoute
-  '/matematicas': typeof MatematicasRouteWithChildren
   '/biblioteca/$slug': typeof BibliotecaSlugRoute
   '/matematicas/$slug': typeof MatematicasSlugRoute
+  '/biblioteca/': typeof BibliotecaIndexRoute
+  '/matematicas/': typeof MatematicasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/biblioteca': typeof BibliotecaRouteWithChildren
   '/estudio': typeof EstudioRoute
   '/lenguajes': typeof LenguajesRoute
-  '/matematicas': typeof MatematicasRouteWithChildren
   '/biblioteca/$slug': typeof BibliotecaSlugRoute
   '/matematicas/$slug': typeof MatematicasSlugRoute
+  '/biblioteca': typeof BibliotecaIndexRoute
+  '/matematicas': typeof MatematicasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/biblioteca': typeof BibliotecaRouteWithChildren
   '/estudio': typeof EstudioRoute
   '/lenguajes': typeof LenguajesRoute
-  '/matematicas': typeof MatematicasRouteWithChildren
   '/biblioteca/$slug': typeof BibliotecaSlugRoute
   '/matematicas/$slug': typeof MatematicasSlugRoute
+  '/biblioteca/': typeof BibliotecaIndexRoute
+  '/matematicas/': typeof MatematicasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/biblioteca'
     | '/estudio'
     | '/lenguajes'
-    | '/matematicas'
     | '/biblioteca/$slug'
     | '/matematicas/$slug'
+    | '/biblioteca/'
+    | '/matematicas/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/biblioteca'
     | '/estudio'
     | '/lenguajes'
-    | '/matematicas'
     | '/biblioteca/$slug'
     | '/matematicas/$slug'
+    | '/biblioteca'
+    | '/matematicas'
   id:
     | '__root__'
     | '/'
-    | '/biblioteca'
     | '/estudio'
     | '/lenguajes'
-    | '/matematicas'
     | '/biblioteca/$slug'
     | '/matematicas/$slug'
+    | '/biblioteca/'
+    | '/matematicas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BibliotecaRoute: typeof BibliotecaRouteWithChildren
   EstudioRoute: typeof EstudioRoute
   LenguajesRoute: typeof LenguajesRoute
-  MatematicasRoute: typeof MatematicasRouteWithChildren
+  BibliotecaSlugRoute: typeof BibliotecaSlugRoute
+  MatematicasSlugRoute: typeof MatematicasSlugRoute
+  BibliotecaIndexRoute: typeof BibliotecaIndexRoute
+  MatematicasIndexRoute: typeof MatematicasIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -126,13 +128,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/biblioteca': {
-      id: '/biblioteca'
-      path: '/biblioteca'
-      fullPath: '/biblioteca'
-      preLoaderRoute: typeof BibliotecaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/estudio': {
@@ -149,60 +144,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LenguajesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/matematicas': {
-      id: '/matematicas'
-      path: '/matematicas'
-      fullPath: '/matematicas'
-      preLoaderRoute: typeof MatematicasRouteImport
+    '/biblioteca/': {
+      id: '/biblioteca/'
+      path: '/biblioteca'
+      fullPath: '/biblioteca/'
+      preLoaderRoute: typeof BibliotecaIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/biblioteca/$slug': {
       id: '/biblioteca/$slug'
-      path: '/$slug'
+      path: '/biblioteca/$slug'
       fullPath: '/biblioteca/$slug'
       preLoaderRoute: typeof BibliotecaSlugRouteImport
-      parentRoute: typeof BibliotecaRoute
+      parentRoute: typeof rootRouteImport
+    }
+    '/matematicas/': {
+      id: '/matematicas/'
+      path: '/matematicas'
+      fullPath: '/matematicas/'
+      preLoaderRoute: typeof MatematicasIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/matematicas/$slug': {
       id: '/matematicas/$slug'
-      path: '/$slug'
+      path: '/matematicas/$slug'
       fullPath: '/matematicas/$slug'
       preLoaderRoute: typeof MatematicasSlugRouteImport
-      parentRoute: typeof MatematicasRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface BibliotecaRouteChildren {
-  BibliotecaSlugRoute: typeof BibliotecaSlugRoute
-}
-
-const BibliotecaRouteChildren: BibliotecaRouteChildren = {
-  BibliotecaSlugRoute: BibliotecaSlugRoute,
-}
-
-const BibliotecaRouteWithChildren = BibliotecaRoute._addFileChildren(
-  BibliotecaRouteChildren,
-)
-
-interface MatematicasRouteChildren {
-  MatematicasSlugRoute: typeof MatematicasSlugRoute
-}
-
-const MatematicasRouteChildren: MatematicasRouteChildren = {
-  MatematicasSlugRoute: MatematicasSlugRoute,
-}
-
-const MatematicasRouteWithChildren = MatematicasRoute._addFileChildren(
-  MatematicasRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BibliotecaRoute: BibliotecaRouteWithChildren,
   EstudioRoute: EstudioRoute,
   LenguajesRoute: LenguajesRoute,
-  MatematicasRoute: MatematicasRouteWithChildren,
+  BibliotecaSlugRoute: BibliotecaSlugRoute,
+  MatematicasSlugRoute: MatematicasSlugRoute,
+  BibliotecaIndexRoute: BibliotecaIndexRoute,
+  MatematicasIndexRoute: MatematicasIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

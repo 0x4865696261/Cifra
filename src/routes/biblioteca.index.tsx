@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { concepts, threads } from "@/lib/content/concepts";
 import { useReading } from "@/lib/reading";
 
-export const Route = createFileRoute("/biblioteca")({
+export const Route = createFileRoute("/biblioteca/")({
   head: () => ({ meta: [{ title: "Biblioteca — Cifra" }] }),
   component: LibraryPage,
 });
