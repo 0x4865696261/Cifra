@@ -28,7 +28,7 @@ consola limpia en escritorio y móvil.
 ## v2 — Depuración como método
 
 **Objetivo:** que un error deje de ser algo que la IA tapa. Estudio del fallo: qué falló, por qué
-ocurrió, cómo se habría detectado antes y cómo reproducirlo.
+ocurrió, cómo se habría detectado antes y cómo reproducirlo. Poner tu api con cualquier ia osea las mas comunes.
 
 **Qué se construye:**
 
@@ -38,6 +38,7 @@ ocurrió, cómo se habría detectado antes y cómo reproducirlo.
 - Sección de biblioteca sobre leer mensajes de compilador y de runtime en varios lenguajes.
 - La explicación ordeal propón una prueba concretatable: entrada que falla hoy y entrada que
   debería seguir funcionando mañana.
+- Puder poner tu api de openai claude code gemmini etc y ponerlo en ajustes con cualquier ai para explicarlo.
 
 **Criterio de terminación:** un fragmento con fallo y su mensaje producen una guía ordenada con
 hipótesis verificables, no una versión corregida a secas.
