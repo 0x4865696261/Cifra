@@ -7,6 +7,7 @@ const links = [
   { to: "/matematicas", label: "Matemáticas" },
   { to: "/biblioteca", label: "Biblioteca" },
   { to: "/lenguajes", label: "Lenguajes" },
+  { to: "/ajustes", label: "Ajustes" },
 ] as const;
 
 export function Shell({ children }: { children: ReactNode }) {

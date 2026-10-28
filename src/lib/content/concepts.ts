@@ -35,7 +35,7 @@ export const threads: { id: string; title: string; slugs: string[] }[] = [
   {
     id: "alrededor",
     title: "Alrededor del código",
-    slugs: ["funcion-matematica", "compilador", "prueba", "concurrencia"],
+    slugs: ["funcion-matematica", "compilador", "mensaje", "prueba", "concurrencia"],
   },
 ];
 
@@ -260,6 +260,19 @@ export const concepts: Concept[] = [
       "El análisis de Cifra no es un compilador. No comprueba tipos, no ejecuta y no promete que el programa arranque. Mira la forma del texto. Confundir las dos cosas es justo el error que esta plataforma intenta no cometer.",
     ],
     see: ["propiedad-rust", "prueba", "memoria"],
+  },
+  {
+    slug: "mensaje",
+    title: "Mensaje de error",
+    thread: "Alrededor del código",
+    summary: "Un informe del programa que se detuvo. Se lee como un texto, antes de tocar el código.",
+    body: [
+      "Hay dos momentos y conviene distinguirlos. Los mensajes de lectura —un SyntaxError, un error de tipos— llegan antes de ejecutar y hablan de la forma del texto: un paréntesis, un nombre mal escrito, un tipo donde se esperaba otro. Los mensajes de ejecución llegan mientras el programa corre: una pila de llamadas, un índice que no existe, un valor nulo donde hacía falta uno.",
+      "El mensaje nombra la regla violada y suele dar una línea. La línea no es la explicación: es el primer lugar que hay que leer, con lo que hay antes y después. Muchos fallos están una línea más arriba de donde el mensaje les echó la culpa con razón.",
+      "Leer bien un mensaje es un hábito completo: qué dice y qué no garantiza, a qué parte del código apunta, qué entrada pequeña lo reproduciría. Si nadie lo ha mirado de verdad, pegar el error en un buscador no es leer; es delegar. El estudio del fallo existe para practicarlo con ayuda, no para sustituirlo.",
+    ],
+    see: ["compilador", "prueba", "pila-de-llamadas"],
+    also: [{ href: "/estudio", label: "El estudio del fallo, paso a paso" }],
   },
   {
     slug: "prueba",
