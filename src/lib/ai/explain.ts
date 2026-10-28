@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getMathTopic, mathBrief } from "@/lib/content/math";
 import { parseExplanation, type Explanation } from "@/lib/ai/parse";
+import { callModel, cleanApiKey, isProviderId, keyLooksValid, type ProviderId } from "@/lib/ai/providers";
 import {
   composeSkills,
   isSkillId,
@@ -23,9 +24,12 @@ const payloadSchema = z.object({
   code: z.string().max(8000).optional(),
   question: z.string().max(600).optional(),
   selection: z.string().max(24).optional(),
-  facts: z.array(z.string().max(400)).max(16),
+  facts: z.array(z.string().max(400)).max(24),
   skills: z.array(z.string().max(32)).max(8),
   topic: z.string().max(64).optional(),
+  provider: z.string().max(16).optional(),
+  apiKey: z.string().max(400).optional(),
+  model: z.string().max(64).optional(),
 });
 
 const cache = new Map<string, Explanation>();
@@ -49,12 +53,25 @@ export const askCifra = createServerFn({ method: "POST" })
       return { ok: false, error: "Ese puente matemático no está en la plataforma." };
     }
 
-    const apiKey = process.env.XAI_API_KEY;
+    // Una clave propia llega con la petición, se usa en esta llamada y no se guarda.
+    let userKey: { provider: ProviderId; apiKey: string; model: string } | null = null;
+    if (input.apiKey) {
+      const cleaned = cleanApiKey(input.apiKey);
+      if (!input.provider || !isProviderId(input.provider)) {
+        return { ok: false, error: "El proveedor indicado no está en la lista. Revisa los ajustes." };
+      }
+      if (!keyLooksValid(input.provider, cleaned)) {
+        return { ok: false, error: "La clave no tiene la forma esperada para ese proveedor. Revísala en Ajustes." };
+      }
+      userKey = { provider: input.provider, apiKey: cleaned, model: input.model ? cleanApiKey(input.model) : "" };
+    }
+
+    const apiKey = userKey?.apiKey ?? process.env.XAI_API_KEY;
     if (!apiKey) {
       return {
         ok: false,
         error:
-          "La explicación con modelo no está disponible en este entorno. El análisis del texto, si estás en el estudio, no depende de ella.",
+          "Todavía no hay modelo disponible. En Ajustes puedes añadir tu propia clave de xAI, OpenAI, Claude o Gemini. El análisis del texto, si estás en el estudio, no depende de ella.",
       };
     }
 
@@ -85,6 +102,8 @@ export const askCifra = createServerFn({ method: "POST" })
         facts: input.facts,
         skills: chosen,
         topic: topic?.slug ?? "",
+        provider: userKey?.provider ?? "plataforma",
+        model: userKey?.model ?? "",
       }),
     );
     const cached = cache.get(cacheKey);
@@ -118,7 +137,13 @@ export const askCifra = createServerFn({ method: "POST" })
       .join("\n\n");
 
     try {
-      const content = await complete(apiKey, system, user);
+      const content = await callModel(
+        userKey?.provider ?? "xai",
+        apiKey,
+        userKey?.model ?? "",
+        system,
+        user,
+      );
       const explanation = parseExplanation(content);
       if (!explanation) {
         return {
@@ -169,36 +194,9 @@ async function digest(value: string): Promise<string> {
   return [...new Uint8Array(hash)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-async function complete(apiKey: string, system: string, user: string): Promise<string> {
-  const run = () =>
-    fetch("https://api.x.ai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "grok-4.5",
-        temperature: 0.3,
-        max_tokens: 1400,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: user },
-        ],
-      }),
-      signal: AbortSignal.timeout(28000),
-    });
+export type AiStatus = { platformKey: boolean };
 
-  let response = await run();
-  if (response.status === 429 || response.status >= 500) {
-    response = await run();
-  }
-  if (!response.ok) {
-    throw new Error(`Respondió con ${response.status}. No he inventado una explicación.`);
-  }
-  const body = (await response.json()) as {
-    choices?: { message?: { content?: string } }[];
-  };
-  return body.choices?.[0]?.message?.content ?? "";
-}
+/** El estado no revela la clave: solo si existe. */
+export const aiStatus = createServerFn({ method: "GET" }).handler(
+  async (): Promise<AiStatus> => ({ platformKey: Boolean(process.env.XAI_API_KEY) }),
+);

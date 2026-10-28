@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { analyze, isLanguageId, languageIds, languageLabels, type LanguageId } from "@/lib/analyze/structure";
 import { askCifra, type ExplainResult } from "@/lib/ai/explain";
+import { credentials, loadAiSettings } from "@/lib/ai/settings";
 import { ExplanationView } from "@/components/explain/result";
 import { Button } from "@/components/ui/button";
 import { useLevel, levelOptions } from "@/lib/level";
@@ -30,6 +31,7 @@ export function Studio() {
   const [forcedOff, setForcedOff] = useState<SkillId[]>([]);
   const [pending, setPending] = useState(false);
   const [result, setResult] = useState<ExplainResult | null>(null);
+  const settings = useMemo(() => loadAiSettings(), []);
 
   const analysis = useMemo(() => analyze(code, language), [code, language]);
   const lines = code.split(/\r?\n/);
@@ -97,6 +99,7 @@ export function Studio() {
           selection,
           facts: analysis.facts.map((fact) => `L${fact.lines}: ${fact.text}`),
           skills: active,
+          ...credentials(settings),
         },
       });
       setResult(response);
@@ -115,7 +118,7 @@ export function Studio() {
 
   return (
     <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-      <section>
+      <section className="min-w-0">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <label className="flex flex-col gap-2 font-mono text-sm">
             Lenguaje

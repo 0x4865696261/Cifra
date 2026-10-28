@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AjustesRouteImport } from './routes/ajustes'
 import { Route as EstudioRouteImport } from './routes/estudio'
 import { Route as LenguajesRouteImport } from './routes/lenguajes'
 import { Route as BibliotecaIndexRouteImport } from './routes/biblioteca.index'
@@ -20,6 +21,11 @@ import { Route as MatematicasSlugRouteImport } from './routes/matematicas.$slug'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AjustesRoute = AjustesRouteImport.update({
+  id: '/ajustes',
+  path: '/ajustes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EstudioRoute = EstudioRouteImport.update({
@@ -55,6 +61,7 @@ const MatematicasSlugRoute = MatematicasSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ajustes': typeof AjustesRoute
   '/estudio': typeof EstudioRoute
   '/lenguajes': typeof LenguajesRoute
   '/biblioteca/$slug': typeof BibliotecaSlugRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ajustes': typeof AjustesRoute
   '/estudio': typeof EstudioRoute
   '/lenguajes': typeof LenguajesRoute
   '/biblioteca/$slug': typeof BibliotecaSlugRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ajustes': typeof AjustesRoute
   '/estudio': typeof EstudioRoute
   '/lenguajes': typeof LenguajesRoute
   '/biblioteca/$slug': typeof BibliotecaSlugRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ajustes'
     | '/estudio'
     | '/lenguajes'
     | '/biblioteca/$slug'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ajustes'
     | '/estudio'
     | '/lenguajes'
     | '/biblioteca/$slug'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/ajustes'
     | '/estudio'
     | '/lenguajes'
     | '/biblioteca/$slug'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AjustesRoute: typeof AjustesRoute
   EstudioRoute: typeof EstudioRoute
   LenguajesRoute: typeof LenguajesRoute
   BibliotecaSlugRoute: typeof BibliotecaSlugRoute
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ajustes': {
+      id: '/ajustes'
+      path: '/ajustes'
+      fullPath: '/ajustes'
+      preLoaderRoute: typeof AjustesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/estudio': {
@@ -177,6 +197,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AjustesRoute: AjustesRoute,
   EstudioRoute: EstudioRoute,
   LenguajesRoute: LenguajesRoute,
   BibliotecaSlugRoute: BibliotecaSlugRoute,

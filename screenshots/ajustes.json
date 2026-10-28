@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8080/ajustes",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Ajustes — Cifra",
+      "hasCanvas": false,
+      "bodyTextLen": 841,
+      "bodyTextHash": "78869b2b960a94395c4189176f6c151352727088f6a17451b2c4b43fcc1abc4d",
+      "bodyTextPrefix": "Saltar al contenido Cifra Estudio Matemáticas Biblioteca Lenguaj",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "C:\\Users\\User\\Documents\\Dev\\.webs\\Cifra\\screenshots\\ajustes.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Ajustes — Cifra",
+      "hasCanvas": false,
+      "bodyTextLen": 947,
+      "bodyTextHash": "8b76340992481d4d8d157264da908b917a90231b5b329795449985bb5a7cbb96",
+      "bodyTextPrefix": "Saltar al contenido Cifra Estudio Matemáticas Biblioteca Lenguaj",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "C:\\Users\\User\\Documents\\Dev\\.webs\\Cifra\\screenshots\\ajustes-mobile.png"
+    }
+  },
+  "brandWarnings": [
+    "BRAND NOTE: no custom public/og.jpg — the platform will serve the og.grok.me placeholder. Custom cards are the default for games of every kind (DOM board/word games included), whimsical apps, creative tools, and brand-forward pages — only plain utilities (converters, CRUD trackers, admin dashboards) keep the placeholder. If this app is not a plain utility, finish the brand-asset pass per \\workspace\\.grok\\skills\\og\\SKILL.md."
+  ],
+  "authWarnings": [],
+  "verdictFile": "C:\\Users\\User\\Documents\\Dev\\.webs\\Cifra\\screenshots\\ajustes.json"
+}

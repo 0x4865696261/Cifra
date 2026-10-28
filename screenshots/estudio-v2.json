@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8080/estudio",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Estudio — Cifra",
+      "hasCanvas": false,
+      "bodyTextLen": 1947,
+      "bodyTextHash": "781a6b477fed97f92e8d8c467f271cd48b1442833705276e5a0f31cdcce328fa",
+      "bodyTextPrefix": "Saltar al contenido Cifra Estudio Matemáticas Biblioteca Lenguaj",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "C:\\Users\\User\\Documents\\Dev\\.webs\\Cifra\\screenshots\\estudio-v2.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Estudio — Cifra",
+      "hasCanvas": false,
+      "bodyTextLen": 1947,
+      "bodyTextHash": "781a6b477fed97f92e8d8c467f271cd48b1442833705276e5a0f31cdcce328fa",
+      "bodyTextPrefix": "Saltar al contenido Cifra Estudio Matemáticas Biblioteca Lenguaj",
+      "horizontalOverflow": true,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "C:\\Users\\User\\Documents\\Dev\\.webs\\Cifra\\screenshots\\estudio-v2-mobile.png"
+    }
+  },
+  "brandWarnings": [
+    "BRAND NOTE: no custom public/og.jpg — the platform will serve the og.grok.me placeholder. Custom cards are the default for games of every kind (DOM board/word games included), whimsical apps, creative tools, and brand-forward pages — only plain utilities (converters, CRUD trackers, admin dashboards) keep the placeholder. If this app is not a plain utility, finish the brand-asset pass per \\workspace\\.grok\\skills\\og\\SKILL.md."
+  ],
+  "authWarnings": [],
+  "verdictFile": "C:\\Users\\User\\Documents\\Dev\\.webs\\Cifra\\screenshots\\estudio-v2.json"
+}
