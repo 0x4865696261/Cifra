@@ -10,6 +10,61 @@ todavía no existe: no se anuncia y no se deja un botón vacío.
 
 ---
 
+## Skills (conocimiento de trabajo)
+
+Antes de empezar cualquier tarea, lee las skills que correspondan según la tabla.
+
+Las skills viven en `.opencode/skills/<id>/SKILL.md` y explican CÓMO trabajar en cada tipo de
+tarea; este documento sigue siendo la única fuente de verdad del QUÉ. Decisión de instalación:
+carpeta `.opencode/skills/` del proyecto, porque el agente OpenCode descubre de forma nativa esa
+ruta y las carga con su herramienta `skill`; no se ha instalado ninguna skill de terceros (todas se
+han escrito para Cifra, 2026-10-31). Anotación: los ficheros de código citados por las skills se
+contrastaron contra el árbol vigente de la rama `version/0.2.1`; `main` está desfasada respecto a
+ella y las fusiones irán en ese orden (primero el trabajo de 0.2.1, después `chore/skills`).
+
+| Nombre | Cuándo usarla | Ruta |
+|---|---|---|
+| cifra-orientacion | Siempre, la primera, al empezar cualquier sesión | `.opencode/skills/cifra-orientacion/SKILL.md` |
+| cifra-flujo-git | Antes de crear la rama y de cada commit de cualquier tarea | `.opencode/skills/cifra-flujo-git/SKILL.md` |
+| cifra-codigo-profesional | Al escribir, modificar o revisar cualquier fichero de código o contenido | `.opencode/skills/cifra-codigo-profesional/SKILL.md` |
+| cifra-porton-de-calidad | Al cerrar cualquier tarea o versión, y tras cualquier refactor | `.opencode/skills/cifra-porton-de-calidad/SKILL.md` |
+| cifra-contratos-de-datos | Cuando la tarea toca un tipo del apartado 4 (Procedencia, FailureReport, ModelAdapter, ejecución, retos, incidentes) | `.opencode/skills/cifra-contratos-de-datos/SKILL.md` |
+| cifra-explicacion-honesta | Al escribir o modificar prompts y respuestas de la IA de la web, y cualquier guía o explicación de ejemplo | `.opencode/skills/cifra-explicacion-honesta/SKILL.md` |
+| cifra-adaptadores-de-modelo | Al añadir o modificar un proveedor de modelo con ModelAdapter (0.2, 0.6) | `.opencode/skills/cifra-adaptadores-de-modelo/SKILL.md` |
+| cifra-ejecucion-segura | En tareas de la 0.3 (Workers, Pyodide, Rust local, ejecutor de pruebas, trazas) y del endurecimiento (0.9) | `.opencode/skills/cifra-ejecucion-segura/SKILL.md` |
+| cifra-retos-fundamentos | Al escribir o revisar un ChallengeSpec, la prueba de nivel o variantes por semilla (0.4) | `.opencode/skills/cifra-retos-fundamentos/SKILL.md` |
+| cifra-incidentes-sinteticos | Al diseñar un IncidentSpec, la terminal simulada o la evaluación de análisis (0.5) | `.opencode/skills/cifra-incidentes-sinteticos/SKILL.md` |
+| cifra-defensas-ia | Al escribir o cambiar prompts de sistema, validar entradas/salidas del modelo, o montar y pasar la batería de ataques (apartado 7, 0.9) | `.opencode/skills/cifra-defensas-ia/SKILL.md` |
+| cifra-contenido-biblioteca | Al escribir conceptos, hilos, puentes matemáticos o ensayos de lenguajes en src/lib/content (0.7) | `.opencode/skills/cifra-contenido-biblioteca/SKILL.md` |
+| cifra-diseno-y-movimiento | Al crear o tocar pantallas, componentes o animaciones, y al verificar render y a11y (0.4.F, 0.9) | `.opencode/skills/cifra-diseno-y-movimiento/SKILL.md` |
+| cifra-privacidad-y-seguridad | Al tocar claves, logs, servidor, datos personales o dependencias; complementa cifra-flujo-git en la revisión del diff | `.opencode/skills/cifra-privacidad-y-seguridad/SKILL.md` |
+| cifra-diferenciacion-producto | Al cerrar cualquier funcionalidad nueva o cambio de alcance; la lupa de producto | `.opencode/skills/cifra-diferenciacion-producto/SKILL.md` |
+| cifra-sincronia-documental | Al actualizar NOVEDADES.md / NOVEDADES_AI.md, planes de commits y estados de versión o decisiones | `.opencode/skills/cifra-sincronia-documental/SKILL.md` |
+
+Reglas de trabajo permanentes:
+
+1. Al empezar cualquier tarea, lee `cifra-orientacion` y, según el tipo de tarea, las skills
+   que la tabla indique. Antes de cerrar una funcionalidad, pasa la lista de
+   `cifra-diferenciacion-producto`.
+2. Si una skill se queda desactualizada respecto al código o a los documentos, actualizarla
+   es parte de la tarea que provocó el cambio, en el mismo commit o en uno inmediato.
+
+Incoherencias detectadas al crear las skills (se registra aquí para no perderlas):
+
+- `NOVEDADES.md` sitúa el inicio del sistema visual en la 0.3; `NOVEDADES_AI.md` lo sitúa en
+  la 0.4.F. Manda `NOVEDADES_AI.md`; corregir `NOVEDADES.md` es deuda documental.
+- El mapa de versiones usa «hecha» para la 0.1 y la 0.2; la convención acordada es
+  «terminada, pendiente de revisión» hasta contar con revisión, y «hecha (con ampliaciones)»
+  solo cuando se deja por escrito el hueco y su plan (caso 0.2.1).
+- `AGENTS.md` en la raíz contiene instrucciones de una plataforma ajena (sandbox de otra
+  herramienta, despliegue en Vercel, puerto 8080) que no describen Cifra; se ignora en cuanto
+  contradiga a `NOVEDADES_AI.md`.
+- El repositorio incluye infraestructura de plantilla que el plan no usa todavía
+  (`src/lib/auth/`, `src/lib/app-data/`, servidor de otra plataforma): no es funcionalidad de
+  Cifra hasta que una versión diga lo contrario; las skills no la citan.
+
+---
+
 ## 0. Reglas para quien construye (humano o IA)
 
 Estas reglas valen para todas las versiones.
