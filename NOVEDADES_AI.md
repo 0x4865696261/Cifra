@@ -10,6 +10,24 @@ todavía no existe: no se anuncia y no se deja un botón vacío.
 
 ---
 
+## Skills (conocimiento de trabajo)
+
+Antes de empezar cualquier tarea, lee las skills que correspondan según la tabla.
+
+Las skills viven en `.opencode/skills/<id>/SKILL.md` y explican CÓMO trabajar en cada tipo de
+tarea; este documento sigue siendo la única fuente de verdad del QUÉ. Decisión de instalación:
+carpeta `.opencode/skills/` del proyecto, porque el agente OpenCode descubre de forma nativa esa
+ruta y las carga con su herramienta `skill`; no se ha instalado ninguna skill de terceros (todas se
+han escrito para Cifra, 2026-10-31). Anotación: los ficheros de código citados por las skills se
+contrastaron contra el árbol vigente de la rama `version/0.2.1`; `main` está desfasada respecto a
+ella y las fusiones irán en ese orden (primero el trabajo de 0.2.1, después `chore/skills`).
+
+| Nombre | Cuándo usarla | Ruta |
+|---|---|---|
+| cifra-orientacion | Siempre, la primera, al empezar cualquier sesión | `.opencode/skills/cifra-orientacion/SKILL.md` |
+
+---
+
 ## 0. Reglas para quien construye (humano o IA)
 
 Estas reglas valen para todas las versiones.
