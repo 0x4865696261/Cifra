@@ -960,3 +960,29 @@ contrario, y lo anota aquí.
 - **Seguridad perfecta de la IA.** Se reduce el riesgo en capas y se prueba, pero no se promete que
   sea imposible de engañar.
 - **Rendimiento universal.** Una medición es de un equipo y unos límites concretos.
+
+---
+
+## Plan de commits 0.2.1
+
+La 0.2 quedó marcada «hecha» con huecos frente a los apartados 0.2.A–0.2.F y sus pruebas. La
+0.2.1 completa esos huecos antes de empezar la 0.3. Orden de commits, con su estado:
+
+| # | Commit | Estado |
+|---|---|---|
+| — | `docs(novedades): registra el plan de commits de la 0.2.1` | hecha |
+| 1a | `feat(analisis): añade el contrato FailureReport y el análisis local puro` | hecha |
+| 1b | `refactor(estudio): migra el estudio del fallo al contrato FailureReport` | pendiente |
+| 2 | `feat(estudio): límites de entrada 20.000 y 8.000 con aviso en la interfaz` | pendiente |
+| 3 | `feat(estudio): detecta el lenguaje por señales y pregunta si duda` | pendiente |
+| 4 | `feat(modelo): traduce los errores del proveedor a mensajes accionables` | pendiente |
+| 5 | `fix(modelo): versiona las skills en la huella de caché y acota el tope de salida` | pendiente |
+| 6 | `test(analisis): la clave de API no aparece en logs ni respuestas` | pendiente |
+| 7 | `docs(novedades): refleja el estado real de la 0.2` | pendiente |
+
+Reglas de la 0.2.1: un commit por mejora, cada uno deja typecheck, pruebas y build en verde y
+lleva la prueba de la funcionalidad en el mismo commit. La señal «línea nombrada que no existe»
+no entra en el contrato 4.2: la interfaz la deduce comparando `lineasNombradas` con la longitud
+del fragmento. El script `test` de `package.json` lista los ficheros uno a uno y cada fichero de
+prueba nuevo se aclara en el mismo commit que lo crea. Se ignora el aviso no fatal de rolldown
+sobre `module level directive`.
