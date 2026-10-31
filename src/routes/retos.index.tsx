@@ -17,7 +17,7 @@ import type { TestSpec } from "@/lib/ejecucion/tipos";
  * progreso de este navegador. La pantalla de reto vive en `/retos/$id`.
  */
 
-export const Route = createFileRoute("/retos")({
+export const Route = createFileRoute("/retos/")({
   head: () => ({ meta: [{ title: "Retos — Cifra" }] }),
   component: RetosPage,
 });
