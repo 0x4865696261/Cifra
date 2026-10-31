@@ -33,6 +33,7 @@ ella y las fusiones irán en ese orden (primero el trabajo de 0.2.1, después `c
 | cifra-adaptadores-de-modelo | Al añadir o modificar un proveedor de modelo con ModelAdapter (0.2, 0.6) | `.opencode/skills/cifra-adaptadores-de-modelo/SKILL.md` |
 | cifra-ejecucion-segura | En tareas de la 0.3 (Workers, Pyodide, Rust local, ejecutor de pruebas, trazas) y del endurecimiento (0.9) | `.opencode/skills/cifra-ejecucion-segura/SKILL.md` |
 | cifra-retos-fundamentos | Al escribir o revisar un ChallengeSpec, la prueba de nivel o variantes por semilla (0.4) | `.opencode/skills/cifra-retos-fundamentos/SKILL.md` |
+| cifra-incidentes-sinteticos | Al diseñar un IncidentSpec, la terminal simulada o la evaluación de análisis (0.5) | `.opencode/skills/cifra-incidentes-sinteticos/SKILL.md` |
 
 ---
 
