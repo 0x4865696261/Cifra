@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import type { DebugResult } from "@/lib/ai/debug";
 import type { FailureReport } from "@/lib/analyze/failure";
 import { analyzeFailure } from "@/lib/analyze/failure";
+import { detectLanguage, type Deteccion } from "@/lib/analyze/detection";
 import { askDebug } from "@/lib/ai/debug";
 import { excedeLimite, limitesEntrada } from "@/lib/ai/limits";
 import { credentials, modelInUse, loadAiSettings } from "@/lib/ai/settings";
@@ -73,6 +74,14 @@ export function DebugStudio() {
   const analysis = useMemo(() => analyze(code || "", language), [code, language]);
   const report = useMemo(() => analyzeFailure(code || "", errorMessage || "", language), [code, errorMessage, language]);
   const settings = useMemo(() => loadAiSettings(), []);
+  const deteccion = useMemo(
+    () => detectLanguage(code || "", errorMessage || ""),
+    [code, errorMessage],
+  );
+  const hayTexto = Boolean(code.trim() || errorMessage.trim());
+  const avisoDeLenguaje = hayTexto
+    ? avisoSobreLenguaje(deteccion, language)
+    : null;
   const codigoExcedido = excedeLimite(code, limitesEntrada.codigo);
   const mensajeExcedido = excedeLimite(errorMessage, limitesEntrada.mensaje);
   const lines = report.fragmento;
@@ -136,6 +145,11 @@ export function DebugStudio() {
               ))}
             </select>
           </label>
+          {avisoDeLenguaje && (
+            <p className={cn("text-pretty", avisoDeLenguaje.destacado ? "text-copper" : "text-muted")}>
+              {avisoDeLenguaje.texto}
+            </p>
+          )}
           <p className="font-mono text-sm text-muted">{analysis.lineCount} líneas de código</p>
         </div>
 
@@ -315,6 +329,32 @@ function providerLabel(providerId: string): string {
     google: "Gemini",
   };
   return labels[providerId] ?? "tu modelo";
+}
+
+function avisoSobreLenguaje(
+  deteccion: Deteccion,
+  seleccionado: LanguageId,
+): { texto: string; destacado: boolean } | null {
+  const { sugerencia, segura } = deteccion;
+  if (!sugerencia) {
+    return {
+      texto: "No hay señales que basten para detectar el lenguaje. Confírmalo en el selector: no se adivina en silencio.",
+      destacado: true,
+    };
+  }
+  const etiqueta = languageLabels[sugerencia];
+  if (sugerencia === seleccionado) {
+    return segura
+      ? { texto: `Las señales del texto encajan con ${etiqueta}.`, destacado: false }
+      : {
+          texto: `Las señales sugieren ${etiqueta}, pero no bastan para estar seguro. Confírmalo en el selector.`,
+          destacado: true,
+        };
+  }
+  return {
+    texto: `Las señales apuntan a ${etiqueta}, pero el selector está en ${languageLabels[seleccionado]}. Confírmalo: no se adivina en silencio.`,
+    destacado: true,
+  };
 }
 
 function messageFactsDe(report: FailureReport): string[] {
