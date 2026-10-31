@@ -52,7 +52,7 @@ explicaciones honestas y contenido interconectado.
 **Criterio de terminación:** typecheck, pruebas y build en verde; cada pantalla se renderiza con
 consola limpia en escritorio y móvil.
 
-## 0.2 — Depuración como método (hecha)
+## 0.2 — Depuración como método (base hecha; 0.2.1 completada, pendiente de revisión)
 
 **Objetivo:** que un error deje de ser algo que la IA tapa. Estudio del fallo: qué falló, por qué
 ocurrió, cómo se habría detectado antes y cómo reproducirlo.
