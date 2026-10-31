@@ -41,6 +41,7 @@ export type RunResult = {
   pruebas?: TestResult[];
   traza?: TraceStep[];
   trazaTruncada?: boolean;
+  memoriaMBUsada?: number; // 0.3: delta de heap; ausente = no hubo lectura, nunca un corte simulado
   motor: { nombre: string; version: string };
   origen: "ejecucion-real"; // siempre esta cadena: sello de procedencia
 };

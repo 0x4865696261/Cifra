@@ -79,6 +79,57 @@ async function correr(
   );
 }
 
+describe("los límites cortan el programa de JavaScript", () => {
+  it("un bucle sin fin termina por tiempo y el proceso queda entero", async () => {
+    const resultado = await correr(
+      "let vueltas = 0;\nwhile (true) {\n  vueltas = vueltas + 1;\n}\n",
+      { limites: { ...limitesDefecto(), tiempoMs: 300 } },
+    );
+    assert.equal(resultado.estado, "tiempo");
+    assert.ok(resultado.stderr.includes("300 ms"), resultado.stderr);
+    assert.equal(resultado.stdout, "");
+    assert.ok(resultado.duracionMs >= 300, `corte anticipado: ${resultado.duracionMs} ms`);
+    assert.ok(resultado.duracionMs < 5000, `el corte tardó demasiado: ${resultado.duracionMs} ms`);
+    assert.equal(resultado.origen, "ejecucion-real");
+  });
+
+  it("un programa que imprime sin parar acaba en salida-excedida y con la salida recortada", async () => {
+    const resultado = await correr(
+      'while (true) {\n  console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");\n}\n',
+      { limites: { ...limitesDefecto(), salidaKB: 4 } },
+    );
+    assert.equal(resultado.estado, "salida-excedida");
+    assert.equal(resultado.codigoSalida, 1);
+    assert.ok(resultado.stderr.includes("4 KB"), resultado.stderr);
+    assert.ok(resultado.stdout.length <= 4 * 1024, `salida sin recortar: ${resultado.stdout.length}`);
+    assert.ok(resultado.stdout.length > 0, "no se conservó nada de la salida previa");
+  });
+
+  it("el programa que reserva memoria sin parar se corta y no se inventa un límite de heap", async () => {
+    const resultado = await correr(
+      "let bolsa = [];\nwhile (true) {\n  bolsa.push(bolsa.length);\n}\n",
+      { limites: { ...limitesDefecto(), tiempoMs: 300 } },
+    );
+    // En Node no hay performance.memory: el corte real es por tiempo y memoriaMBUsada se
+    // queda ausente (0.3.B: no se simula). En Chrome con heap medible, el mismo programa
+    // acabaría en estado "memoria" si el delta supera el tope.
+    assert.ok(resultado.estado === "tiempo" || resultado.estado === "memoria", resultado.estado);
+    assert.equal(resultado.memoriaMBUsada, undefined);
+    assert.equal(resultado.origen, "ejecucion-real");
+  });
+
+  it("la traza que pasa del tope de pasos queda marcada como truncada", async () => {
+    const resultado = await correr(
+      "let suma = 0;\nfor (let i = 0; i < 100; i++) {\n  suma = suma + i;\n}\nconsole.log(suma);\n",
+      { trazar: true, limites: { ...limitesDefecto(), pasosTraza: 50 } },
+    );
+    assert.equal(resultado.estado, "ok");
+    assert.equal(resultado.stdout, "4950\n");
+    assert.equal(resultado.trazaTruncada, true);
+    assert.ok(resultado.traza && resultado.traza.length === 50, `pasos: ${resultado.traza?.length}`);
+  });
+});
+
 describe("motor de JavaScript en Worker", () => {
   it("corre un programa feliz: salida, sello y motor con versión", async () => {
     const resultado = await correr(
