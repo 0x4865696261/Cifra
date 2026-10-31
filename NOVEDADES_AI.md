@@ -41,6 +41,28 @@ ella y las fusiones irán en ese orden (primero el trabajo de 0.2.1, después `c
 | cifra-diferenciacion-producto | Al cerrar cualquier funcionalidad nueva o cambio de alcance; la lupa de producto | `.opencode/skills/cifra-diferenciacion-producto/SKILL.md` |
 | cifra-sincronia-documental | Al actualizar NOVEDADES.md / NOVEDADES_AI.md, planes de commits y estados de versión o decisiones | `.opencode/skills/cifra-sincronia-documental/SKILL.md` |
 
+Reglas de trabajo permanentes:
+
+1. Al empezar cualquier tarea, lee `cifra-orientacion` y, según el tipo de tarea, las skills
+   que la tabla indique. Antes de cerrar una funcionalidad, pasa la lista de
+   `cifra-diferenciacion-producto`.
+2. Si una skill se queda desactualizada respecto al código o a los documentos, actualizarla
+   es parte de la tarea que provocó el cambio, en el mismo commit o en uno inmediato.
+
+Incoherencias detectadas al crear las skills (se registra aquí para no perderlas):
+
+- `NOVEDADES.md` sitúa el inicio del sistema visual en la 0.3; `NOVEDADES_AI.md` lo sitúa en
+  la 0.4.F. Manda `NOVEDADES_AI.md`; corregir `NOVEDADES.md` es deuda documental.
+- El mapa de versiones usa «hecha» para la 0.1 y la 0.2; la convención acordada es
+  «terminada, pendiente de revisión» hasta contar con revisión, y «hecha (con ampliaciones)»
+  solo cuando se deja por escrito el hueco y su plan (caso 0.2.1).
+- `AGENTS.md` en la raíz contiene instrucciones de una plataforma ajena (sandbox de otra
+  herramienta, despliegue en Vercel, puerto 8080) que no describen Cifra; se ignora en cuanto
+  contradiga a `NOVEDADES_AI.md`.
+- El repositorio incluye infraestructura de plantilla que el plan no usa todavía
+  (`src/lib/auth/`, `src/lib/app-data/`, servidor de otra plataforma): no es funcionalidad de
+  Cifra hasta que una versión diga lo contrario; las skills no la citan.
+
 ---
 
 ## 0. Reglas para quien construye (humano o IA)
