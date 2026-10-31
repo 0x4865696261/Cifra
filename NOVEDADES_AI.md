@@ -28,6 +28,7 @@ ella y las fusiones irán en ese orden (primero el trabajo de 0.2.1, después `c
 | cifra-flujo-git | Antes de crear la rama y de cada commit de cualquier tarea | `.opencode/skills/cifra-flujo-git/SKILL.md` |
 | cifra-codigo-profesional | Al escribir, modificar o revisar cualquier fichero de código o contenido | `.opencode/skills/cifra-codigo-profesional/SKILL.md` |
 | cifra-porton-de-calidad | Al cerrar cualquier tarea o versión, y tras cualquier refactor | `.opencode/skills/cifra-porton-de-calidad/SKILL.md` |
+| cifra-contratos-de-datos | Cuando la tarea toca un tipo del apartado 4 (Procedencia, FailureReport, ModelAdapter, ejecución, retos, incidentes) | `.opencode/skills/cifra-contratos-de-datos/SKILL.md` |
 
 ---
 
