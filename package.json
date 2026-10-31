@@ -16,7 +16,7 @@
     "preview:stop": "node scripts/preview.mjs stop",
     "typecheck": "tsc --noEmit",
     "check:auth": "node scripts/check-auth-invariant.mjs",
-    "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts src/lib/preview-path-prefix.test.ts src/lib/analyze/failure.test.ts src/lib/ai/debug-parse.test.ts src/lib/ai/limits.test.ts src/lib/analyze/detection.test.ts src/lib/ai/providers.test.ts src/lib/ai/guia-cache.test.ts src/lib/ai/secret.test.ts src/lib/ejecucion/limites.test.ts src/lib/ejecucion/traza.test.ts src/lib/ejecucion/instrumentar.test.ts src/lib/ejecucion/motor-javascript.test.ts src/lib/ejecucion/pruebas.test.ts src/lib/ejecucion/motor-python.test.ts src/lib/ejecucion/mediciones.test.ts",
+    "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts src/lib/preview-path-prefix.test.ts src/lib/analyze/failure.test.ts src/lib/ai/debug-parse.test.ts src/lib/ai/limits.test.ts src/lib/analyze/detection.test.ts src/lib/ai/providers.test.ts src/lib/ai/guia-cache.test.ts src/lib/ai/secret.test.ts src/lib/ejecucion/limites.test.ts src/lib/ejecucion/traza.test.ts src/lib/ejecucion/instrumentar.test.ts src/lib/ejecucion/motor-javascript.test.ts src/lib/ejecucion/pruebas.test.ts src/lib/ejecucion/motor-python.test.ts src/lib/ejecucion/mediciones.test.ts src/lib/ejecucion/motor-rust.test.ts",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
