@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { afterEach, describe, it } from "node:test";
 import { callModel, FalloProveedor, providers, traducirError, type ProviderId } from "./providers.ts";
+import { topeSalidaTokens } from "./limits.ts";
 
 const fetchOriginal = globalThis.fetch;
 
@@ -98,3 +99,34 @@ describe("callModel y traducirError, por proveedor y por caso", () => {
     assert.match(urlPedida, /:generateContent$/);
   });
 });
+
+describe("tope de salida por petición", () => {
+  for (const { id, label } of providers) {
+    it(`${label} pide como mucho topeSalidaTokens`, async () => {
+      let cuerpo = "";
+      globalThis.fetch = respuestaConCuerpoCapturado((capturado) => {
+        cuerpo = capturado;
+      }, id);
+      await llamadas[id]();
+      const peticion = JSON.parse(cuerpo) as Record<string, unknown>;
+      const tope = peticion.max_tokens ?? (peticion.generationConfig as Record<string, unknown>).maxOutputTokens;
+      assert.equal(tope, topeSalidaTokens);
+    });
+  }
+});
+
+function respuestaConCuerpoCapturado(
+  capturar: (cuerpo: string) => void,
+  proveedor: ProviderId,
+): typeof fetch {
+  const responseBodies: Record<ProviderId, string> = {
+    xai: '{"choices": [{"message": {"content": "{}"}}]}',
+    openai: '{"choices": [{"message": {"content": "{}"}}]}',
+    anthropic: '{"content": [{"text": "{}"}]}',
+    google: '{"candidates": [{"content": {"parts": [{"text": "{}"}]}}]}',
+  };
+  return (async (url: string | URL, init: RequestInit) => {
+    capturar(String(init.body));
+    return new Response(responseBodies[proveedor], { status: 200 });
+  }) as unknown as typeof fetch;
+}

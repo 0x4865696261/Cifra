@@ -4,6 +4,8 @@
  * servidor puede aportar la suya de plataforma.
  */
 
+import { topeSalidaTokens } from "./limits.ts";
+
 export type ProviderId = "xai" | "openai" | "anthropic" | "google";
 
 export type ProviderInfo = {
@@ -80,7 +82,7 @@ export async function callModel(
       }, {
         model: modelId,
         temperature: 0.3,
-        max_tokens: 1400,
+        max_tokens: topeSalidaTokens,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: system },
@@ -96,7 +98,7 @@ export async function callModel(
         "Content-Type": "application/json",
       }, {
         model: modelId,
-        max_tokens: 1400,
+        max_tokens: topeSalidaTokens,
         temperature: 0.3,
         system,
         messages: [{ role: "user", content: user }],
@@ -113,7 +115,7 @@ export async function callModel(
       contents: [{ role: "user", parts: [{ text: user }] }],
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 1400,
+        maxOutputTokens: topeSalidaTokens,
         responseMimeType: "application/json",
       },
     }, (body) =>

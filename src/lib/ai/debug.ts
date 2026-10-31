@@ -4,6 +4,7 @@ import { parseDebugGuide, type GuiaDeDepuracion } from "@/lib/ai/debug-parse";
 import { callModel, cleanApiKey, isProviderId, keyLooksValid, type ProviderId } from "@/lib/ai/providers";
 import { composeSkills, lockedSkills } from "@/lib/skills/registry";
 import { limitesEntrada } from "@/lib/ai/limits";
+import { guardarGuiaEnCache, guiaEnCache, huellaDeGuia, type EntradaDeGuia } from "@/lib/ai/guia-cache";
 
 export type { GuiaDeDepuracion };
 
@@ -24,7 +25,6 @@ const payloadSchema = z.object({
   model: z.string().max(64).optional(),
 });
 
-const cache = new Map<string, GuiaDeDepuracion>();
 const hits = new Map<string, number[]>();
 const WINDOW_MS = 10 * 60 * 1000;
 const IP_LIMIT = 8;
@@ -75,20 +75,18 @@ export const askDebug = createServerFn({ method: "POST" })
       };
     }
 
-    const cacheKey = await digest(
-      JSON.stringify({
-        level: input.level,
-        language: input.language ?? "",
-        code: input.code,
-        errorMessage: input.errorMessage,
-        question: input.question ?? "",
-        codeFacts: input.codeFacts,
-        messageFacts: input.messageFacts,
-        provider: userKey?.provider ?? "plataforma",
-        model: userKey?.model ?? "",
-      }),
-    );
-    const cached = cache.get(cacheKey);
+    const cacheKey = await huellaDeGuia({
+      level: input.level,
+      language: input.language ?? "",
+      code: input.code,
+      errorMessage: input.errorMessage,
+      question: input.question ?? "",
+      codeFacts: input.codeFacts,
+      messageFacts: input.messageFacts,
+      provider: userKey?.provider ?? "plataforma",
+      model: userKey?.model ?? "",
+    } satisfies EntradaDeGuia);
+    const cached = guiaEnCache(cacheKey);
     if (cached) return { ok: true, guide: cached, cached: true };
 
     const system = [
@@ -130,7 +128,7 @@ export const askDebug = createServerFn({ method: "POST" })
           raw: content.slice(0, 1500),
         };
       }
-      remember(cacheKey, guide);
+      guardarGuiaEnCache(cacheKey, guide);
       return { ok: true, guide, cached: false };
     } catch (error) {
       const message = error instanceof Error ? error.message : "fallo desconocido";
@@ -148,18 +146,4 @@ function allow(key: string, limit: number): boolean {
   recent.push(now);
   hits.set(key, recent);
   return true;
-}
-
-function remember(key: string, guide: GuiaDeDepuracion) {
-  cache.set(key, guide);
-  if (cache.size > 32) {
-    const oldest = cache.keys().next().value;
-    if (oldest) cache.delete(oldest);
-  }
-}
-
-async function digest(value: string): Promise<string> {
-  const data = new TextEncoder().encode(value);
-  const hash = await crypto.subtle.digest("SHA-256", data);
-  return [...new Uint8Array(hash)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }

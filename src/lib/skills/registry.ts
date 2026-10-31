@@ -115,3 +115,10 @@ export function composeSkills(ids: SkillId[]): string {
     .map((id) => `## ${skills[id].name}\n${skills[id].instruction}`)
     .join("\n\n");
 }
+
+/**
+ * La huella de la caché del estudio lleva la versión de las skills: si cambia
+ * su texto, la respuesta guardada ya no representa a la guía vigente. Se
+ * incrementa con cualquier cambio en las instrucciones.
+ */
+export const versionSkills = 1;
