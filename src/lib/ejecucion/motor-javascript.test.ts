@@ -1,60 +1,17 @@
 import assert from "node:assert/strict";
 import { after, describe, it } from "node:test";
-import { Worker } from "node:worker_threads";
-import { codigoWorker } from "./worker-javascript.ts";
-import { correrPorTransporte, type Transporte } from "./motor-javascript.ts";
+import { correrPorTransporte } from "./motor-javascript.ts";
 import { instrumentar } from "./instrumentar.ts";
 import { limitesDefecto } from "./limites.ts";
+import { liberarHilos, transporteHilo } from "./hiloPrueba.ts";
 import type { RunRequest } from "./tipos.ts";
 
 /**
- * Las pruebas corren la MISMA fuente que la web corre en el Worker del navegador, dentro de
- * un Worker real de Node (worker_threads con eval). El shim adapta el objeto `self`: nada de
- * resultados simulados, todo lo que aquí pasa es ejecución de verdad en otro hilo.
- *
- * Lo que Node no da: la lectura de heap (`performance.memory`), así que el límite de memoria
- * queda en «no se pudo medir» — y así se comprueba también aquí: ausente, no inventado.
+ * Las pruebas del motor usan el arnés común (hiloPrueba.ts): la misma fuente que la web corre
+ * en el Worker del navegador, evaluada en un Worker real de Node. Nada de resultados simulados.
  */
 
-const hilos: Array<Worker> = [];
-
-after(async () => {
-  await Promise.all(hilos.map((hilo) => hilo.terminate()));
-});
-
-function transporteHilo(): () => Transporte {
-  return () => {
-    const fuente = `const { parentPort } = require("worker_threads");
-var self = {
-  postMessage: function (m) { parentPort.postMessage(m); },
-  setTimeout: function () { return 0; },
-  setInterval: function () { return 0; },
-  clearTimeout: function () {},
-  clearInterval: function () {}
-};
-parentPort.on("message", function (mensaje) {
-  try {
-    self.onmessage(mensaje);
-  } catch (error) {
-    parentPort.postMessage({ tipo: "cifra-fallo", aviso: String(error && error.stack || error) });
-  }
-});
-${codigoWorker()}`;
-    const worker = new Worker(fuente, { eval: true });
-    worker.unref(); // el hilo no mantiene la prueba viva: la corta el propio motor
-    hilos.push(worker);
-    return {
-      enviar: (mensaje) => worker.postMessage(mensaje),
-      terminar: () => worker.terminate(),
-      alResultado: (observador) => {
-        worker.on("message", (mensaje) => observador(mensaje));
-      },
-      alFallo: (observador) => {
-        worker.on("error", (error) => observador(String(error)));
-      },
-    };
-  };
-}
+after(() => liberarHilos());
 
 function solicitud(codigo: string, extra: Partial<RunRequest> = {}): RunRequest {
   return {

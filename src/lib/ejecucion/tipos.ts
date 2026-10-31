@@ -30,6 +30,7 @@ export type TestSpec = {
   esperado: unknown;
   tipo: "salida" | "retorno" | "propiedad";
   visible: boolean; // las no visibles no se muestran antes de entregar
+  tolerancia?: number; // 0.3: diferencia máxima para números con decimales; ausente = igualdad estricta
 };
 
 export type RunResult = {

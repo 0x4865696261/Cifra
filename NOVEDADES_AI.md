@@ -242,6 +242,7 @@ type TestSpec = {
   esperado: unknown;
   tipo: "salida" | "retorno" | "propiedad";
   visible: boolean;           // las no visibles no se muestran antes de entregar
+  tolerancia?: number;        // 0.3: diferencia máxima para números con decimales; ausente = igualdad estricta
 };
 
 type TestResult = { id: string; pasada: boolean; obtenido?: unknown; esperado?: unknown; error?: string };
@@ -1054,7 +1055,13 @@ seguir ignorando el aviso no fatal de rolldown sobre `module level directive`.
   se dice en la salida que quedó trabajo sin correr.
 - **El ejecutor de pruebas** soporta tipo `salida` (compara lo escrito en la salida) y `retorno` /
   `propiedad` (el código debe acabar en una expresión que se evalúa; `propiedad` espera un
-  booleano). Las pruebas de Rust quedan para cuando existan retos que las exijan (0.4): ahí se
+  booleano). `TestSpec` lleva `tolerancia?: number` para números con decimales: la comparación
+  vive en un único sitio (`sonIguales` en `pruebas.ts`), igualdad estricta cuando no hay
+  tolerancia. `retorno` y `propiedad` se evalúan con el valor de finalización de `eval` en el
+  Worker (el mismo entorno aislado); la salida del programa queda capturada por el mismo canal.
+  Cada prueba corre en su propia corrida con sus propios límites: el fallo o el bucle sin fin
+  de una no tumba al resto.
+- Las pruebas de Rust quedan para cuando existan retos que las exijan (0.4): ahí se
   deciden las entradas por stdin.
 - **Claves de comparación de medición**: descartar 2 corridas de calentamiento, correr 10 válidas,
   mediana y mediana de desviaciones absolutas (MAD). Solo se declara que una versión es más rápida

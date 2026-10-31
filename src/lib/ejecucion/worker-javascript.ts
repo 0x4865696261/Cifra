@@ -180,14 +180,27 @@ self.onmessage = function (evento) {
   var estado = "ok";
   var codigoSalida = 0;
   var stderr = "";
+  // 0.3.D: en los tipos "retorno" y "propiedad" el código acaba en una expresión; el valor de
+  // finalización de eval la devuelve. La salida sale por el mismo captador de consola; la red
+  // ya está bloqueada y el corte por salida también rige aquí.
+  var capturarValor = !!mensaje.capturarValor;
+  var valorDevuelto;
+  var tipoValor;
 
   try {
-    // Si el código ya usa el prefijo del instrumento, se compila sin el parámetro: declarar un
-    // propio _cifra chocaría con el parámetro y sería un error temprano de sintaxis.
-    var cuerpo = mensaje.sinInstrumento
-      ? new Function("console", solicitud.codigo)
-      : new Function("_cifra", "console", solicitud.codigo);
-    cuerpo(mensaje.sinInstrumento ? consolaLocal : instrumento, consolaLocal);
+    if (capturarValor) {
+      var console = consolaLocal;
+      var resultadoDeEval = eval(solicitud.codigo);
+      tipoValor = typeof resultadoDeEval;
+      valorDevuelto = aTexto(resultadoDeEval, 4000);
+    } else {
+      // Si el código ya usa el prefijo del instrumento, se compila sin el parámetro: declarar un
+      // propio _cifra chocaría con el parámetro y sería un error temprano de sintaxis.
+      var cuerpo = mensaje.sinInstrumento
+        ? new Function("console", solicitud.codigo)
+        : new Function("_cifra", "console", solicitud.codigo);
+      cuerpo(mensaje.sinInstrumento ? consolaLocal : instrumento, consolaLocal);
+    }
   } catch (excepcion) {
     if (excepcion && excepcion.esCorteDeSalida) {
       estado = "salida-excedida";
@@ -236,6 +249,8 @@ self.onmessage = function (evento) {
     traza: trazar ? pasos : undefined,
     trazaTruncada: trazar ? trazaTruncada : undefined,
     memoriaMBUsada: memoriaMBUsada,
+    valorDevuelto: capturarValor ? valorDevuelto : undefined,
+    tipoValor: capturarValor ? tipoValor : undefined,
     motor: motorActual()
   };
   self.postMessage({ tipo: "cifra-resultado", resultado: resultado });

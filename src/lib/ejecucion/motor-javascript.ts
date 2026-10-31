@@ -39,7 +39,7 @@ export async function ejecutarJavaScript(solicitud: RunRequest): Promise<RunResu
   const instrumentado = instrumentar(solicitud.codigo, { trazar: solicitud.trazar ?? false });
   const url = URL.createObjectURL(new Blob([codigoWorker()], { type: "text/javascript" }));
   try {
-    return await correrPorTransporte(transporteWorker(url), solicitud, instrumentado.codigo, !instrumentado.instrumentable);
+    return await correrPorTransporte(transporteWorker(url), solicitud, instrumentado.codigo, !instrumentado.instrumentable, false);
   } finally {
     URL.revokeObjectURL(url);
   }
@@ -51,6 +51,7 @@ export function correrPorTransporte(
   solicitud: RunRequest,
   codigoAEnviar: string,
   sinInstrumento = false,
+  capturarValor = false,
 ): Promise<RunResult> {
   return new Promise((resolver) => {
     const limite = solicitud.limites;
@@ -89,6 +90,7 @@ export function correrPorTransporte(
       tipo: "cifra-ejecutar",
       topeValorTraza,
       sinInstrumento,
+      capturarValor,
       solicitud: { ...solicitud, codigo: codigoAEnviar },
     });
   });
