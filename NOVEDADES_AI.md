@@ -30,6 +30,7 @@ ella y las fusiones irán en ese orden (primero el trabajo de 0.2.1, después `c
 | cifra-porton-de-calidad | Al cerrar cualquier tarea o versión, y tras cualquier refactor | `.opencode/skills/cifra-porton-de-calidad/SKILL.md` |
 | cifra-contratos-de-datos | Cuando la tarea toca un tipo del apartado 4 (Procedencia, FailureReport, ModelAdapter, ejecución, retos, incidentes) | `.opencode/skills/cifra-contratos-de-datos/SKILL.md` |
 | cifra-explicacion-honesta | Al escribir o modificar prompts y respuestas de la IA de la web, y cualquier guía o explicación de ejemplo | `.opencode/skills/cifra-explicacion-honesta/SKILL.md` |
+| cifra-adaptadores-de-modelo | Al añadir o modificar un proveedor de modelo con ModelAdapter (0.2, 0.6) | `.opencode/skills/cifra-adaptadores-de-modelo/SKILL.md` |
 
 ---
 
