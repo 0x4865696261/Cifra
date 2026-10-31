@@ -75,7 +75,7 @@ ocurrió, cómo se habría detectado antes y cómo reproducirlo.
 **Criterio de terminación:** un fragmento con fallo y su mensaje producen una guía ordenada con
 hipótesis verificables, no una versión corregida a secas.
 
-## 0.3 — Ejecutar con seguridad
+## 0.3 — Ejecutar con seguridad (hecha en la rama `version/0.3`; pendiente de revisión y fusión)
 
 **Objetivo:** pasar de leer el texto a ver el programa correr, sin mentir sobre lo que se ejecuta.
 Es la base de todos los retos.
@@ -84,7 +84,8 @@ Es la base de todos los retos.
 
 - Entorno de ejecución aislado y acotado. Primero WebAssembly para JavaScript y Python, con límites
   de tiempo y memoria. Los lenguajes compilados (Rust incluido) se ejecutan en local dentro de un
-  proceso aislado con límites, solo en la máquina de quien usa Cifra.
+  proceso aislado con límites, solo en la máquina de quien desarrolla, con la llave
+  `CIFRA_RUST_LOCAL` encendida; nunca en la web publicada.
 - Ejecutor de pruebas: un conjunto de pruebas fijas que se corre contra el código de la persona y
   devuelve un resultado estructurado (qué pasó, qué falló, con qué entrada). **El veredicto de un
   reto sale de aquí, no de la IA.**
