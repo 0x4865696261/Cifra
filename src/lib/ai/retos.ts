@@ -56,6 +56,7 @@ const payloadDefensa = z.object({
   codigo: z.string().max(limitesEntrada.codigo),
   preguntas: z.array(z.string().min(1).max(600)).min(1).max(2),
   respuestas: z.array(z.string().max(4000)).min(1).max(2),
+  señales: z.array(senalSchema).max(20).optional(),
   provider: z.string().max(16).optional(),
   apiKey: z.string().max(400).optional(),
   model: z.string().max(64).optional(),
@@ -237,6 +238,9 @@ export const defenderSolucion = createServerFn({ method: "POST" })
     const user = [
       `Enunciado del reto:\n${input.enunciado}`,
       `Código entregado (el de la persona, tal cual):\n${input.codigo}`,
+      input.señales?.length
+        ? `Notas de cómo trabajó esta persona en el editor (contexto, no acusación): ${input.señales.map((senal) => `${senal.tipo}: ${senal.detalle}`).join("; ")}.`
+        : "",
       ...input.preguntas.map((pregunta, i) => {
         const respuesta = input.respuestas[i];
         return `Pregunta ${i + 1} (del reto, no tuya): ${pregunta}\nRespuesta de la persona: ${respuesta.trim() === "" ? "(vacía — ¿respondió de verdad?)" : respuesta}`;
