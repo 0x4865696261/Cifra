@@ -1149,3 +1149,41 @@ Notas de la 0.4 tomadas al empezar (usa las propuestas de §8):
 - La prueba de nivel usa 8 retos breves propios (uno por tramo, dificultad creciente) y el
   nivel estimado sale del último tramo superado sin saltarse ninguno.
 
+### El estado real de la 0.4
+
+La 0.4 cierra con las diez tareas del plan de commits hechas y typecheck, pruebas y build en
+verde (304 pruebas: 302 pasan, 2 se saltan por falta de `cargo`, como en la 0.3). Auditoría de
+lo que quedó:
+
+- **Dónde vive cada cosa.** Datos por persona: `src/lib/retos/semilla.ts` (hash FNV y generador
+  determinista) y `instanciaReto` en `src/lib/retos/retos.ts` (variante por persona, `lenguajes:
+  ["javascript"]`). Progreso: `src/lib/retos/progreso.ts` (estado por reto, `umbralProfesional`,
+  export/import) con su gancho `use-progreso.ts`. Señales: `src/lib/retos/integridad.ts` +
+  `use-senales.ts`. Contenido: los 15 retos con pruebas en `src/lib/retos/contenido/retos.ts`,
+  la prueba de nivel (8 tramos) en `src/lib/retos/prueba-nivel.ts`. IA: `src/lib/ai/retos.ts`
+  (funciones de servidor `explicarVeredicto` y `defenderSolucion`) sobre el contrato puro
+  `src/lib/ai/retos-parse.ts`. Interfaz: `src/routes/retos.index.tsx` (dos caminos, tablero y
+  prueba de nivel), `src/routes/retos.$id.tsx` (pantalla de reto con fases derivadas), 
+  `src/components/retos/entrega.tsx` (editor + corrida) y el puente al estudio con
+  `sessionStorage` (`cifra.fallo-estudio`), consumido por `/estudio`.
+- **El veredicto no lo da el modelo (0.4.C/D).** Sale de `todasPasadas` sobre la corrida real del
+  ejecutor; `explicarVeredicto` solo lo lee y `defenderSolucion` solo juzga si se entiende. Un
+  JSON del modelo que intente declarar veredicto o resultado se rechaza entero, y es prueba
+  propia («modelo no aprueba código que falla»).
+- **La fase del reto se deriva, no se apila**: sin superación reciente → resolver; superación
+  reciente con estado pendiente → defensa; superación reciente de un reto ya guardado → hecho,
+  sin volver a defensas ni marcas. El plan profesional no se elige: se gana (umbral 5, prueba de
+  nivel o reto de nivel 5+), y Ajustes permite cambiarlo sin borrar progreso.
+- **Extra del plan, encontrado en QA**: la primera pantalla de reto (`/retos/bucles-dos`)
+  mostraba el tablero porque `retos.tsx` era un layout sin `<Outlet />` que tapaba a la hija
+  `/retos/$id`; quedó como `retos.index.tsx`, igual que `biblioteca` y `matematicas`
+  (`5195178 fix(retos): la pantalla de reto responde a /retos/$id`).
+- **Lo que la web demuestra en el navegador** (Playwright, `scripts/qa-retos.mjs`, contra el
+  servidor de desarrollo, con capturas en `screenshots/`): la entrada con los dos caminos, el
+  tablero con los 15 retos, resolver `bucles-dos` hasta el veredicto real de pruebas pasadas, la
+  defensa con su marca honesta (repaso sin modelo), la prueba de nivel pasando del tramo 1 al
+  tramo 2, y el progreso pintado en Ajustes. La humo (`scripts/browser-smoke.mjs`) no ve errores
+  de consola en escritorio ni en móvil.
+- **Queda para después de esta versión**: la petición de fusión a `main` (la rama ya está
+  empujada y los commits firmados; la 0.3 sigue pendiente de revisión).
+
