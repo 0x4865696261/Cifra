@@ -7,7 +7,7 @@ import {
   marcarSuperado,
   progresoInicial,
   type Progreso,
-} from "./progreso";
+} from "./progreso.ts";
 import type { Plan } from "./tipos";
 
 /**
@@ -83,6 +83,14 @@ export function useProgreso() {
     [actualizar],
   );
 
+  /** La importación (0.4.E) reemplaza el progreso entero por uno validado fuera. */
+  const reemplazar = useCallback(
+    (nuevo: Progreso) => {
+      actualizar(() => nuevo);
+    },
+    [actualizar],
+  );
+
   return {
     progreso,
     cargado,
@@ -90,5 +98,6 @@ export function useProgreso() {
     registrarPruebaNivel,
     elegirPlan,
     proponerRepaso,
+    reemplazar,
   };
 }
