@@ -4,6 +4,7 @@ import type { DebugResult } from "@/lib/ai/debug";
 import type { FailureReport } from "@/lib/analyze/failure";
 import { analyzeFailure } from "@/lib/analyze/failure";
 import { askDebug } from "@/lib/ai/debug";
+import { excedeLimite, limitesEntrada } from "@/lib/ai/limits";
 import { credentials, modelInUse, loadAiSettings } from "@/lib/ai/settings";
 import { analyze, isLanguageId, languageIds, languageLabels, type LanguageId } from "@/lib/analyze/structure";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,8 @@ export function DebugStudio() {
   const analysis = useMemo(() => analyze(code || "", language), [code, language]);
   const report = useMemo(() => analyzeFailure(code || "", errorMessage || "", language), [code, errorMessage, language]);
   const settings = useMemo(() => loadAiSettings(), []);
+  const codigoExcedido = excedeLimite(code, limitesEntrada.codigo);
+  const mensajeExcedido = excedeLimite(errorMessage, limitesEntrada.mensaje);
   const lines = report.fragmento;
   const lineasSinFragmento = report.mensaje.lineasNombradas.filter(
     (linea) => linea > lines.length,
@@ -163,6 +166,10 @@ export function DebugStudio() {
             placeholder="Pega el fragmento. Mejor con líneas numerables tal como las muestran tu editor y tu error."
             className="min-h-40 w-full border border-line bg-paper p-3 font-mono text-sm leading-6 text-ink"
           />
+          <p className={cn("font-mono text-sm", codigoExcedido ? "text-copper" : "text-muted")}>
+            {code.length} de {limitesEntrada.codigo} caracteres
+            {codigoExcedido && ": te pasas. Acorta o parte el fragmento: no se envía hasta que quepa."}
+          </p>
         </label>
         <label className="mt-4 flex flex-col gap-2 font-mono text-sm">
           Mensaje del error
@@ -179,6 +186,10 @@ export function DebugStudio() {
             placeholder="Pega el texto completo: traza, tipo y línea. Copiado en limpio, no resumido."
             className="min-h-32 w-full border border-line bg-paper p-3 font-mono text-sm leading-6 text-ink"
           />
+          <p className={cn("font-mono text-sm", mensajeExcedido ? "text-copper" : "text-muted")}>
+            {errorMessage.length} de {limitesEntrada.mensaje} caracteres
+            {mensajeExcedido && ": te pasas. Recorta la pila repetida: no se envía hasta que quepa."}
+          </p>
         </label>
 
         {code.trim() && (
@@ -259,7 +270,7 @@ export function DebugStudio() {
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             rows={3}
-            maxLength={600}
+            maxLength={limitesEntrada.pregunta}
             className="w-full border border-line bg-paper p-3 font-serif text-base text-ink"
             placeholder="Opcional: «mira la línea 6, no entiendo por qué ahí»."
           />
@@ -269,7 +280,12 @@ export function DebugStudio() {
           Skill fija en la guía: <span className="text-ink">Depuración</span>, junto a Pedagogía y Análisis.
         </p>
 
-        <Button tone="primary" className="mt-6 w-full" disabled={pending || !code.trim() || !errorMessage.trim()} onClick={() => void submit()}>
+        <Button
+          tone="primary"
+          className="mt-6 w-full"
+          disabled={pending || !code.trim() || !errorMessage.trim() || codigoExcedido || mensajeExcedido}
+          onClick={() => void submit()}
+        >
           {pending ? "Conduciendo el análisis…" : "Estudiar este fallo"}
         </Button>
         <p className="mt-2 font-mono text-sm text-muted">

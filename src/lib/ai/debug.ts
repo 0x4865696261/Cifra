@@ -3,6 +3,7 @@ import { z } from "zod";
 import { parseDebugGuide, type GuiaDeDepuracion } from "@/lib/ai/debug-parse";
 import { callModel, cleanApiKey, isProviderId, keyLooksValid, type ProviderId } from "@/lib/ai/providers";
 import { composeSkills, lockedSkills } from "@/lib/skills/registry";
+import { limitesEntrada } from "@/lib/ai/limits";
 
 export type { GuiaDeDepuracion };
 
@@ -13,9 +14,9 @@ export type DebugResult =
 const payloadSchema = z.object({
   level: z.enum(["empezando", "practica", "profundidad"]),
   language: z.string().max(32).optional(),
-  code: z.string().min(1).max(8000),
-  errorMessage: z.string().min(1).max(4000),
-  question: z.string().max(600).optional(),
+  code: z.string().min(1).max(limitesEntrada.codigo),
+  errorMessage: z.string().min(1).max(limitesEntrada.mensaje),
+  question: z.string().max(limitesEntrada.pregunta).optional(),
   codeFacts: z.array(z.string().max(400)).max(24),
   messageFacts: z.array(z.string().max(400)).max(24),
   provider: z.string().max(16).optional(),

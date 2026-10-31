@@ -938,7 +938,7 @@ contrario, y lo anota aquí.
 | Número de retos de fundamentos en 0.4 | 5 familias × 3 niveles (15) | 0.4 |
 | Número de paquetes de incidente en 0.5 | 8 | 0.5 |
 | Límites de ejecución (tiempo, memoria, salida, pasos) | Ver tabla de 0.3.B | 0.3 |
-| Límites de entrada del estudio | 20 000 caracteres de código, 8 000 de mensaje | 0.2 / 0.3 |
+| Límites de entrada del estudio | Fijados en la 0.2.1: 20 000 de código, 8 000 de mensaje, aviso en la interfaz | — |
 | Lenguajes ejecutables en la 1.0 | JavaScript y Python | 0.9 |
 | Rust en la 1.0 | Solo análisis, sin ejecución pública | 0.9 |
 | Proveedor y modelo por defecto del servidor | Sin predeterminado fijo; lo elige quien despliega | 0.6 |
