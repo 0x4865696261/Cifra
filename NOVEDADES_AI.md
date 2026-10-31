@@ -103,7 +103,7 @@ escribe una IA, y leer la arquitectura de un sistema.** Va desde cero hasta nive
 | 0.1 | Leer un programa | hecha |
 | 0.2 | Depuración como método | hecha; 0.2.1 fusionada en `main` (PR #1) |
 | 0.3 | Ejecutar con seguridad | hecha en la rama; pendiente de revisión y fusión |
-| 0.4 | Dos caminos y retos de fundamentos | pendiente |
+| 0.4 | Dos caminos y retos de fundamentos | en la rama `version/0.4` |
 | 0.5 | Retos profesionales: leer qué pasó | pendiente |
 | 0.6 | Plataforma modular | pendiente |
 | 0.7 | La red de conocimiento, completa | pendiente |
@@ -947,6 +947,7 @@ contrario, y lo anota aquí.
 | Rust en la 1.0 | Solo análisis, sin ejecución pública | 0.9 |
 | Proveedor y modelo por defecto del servidor | Sin predeterminado fijo; lo elige quien despliega | 0.6 |
 | Nombre de los niveles (más allá del número) | Solo número por ahora | 0.4 |
+| Umbral del profesional fijado | Nivel 5 de 10, confirmado sin cambios (vive en `src/lib/retos/progreso.ts`) | hecho en 0.4 |
 
 ---
 
@@ -1110,4 +1111,41 @@ en verde. Auditoría de lo que quedó, sin adornos:
   nombra el veredicto con sus notas de método.
 - **Queda para después de esta versión**: la petición de fusión a `main` (la herramienta `gh`
   no está disponible para abrirla ahora; la rama ya está empujada y los doce commits firmados).
+
+## Plan de commits 0.4
+
+La 0.4 (Dos caminos y retos de fundamentos) se divide en estos commits, en este orden, en la
+rama `version/0.4` creada desde `version/0.3` (la fusión de la 0.3 sigue pendiente de revisión
+y los retos necesitan el motor de ejecución de esa rama; al fusionar, `version/0.4` se ajusta
+sobre `main`). Cada commit deja typecheck, pruebas y, cuando toca, build en verde, y lleva la
+prueba de lo que añade:
+
+| # | Commit | Tarea de §0.4 |
+|---|---|---|
+| 1 | docs(novedades): registra el plan de commits de la 0.4 | — (este commit) |
+| 2 | feat(retos): contrato 4.5 y semilla por persona | datos base de 0.4.B/D |
+| 3 | feat(retos): progreso en el navegador con umbral del profesional, export e import | 0.4.A/E |
+| 4 | feat(retos): señales de integridad que nunca bloquean | 0.4.D |
+| 5 | feat(retos): escribe los 15 retos de fundamentos con sus pruebas y sus variantes | 0.4.B |
+| 6 | feat(retos): prueba de nivel de ocho retos que coloca al que ya tiene experiencia | 0.4.A |
+| 7 | feat(modelo): la IA explica el veredicto y defiende la solución sin cambiarlo | 0.4.C/D |
+| 8 | feat(retos): la pantalla de reto entrega, veredicto y puente al estudio | 0.4.C |
+| 9 | feat(retos): la entrada elige camino y Ajustes permite cambiar de plan | 0.4.A/F |
+| 10 | docs(novedades): refleja el estado real de la 0.4 | — (hasta un commit propio) |
+
+Notas de la 0.4 tomadas al empezar (usa las propuestas de §8):
+
+- El umbral del profesional es el de la propuesta por defecto: nivel 5 de 10. Superar un reto
+  de nivel 5 o superior en el camino desde cero, o terminar la prueba de nivel con nivel
+  estimado 5 o más, desbloquea el plan profesional. El valor vive en un único sitio.
+- Los 15 retos del mínimo se reparten en 5 familias × 3 niveles: **bucles** (2, 5, 8),
+  **condicionales** (2, 5, 8), **funciones** (2, 5, 8), **colecciones** (2, 5, 8) y
+  **cadenas** (2, 5, 8). El resto de familias de 0.4.B llega con contenido nuevo, no con
+  retos reutilizados.
+- **Los retos de la 0.4 se entregan en JavaScript.** El ejecutor de pruebas de la 0.4.D solo
+  soporta JavaScript (la salida comparada y el valor de finalización vienen del Worker); con
+  Python las pruebas no tienen aún ejecutor. La interfaz lo dice; `lenguajes` del contrato
+  queda a `["javascript"]` hasta que exista el ejecutor de pruebas de Python.
+- La prueba de nivel usa 8 retos breves propios (uno por tramo, dificultad creciente) y el
+  nivel estimado sale del último tramo superado sin saltarse ninguno.
 
