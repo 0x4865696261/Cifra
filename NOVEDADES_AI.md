@@ -229,6 +229,7 @@ type RunResult = {
   duracionMs: number;
   pruebas?: TestResult[];
   traza?: TraceStep[];
+  trazaTruncada?: boolean; // 0.3: la traza se recorta el tope de pasos y el resultado lo señala
   motor: { nombre: string; version: string };
   origen: "ejecucion-real";   // siempre esta cadena; sirve de sello de procedencia
 };
