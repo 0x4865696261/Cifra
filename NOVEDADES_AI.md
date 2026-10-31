@@ -35,6 +35,7 @@ ella y las fusiones irán en ese orden (primero el trabajo de 0.2.1, después `c
 | cifra-retos-fundamentos | Al escribir o revisar un ChallengeSpec, la prueba de nivel o variantes por semilla (0.4) | `.opencode/skills/cifra-retos-fundamentos/SKILL.md` |
 | cifra-incidentes-sinteticos | Al diseñar un IncidentSpec, la terminal simulada o la evaluación de análisis (0.5) | `.opencode/skills/cifra-incidentes-sinteticos/SKILL.md` |
 | cifra-defensas-ia | Al escribir o cambiar prompts de sistema, validar entradas/salidas del modelo, o montar y pasar la batería de ataques (apartado 7, 0.9) | `.opencode/skills/cifra-defensas-ia/SKILL.md` |
+| cifra-contenido-biblioteca | Al escribir conceptos, hilos, puentes matemáticos o ensayos de lenguajes en src/lib/content (0.7) | `.opencode/skills/cifra-contenido-biblioteca/SKILL.md` |
 
 ---
 
