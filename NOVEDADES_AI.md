@@ -230,6 +230,7 @@ type RunResult = {
   pruebas?: TestResult[];
   traza?: TraceStep[];
   trazaTruncada?: boolean; // 0.3: la traza se recorta el tope de pasos y el resultado lo señala
+  memoriaMBUsada?: number; // 0.3: delta de heap del programa; ausente = el motor no dejó medirlo
   motor: { nombre: string; version: string };
   origen: "ejecucion-real";   // siempre esta cadena; sirve de sello de procedencia
 };
@@ -1040,7 +1041,10 @@ seguir ignorando el aviso no fatal de rolldown sobre `module level directive`.
   paquetes Python queda cerrada a la biblioteca estándar.
 - **El tope de memoria de JavaScript se mide** con el delta de heap (`performance.memory` en el
   navegador Chrome; `process.memoryUsage` en las pruebas de Node). Si el motor no ofrece lectura,
-  el límite de memoria no se puede aplicar y el resultado lo dice; no se simula un corte.
+  el límite de memoria no se puede aplicar y el resultado lo dice (`memoriaMBUsada` ausente);
+  no se simula un corte. La comprobación ocurre al terminar la ejecución: un programa sin fin
+  termina antes por tiempo, y el corte de salida se aplica lanzando una excepción marcada —
+  si el código la captura y sigue sin imprimir, el estado final del programa lo refleja.
 - **La traza de JavaScript** se genera instrumentando el código con inserciones antes de cada
   sentencia (escáner propio que salta cadenas y comentarios): evento `linea` en cada paso,
   `retorno` cuando hay `return` con valor y `excepcion` cuando salta un fallo. No se instrumenta el
