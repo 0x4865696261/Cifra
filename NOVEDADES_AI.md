@@ -27,6 +27,7 @@ ella y las fusiones irán en ese orden (primero el trabajo de 0.2.1, después `c
 | cifra-orientacion | Siempre, la primera, al empezar cualquier sesión | `.opencode/skills/cifra-orientacion/SKILL.md` |
 | cifra-flujo-git | Antes de crear la rama y de cada commit de cualquier tarea | `.opencode/skills/cifra-flujo-git/SKILL.md` |
 | cifra-codigo-profesional | Al escribir, modificar o revisar cualquier fichero de código o contenido | `.opencode/skills/cifra-codigo-profesional/SKILL.md` |
+| cifra-porton-de-calidad | Al cerrar cualquier tarea o versión, y tras cualquier refactor | `.opencode/skills/cifra-porton-de-calidad/SKILL.md` |
 
 ---
 
