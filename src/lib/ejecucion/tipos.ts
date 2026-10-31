@@ -30,6 +30,7 @@ export type TestSpec = {
   esperado: unknown;
   tipo: "salida" | "retorno" | "propiedad";
   visible: boolean; // las no visibles no se muestran antes de entregar
+  tolerancia?: number; // 0.3: diferencia máxima para números con decimales; ausente = igualdad estricta
 };
 
 export type RunResult = {
@@ -41,6 +42,7 @@ export type RunResult = {
   pruebas?: TestResult[];
   traza?: TraceStep[];
   trazaTruncada?: boolean;
+  memoriaMBUsada?: number; // 0.3: delta de heap; ausente = no hubo lectura, nunca un corte simulado
   motor: { nombre: string; version: string };
   origen: "ejecucion-real"; // siempre esta cadena: sello de procedencia
 };

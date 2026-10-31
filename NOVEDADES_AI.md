@@ -156,8 +156,8 @@ escribe una IA, y leer la arquitectura de un sistema.** Va desde cero hasta nive
 | Versión | Nombre | Estado |
 |---|---|---|
 | 0.1 | Leer un programa | hecha |
-| 0.2 | Depuración como método | base hecha; 0.2.1 terminada, pendiente de revisión |
-| 0.3 | Ejecutar con seguridad | siguiente |
+| 0.2 | Depuración como método | hecha; 0.2.1 fusionada en `main` (PR #1) |
+| 0.3 | Ejecutar con seguridad | hecha en la rama; pendiente de revisión y fusión |
 | 0.4 | Dos caminos y retos de fundamentos | pendiente |
 | 0.5 | Retos profesionales: leer qué pasó | pendiente |
 | 0.6 | Plataforma modular | pendiente |
@@ -285,6 +285,7 @@ type RunResult = {
   pruebas?: TestResult[];
   traza?: TraceStep[];
   trazaTruncada?: boolean; // 0.3: la traza se recorta el tope de pasos y el resultado lo señala
+  memoriaMBUsada?: number; // 0.3: delta de heap del programa; ausente = el motor no dejó medirlo
   motor: { nombre: string; version: string };
   origen: "ejecucion-real";   // siempre esta cadena; sirve de sello de procedencia
 };
@@ -296,6 +297,7 @@ type TestSpec = {
   esperado: unknown;
   tipo: "salida" | "retorno" | "propiedad";
   visible: boolean;           // las no visibles no se muestran antes de entregar
+  tolerancia?: number;        // 0.3: diferencia máxima para números con decimales; ausente = igualdad estricta
 };
 
 type TestResult = { id: string; pasada: boolean; obtenido?: unknown; esperado?: unknown; error?: string };
@@ -509,7 +511,7 @@ una versión corregida a secas, y el análisis local funciona **sin ninguna llam
 
 ---
 
-### 0.3 — Ejecutar con seguridad
+### 0.3 — Ejecutar con seguridad (hecha en la rama `version/0.3`; pendiente de revisión y fusión)
 
 **Objetivo:** pasar de leer el texto a ver el programa correr, sin mentir sobre lo que se ejecuta.
 Cifra deja de inferir cómo se comporta un programa y empieza a **mostrarlo**.
@@ -1067,18 +1069,22 @@ La 0.3 (Ejecutar con seguridad) se divide en estos commits, en este orden, en la
 
 | # | Commit | Tarea de §0.3 |
 |---|---|---|
-| 1 | `docs(novedades): registra el plan de commits de la 0.3` | — (este commit) |
-| 2 | `feat(ejecucion): fija los límites y los tipos del contrato 4.4` | 1 |
-| 3 | `feat(ejecucion): instrumenta JavaScript para la traza paso a paso` | 6 (JavaScript) |
-| 4 | `feat(ejecucion): ejecuta JavaScript en un Worker con corte y salida capturada` | 2 |
-| 5 | `test(ejecucion): los límites cortan el programa de JavaScript` | 3 |
-| 6 | `feat(ejecucion): el ejecutor de pruebas devuelve un resultado fijo` | 4 |
-| 7 | `feat(ejecucion): ejecuta Python con Pyodide trazado y acotado` | 5, 6 (Python) |
-| 8 | `feat(ejecucion): compara mediciones sin prometer lo que no se midió` | 7 |
-| 9 | `feat(ejecucion): ejecuta Rust en local con límites y limpieza` | 9 |
-| 10 | `feat(estudio): botón Ejecutar con salidas, traza y puente al estudia el fallo` | 8 |
-| 11 | `feat(estudio): compara las mediciones de dos versiones en el estudio` | 8 (mediciones) |
-| 12 | `docs(novedades): refleja el estado real de la 0.3` | — |
+| 1 | `1a0f760` docs(novedades): registra el plan de commits de la 0.3 | — (este commit) |
+| 2 | `5c2522f` feat(ejecucion): fija los límites y los tipos del contrato 4.4 | 1 |
+| 3 | `d80321e` feat(ejecucion): instrumenta JavaScript para la traza paso a paso | 6 (JavaScript) |
+| 4 | `8fd3569` feat(ejecucion): ejecuta JavaScript en un Worker con corte y salida capturada | 2 |
+| 5 | `2217268` test(ejecucion): los límites cortan el programa de JavaScript | 3 |
+| 6 | `917b599` feat(ejecucion): el ejecutor de pruebas devuelve un resultado fijo | 4 |
+| 7 | `3a0b6ed` feat(ejecucion): ejecuta Python con Pyodide trazado y acotado | 5, 6 (Python) |
+| 8 | `d7ae8a8` feat(ejecucion): compara mediciones sin prometer lo que no se midió | 7 |
+| 9 | `b860ae7` feat(ejecucion): ejecuta Rust en local con límites y limpieza | 9 |
+| 10 | `ad40776` feat(estudio): botón Ejecutar con salidas, traza y puente al estudia el fallo | 8 |
+| 11 | `b473bb1` feat(estudio): compara las mediciones de dos versiones en el estudio | 8 (mediciones) |
+| 12 | docs(novedades): refleja el estado real de la 0.3 | — (hecha: este commit) |
+
+Los doce commits están en `version/0.3`, firmados y empujados a `origin`. Cada uno deja
+typecheck, pruebas y build en verde; los avisos no fatales de rolldown (`module level directive`)
+siguen ignorándose.
 
 El módulo de ejecución vive en `src/lib/ejecucion/`. El script `test` de `package.json` sigue
 listando los ficheros uno a uno: cada fichero de prueba nuevo entra en el mismo commit. Vale
@@ -1093,9 +1099,18 @@ seguir ignorando el aviso no fatal de rolldown sobre `module level directive`.
   parte, bajo demanda en la primera ejecución. No entra como dependencia de `npm`: pesaría cientos
   de MB en el árbol y el resto de la web ya necesita red (las llamadas al modelo); la lista de
   paquetes Python queda cerrada a la biblioteca estándar.
+- **La traza de Python** usa `sys.settrace` del intérprete: cada línea manda su línea y sus
+  variables locales (repr) por el puente `js` de Pyodide, con el mismo tope de pasos y de valor
+  que JavaScript. La salida se captura con el tope de 0.3.B sin interrumpir el programa: al
+  superarlo, la salida queda recortada y el estado indica `salida-excedida`. La memoria de
+  Pyodide no se mide (`memoriaMBUsada` ausente) y la carga del CDN cuenta dentro del tope de
+  tiempo de la primera ejecución; la interfaz avisará del tiempo de carga.
 - **El tope de memoria de JavaScript se mide** con el delta de heap (`performance.memory` en el
   navegador Chrome; `process.memoryUsage` en las pruebas de Node). Si el motor no ofrece lectura,
-  el límite de memoria no se puede aplicar y el resultado lo dice; no se simula un corte.
+  el límite de memoria no se puede aplicar y el resultado lo dice (`memoriaMBUsada` ausente);
+  no se simula un corte. La comprobación ocurre al terminar la ejecución: un programa sin fin
+  termina antes por tiempo, y el corte de salida se aplica lanzando una excepción marcada —
+  si el código la captura y sigue sin imprimir, el estado final del programa lo refleja.
 - **La traza de JavaScript** se genera instrumentando el código con inserciones antes de cada
   sentencia (escáner propio que salta cadenas y comentarios): evento `linea` en cada paso,
   `retorno` cuando hay `return` con valor y `excepcion` cuando salta un fallo. No se instrumenta el
@@ -1105,9 +1120,49 @@ seguir ignorando el aviso no fatal de rolldown sobre `module level directive`.
   se dice en la salida que quedó trabajo sin correr.
 - **El ejecutor de pruebas** soporta tipo `salida` (compara lo escrito en la salida) y `retorno` /
   `propiedad` (el código debe acabar en una expresión que se evalúa; `propiedad` espera un
-  booleano). Las pruebas de Rust quedan para cuando existan retos que las exijan (0.4): ahí se
+  booleano). `TestSpec` lleva `tolerancia?: number` para números con decimales: la comparación
+  vive en un único sitio (`sonIguales` en `pruebas.ts`), igualdad estricta cuando no hay
+  tolerancia. `retorno` y `propiedad` se evalúan con el valor de finalización de `eval` en el
+  Worker (el mismo entorno aislado); la salida del programa queda capturada por el mismo canal.
+  Cada prueba corre en su propia corrida con sus propios límites: el fallo o el bucle sin fin
+  de una no tumba al resto.
+- Las pruebas de Rust quedan para cuando existan retos que las exijan (0.4): ahí se
   deciden las entradas por stdin.
 - **Claves de comparación de medición**: descartar 2 corridas de calentamiento, correr 10 válidas,
   mediana y mediana de desviaciones absolutas (MAD). Solo se declara que una versión es más rápida
   si la diferencia de medianas supera el doble del mayor MAD de las dos; si no, «la diferencia
   cae dentro de la dispersión».
+
+### El estado real de la 0.3
+
+La 0.3 cierra con las nueve tareas de `0.3 Tareas, en orden` realizadas y las pruebas de límites
+en verde. Auditoría de lo que quedó, sin adornos:
+
+- **Dónde vive cada cosa.** Contrato y límites: `src/lib/ejecucion/tipos.ts` y `limites.ts`.
+  Instrumento de traza: `instrumentar.ts` (escáner propio, sin AST). Motor de JavaScript:
+  `motor-javascript.ts` + `worker-javascript.ts` (fuente como cadena para el Worker desde Blob).
+  Ejecutor de pruebas: `pruebas.ts` con su arnés `hiloPrueba.ts`. Python: `motor-python.ts` +
+  `worker-pyodide.ts`. Mediciones: `mediciones.ts`. Rust local: `motor-rust.ts`. Interfaz:
+  `src/components/studio/run.tsx` (botón Ejecutar, salida, traza con resaltado de cambios y el
+  puente a «Estudia el fallo») y `src/components/studio/comparar.tsx` (cuarto modo del estudio).
+- **Las pruebas de límites** (bucle sin fin → `tiempo`, salida enorme → `salida-excedida`,
+  memoria que no se puede medir → `memoriaMBUsada` ausente, traza truncada) corren el mismo
+  código del Worker dentro de un hilo real de Node; nada de resultados simulados.
+- **Memoria de JavaScript solo se mide donde hay lectura de heap** (`performance.memory`). En
+  Node (y en cualquier motor sin esa lectura) el campo queda ausente y así se declara en la
+  interfaz; no se simula corte de memoria.
+- **Rust solo en desarrollo local** y apagado sin `CIFRA_RUST_LOCAL=1`: en esta máquina no hay
+  `cargo`, así que las dos pruebas reales de Rust se saltan y lo dicen («no hay cargo en esta
+  máquina»); las de la puerta cerrada (estado `no-soportado` con su motivo) pasan siempre.
+- **La comparación en la web solo admite JavaScript**: con Pyodide las 24 corridas medirían la
+  carga del CDN, no el programa; la interfaz lo explica. Y una versión que no termina en `ok`
+  aborta la comparación con el motivo: una corrida cortada no mide el programa.
+- **Lo que la web demuestra en el navegador** (verificado sobre el servidor de desarrollo, con
+  capturas en `screenshots/`): el botón Ejecutar corre el programa de verdad (estado, salida,
+  motor con su versión y traza con las variables que cambian marcadas en cobre), un programa que
+  falla muestra el estado `error` y el botón «Estudiar este fallo →» llega a la pestaña de fallo
+  con el código y el mensaje reales ya colocados, y el modo «Compara» corre las 24 corridas y
+  nombra el veredicto con sus notas de método.
+- **Queda para después de esta versión**: la petición de fusión a `main` (la herramienta `gh`
+  no está disponible para abrirla ahora; la rama ya está empujada y los doce commits firmados).
+

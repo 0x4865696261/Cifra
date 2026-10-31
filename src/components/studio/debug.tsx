@@ -60,13 +60,17 @@ KeyError: 'minimo'`,
   },
 ];
 
-export function DebugStudio() {
+export function DebugStudio({
+  inicial,
+}: {
+  inicial?: { code?: string; errorMessage?: string; language?: LanguageId };
+} = {}) {
   const ask = useServerFn(askDebug);
   const { level, setLevel } = useLevel();
   const [sampleId, setSampleId] = useState("");
-  const [language, setLanguage] = useState<LanguageId>("javascript");
-  const [code, setCode] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [language, setLanguage] = useState<LanguageId>(inicial?.language ?? "javascript");
+  const [code, setCode] = useState(inicial?.code ?? "");
+  const [errorMessage, setErrorMessage] = useState(inicial?.errorMessage ?? "");
   const [question, setQuestion] = useState("");
   const [pending, setPending] = useState(false);
   const [result, setResult] = useState<DebugResult | null>(null);
