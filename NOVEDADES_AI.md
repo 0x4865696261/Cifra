@@ -156,7 +156,7 @@ escribe una IA, y leer la arquitectura de un sistema.** Va desde cero hasta nive
 | Versión | Nombre | Estado |
 |---|---|---|
 | 0.1 | Leer un programa | hecha |
-| 0.2 | Depuración como método | hecha (con ampliaciones de base) |
+| 0.2 | Depuración como método | base hecha; 0.2.1 terminada, pendiente de revisión |
 | 0.3 | Ejecutar con seguridad | siguiente |
 | 0.4 | Dos caminos y retos de fundamentos | pendiente |
 | 0.5 | Retos profesionales: leer qué pasó | pendiente |
@@ -377,7 +377,7 @@ biblioteca. Todo lo que viene después se apoya aquí.
 
 ---
 
-### 0.2 — Depuración como método (hecha, con ampliaciones de base)
+### 0.2 — Depuración como método (base hecha; 0.2.1 completada, pendiente de revisión)
 
 **Objetivo:** que un error deje de ser algo que la IA tapa. Un error pasa a ser algo que se lee, se
 localiza, se explica y se aprende a evitar. Estudio del fallo: **qué falló, por qué ocurrió, cómo
@@ -993,7 +993,8 @@ contrario, y lo anota aquí.
 | Número de retos de fundamentos en 0.4 | 5 familias × 3 niveles (15) | 0.4 |
 | Número de paquetes de incidente en 0.5 | 8 | 0.5 |
 | Límites de ejecución (tiempo, memoria, salida, pasos) | Ver tabla de 0.3.B | 0.3 |
-| Límites de entrada del estudio | 20 000 caracteres de código, 8 000 de mensaje | 0.2 / 0.3 |
+| Límites de entrada del estudio | Fijados en la 0.2.1: 20 000 de código, 8 000 de mensaje, aviso en la interfaz | — |
+| Tope de tokens de salida por petición | 1400 tokens (fijado en la 0.2.1, en `limits.ts`) | — |
 | Lenguajes ejecutables en la 1.0 | JavaScript y Python | 0.9 |
 | Rust en la 1.0 | Solo análisis, sin ejecución pública | 0.9 |
 | Proveedor y modelo por defecto del servidor | Sin predeterminado fijo; lo elige quien despliega | 0.6 |
@@ -1015,3 +1016,44 @@ contrario, y lo anota aquí.
 - **Seguridad perfecta de la IA.** Se reduce el riesgo en capas y se prueba, pero no se promete que
   sea imposible de engañar.
 - **Rendimiento universal.** Una medición es de un equipo y unos límites concretos.
+
+---
+
+## Plan de commits 0.2.1
+
+La 0.2 quedó marcada «hecha» con huecos frente a los apartados 0.2.A–0.2.F y sus pruebas. La
+0.2.1 completa esos huecos antes de empezar la 0.3. Todos los commits están en `version/0.2.1`:
+
+| # | Commit | Estado |
+|---|---|---|
+| — | `cf98bc2` docs(novedades): registra el plan de commits de la 0.2.1 | hecha |
+| 1a | `7870534` feat(analisis): añade el contrato FailureReport y el análisis local puro | hecha |
+| 1b | `596fa42` refactor(estudio): migra el estudio del fallo al contrato FailureReport | hecha |
+| 2 | `b373a05` feat(estudio): límites de entrada 20.000 y 8.000 con aviso en la interfaz | hecha |
+| 3 | `3efa467` feat(estudio): detecta el lenguaje por señales y pregunta si duda | hecha |
+| 4 | `0bf0b54` feat(modelo): traduce los errores del proveedor a mensajes accionables | hecha |
+| 5 | `ac3ce8e` fix(modelo): versiona las skills en la huella de caché y acota el tope de salida | hecha |
+| 6 | `987782b` test(analisis): la clave de API no aparece en logs ni respuestas | hecha |
+| 7 | docs(novedades): refleja el estado real de la 0.2 | hecha (este commit) |
+
+Reglas de la 0.2.1: un commit por mejora, cada uno deja typecheck, pruebas y build en verde y
+lleva la prueba de la funcionalidad en el mismo commit. La señal «línea nombrada que no existe»
+no entra en el contrato 4.2: la interfaz la deduce comparando `lineasNombradas` con la longitud
+del fragmento. El script `test` de `package.json` lista los ficheros uno a uno y cada fichero de
+prueba nuevo se aclara en el mismo commit que lo crea. Se ignora el aviso no fatal de rolldown
+sobre `module level directive`.
+
+### Lo que la 0.2.1 decidió
+
+- El estudio del fallo trabaja con el contrato 4.2: `analyzeFailure` sustituye a `readMessage`
+  (fichero retirado) y la guía del modelo se valida contra `guia`. Las claves extra de la
+  implementación anterior (`checked`, `inferred`, `askNext`) salen de la interfaz porque el
+  contrato no las tiene; todo lo que escribe el modelo lleva `procedencia: "deducido"`.
+- Cada hipótesis lleva su coste de comprobarla como número (1 a 3), pedido al modelo y validado.
+- Límites de entrada fijados: 20 000 caracteres de código y 8 000 de mensaje (ver decisión en §8).
+- Detección del lenguaje: señales ponderadas de código y mensaje; si empatan o no bastan, se
+  declara que no se puede asegurar. El selector manual confirma; nada cambia solo.
+- El fallo del proveedor se traduce a seis casos accionables (401/403, 429, 5xx, tiempo agotado,
+  contenido bloqueado, respuesta inesperada) y la clave de Google dejó de viajar en la query.
+- La huella de la caché lleva la versión de las skills (`versionSkills` en el registro) y el tope
+  de tokens de salida por petición vive en un único sitio (`limits.ts`).

@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import type { DebugGuide, DebugResult } from "@/lib/ai/debug";
+import type { DebugResult } from "@/lib/ai/debug";
+import type { FailureReport } from "@/lib/analyze/failure";
+import { analyzeFailure } from "@/lib/analyze/failure";
+import { detectLanguage, type Deteccion } from "@/lib/analyze/detection";
 import { askDebug } from "@/lib/ai/debug";
+import { excedeLimite, limitesEntrada } from "@/lib/ai/limits";
 import { credentials, modelInUse, loadAiSettings } from "@/lib/ai/settings";
-import { readMessage } from "@/lib/ai/message";
 import { analyze, isLanguageId, languageIds, languageLabels, type LanguageId } from "@/lib/analyze/structure";
 import { Button } from "@/components/ui/button";
 import { useLevel, levelOptions } from "@/lib/level";
@@ -69,10 +72,22 @@ export function DebugStudio() {
   const [result, setResult] = useState<DebugResult | null>(null);
 
   const analysis = useMemo(() => analyze(code || "", language), [code, language]);
-  const message = useMemo(() => readMessage(errorMessage || ""), [errorMessage]);
+  const report = useMemo(() => analyzeFailure(code || "", errorMessage || "", language), [code, errorMessage, language]);
   const settings = useMemo(() => loadAiSettings(), []);
-  const lines = code.split(/\r?\n/);
-  const referenced = new Set(message.namedLines);
+  const deteccion = useMemo(
+    () => detectLanguage(code || "", errorMessage || ""),
+    [code, errorMessage],
+  );
+  const hayTexto = Boolean(code.trim() || errorMessage.trim());
+  const avisoDeLenguaje = hayTexto
+    ? avisoSobreLenguaje(deteccion, language)
+    : null;
+  const codigoExcedido = excedeLimite(code, limitesEntrada.codigo);
+  const mensajeExcedido = excedeLimite(errorMessage, limitesEntrada.mensaje);
+  const lines = report.fragmento;
+  const lineasSinFragmento = report.mensaje.lineasNombradas.filter(
+    (linea) => linea > lines.length,
+  );
 
   const load = (sample: BrokenSample) => {
     setSampleId(sample.id);
@@ -95,7 +110,7 @@ export function DebugStudio() {
           errorMessage,
           question: question || undefined,
           codeFacts: analysis.facts.map((fact) => `L${fact.lines}: ${fact.text}`),
-          messageFacts: message.facts.map((fact) => fact.text),
+          messageFacts: messageFactsDe(report),
           ...credentials(settings),
         },
       });
@@ -130,6 +145,11 @@ export function DebugStudio() {
               ))}
             </select>
           </label>
+          {avisoDeLenguaje && (
+            <p className={cn("text-pretty", avisoDeLenguaje.destacado ? "text-copper" : "text-muted")}>
+              {avisoDeLenguaje.texto}
+            </p>
+          )}
           <p className="font-mono text-sm text-muted">{analysis.lineCount} líneas de código</p>
         </div>
 
@@ -160,6 +180,10 @@ export function DebugStudio() {
             placeholder="Pega el fragmento. Mejor con líneas numerables tal como las muestran tu editor y tu error."
             className="min-h-40 w-full border border-line bg-paper p-3 font-mono text-sm leading-6 text-ink"
           />
+          <p className={cn("font-mono text-sm", codigoExcedido ? "text-copper" : "text-muted")}>
+            {code.length} de {limitesEntrada.codigo} caracteres
+            {codigoExcedido && ": te pasas. Acorta o parte el fragmento: no se envía hasta que quepa."}
+          </p>
         </label>
         <label className="mt-4 flex flex-col gap-2 font-mono text-sm">
           Mensaje del error
@@ -176,42 +200,48 @@ export function DebugStudio() {
             placeholder="Pega el texto completo: traza, tipo y línea. Copiado en limpio, no resumido."
             className="min-h-32 w-full border border-line bg-paper p-3 font-mono text-sm leading-6 text-ink"
           />
+          <p className={cn("font-mono text-sm", mensajeExcedido ? "text-copper" : "text-muted")}>
+            {errorMessage.length} de {limitesEntrada.mensaje} caracteres
+            {mensajeExcedido && ": te pasas. Recorta la pila repetida: no se envía hasta que quepa."}
+          </p>
         </label>
 
         {code.trim() && (
           <div className="mt-6">
             <h2 className="font-serif text-2xl">El fragmento, en sus líneas</h2>
             <div className="mt-3 max-h-80 overflow-auto border border-line">
-              {lines.map((line, index) => {
-                const number = index + 1;
-                const named = referenced.has(number);
-                return (
-                  <div
-                    key={number}
-                    className={cn(
-                      "grid w-max min-w-full grid-cols-[3rem_1fr] items-start gap-3 border-l-2 px-3 py-1.5 font-mono text-sm leading-6",
-                      named ? "border-copper bg-line text-ink" : "border-transparent text-ink",
-                    )}
-                  >
-                    <span className="text-muted tabular-nums">{number}</span>
-                    <span className="whitespace-pre">{line || " "}</span>
-                  </div>
-                );
-              })}
+              {lines.map((line) => (
+                <div
+                  key={line.n}
+                  className={cn(
+                    "grid w-max min-w-full grid-cols-[3rem_1fr] items-start gap-3 border-l-2 px-3 py-1.5 font-mono text-sm leading-6",
+                    line.marcada ? "border-copper bg-line text-ink" : "border-transparent text-ink",
+                  )}
+                >
+                  <span className="text-muted tabular-nums">{line.n}</span>
+                  <span className="whitespace-pre">{line.texto || " "}</span>
+                </div>
+              ))}
             </div>
             <p className="mt-2 font-mono text-sm text-muted">
               En cobre, las líneas que el mensaje nombra. Un número no es una acusación: se comprueba con lo que hay
               alrededor.
             </p>
+            {lineasSinFragmento.length > 0 && (
+              <p className="mt-2 text-pretty text-copper">
+                El mensaje nombra también las líneas {lineasSinFragmento.join(", ")}, que no existen en el fragmento
+                pegado. Se señalan; no se inventan.
+              </p>
+            )}
           </div>
         )}
 
         <h2 className="mt-8 font-serif text-2xl">Lo que se ve en los dos textos</h2>
         <ul className="mt-3 flex flex-col gap-3">
-          {message.facts.map((fact, index) => (
-            <li key={index} className="border-l border-line pl-4">
+          {messageFactsDe(report).map((fact) => (
+            <li key={fact} className="border-l border-line pl-4">
               <p className="font-mono text-sm text-copper">Mensaje</p>
-              <p className="text-pretty">{fact.text}</p>
+              <p className="text-pretty">{fact}</p>
             </li>
           ))}
           {analysis.facts.map((fact) => (
@@ -254,7 +284,7 @@ export function DebugStudio() {
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             rows={3}
-            maxLength={600}
+            maxLength={limitesEntrada.pregunta}
             className="w-full border border-line bg-paper p-3 font-serif text-base text-ink"
             placeholder="Opcional: «mira la línea 6, no entiendo por qué ahí»."
           />
@@ -264,7 +294,12 @@ export function DebugStudio() {
           Skill fija en la guía: <span className="text-ink">Depuración</span>, junto a Pedagogía y Análisis.
         </p>
 
-        <Button tone="primary" className="mt-6 w-full" disabled={pending || !code.trim() || !errorMessage.trim()} onClick={() => void submit()}>
+        <Button
+          tone="primary"
+          className="mt-6 w-full"
+          disabled={pending || !code.trim() || !errorMessage.trim() || codigoExcedido || mensajeExcedido}
+          onClick={() => void submit()}
+        >
           {pending ? "Conduciendo el análisis…" : "Estudiar este fallo"}
         </Button>
         <p className="mt-2 font-mono text-sm text-muted">
@@ -280,7 +315,7 @@ export function DebugStudio() {
             )}
           </div>
         )}
-        {result?.ok && <DebugGuideView guide={result.guide} cached={result.cached} onSuggest={setQuestion} />}
+        {result?.ok && <DebugGuideView guide={result.guide} cached={result.cached} />}
       </section>
     </div>
   );
@@ -296,102 +331,101 @@ function providerLabel(providerId: string): string {
   return labels[providerId] ?? "tu modelo";
 }
 
+function avisoSobreLenguaje(
+  deteccion: Deteccion,
+  seleccionado: LanguageId,
+): { texto: string; destacado: boolean } | null {
+  const { sugerencia, segura } = deteccion;
+  if (!sugerencia) {
+    return {
+      texto: "No hay señales que basten para detectar el lenguaje. Confírmalo en el selector: no se adivina en silencio.",
+      destacado: true,
+    };
+  }
+  const etiqueta = languageLabels[sugerencia];
+  if (sugerencia === seleccionado) {
+    return segura
+      ? { texto: `Las señales del texto encajan con ${etiqueta}.`, destacado: false }
+      : {
+          texto: `Las señales sugieren ${etiqueta}, pero no bastan para estar seguro. Confírmalo en el selector.`,
+          destacado: true,
+        };
+  }
+  return {
+    texto: `Las señales apuntan a ${etiqueta}, pero el selector está en ${languageLabels[seleccionado]}. Confírmalo: no se adivina en silencio.`,
+    destacado: true,
+  };
+}
+
+function messageFactsDe(report: FailureReport): string[] {
+  const tipo = report.mensaje.tipo === "desconocido"
+    ? "La lectura local no reconoce un tipo de error con nombre. Lee la primera frase del mensaje: suele nombrar la regla que se detuvo."
+    : `La lectura local reconoce el tipo de error: ${report.mensaje.tipo}.`;
+  const lineas = report.mensaje.lineasNombradas.length
+    ? `El mensaje nombra las líneas: ${report.mensaje.lineasNombradas.join(", ")}. Cádalos con el fragmento pegado: pueden apuntar al código o al archivo original.`
+    : "El mensaje no da ningún número de línea que se haya podido leer.";
+  const nombres = report.mensaje.identificadoresCitados.length
+    ? `El mensaje pone entre comillas: ${report.mensaje.identificadoresCitados.map((name) => `«${name}»`).join(", ")}. Suelen ser nombres, archivos o cadenas implicadas.`
+    : "";
+  return [tipo, lineas, nombres].filter(Boolean);
+}
+
 function DebugGuideView({
   guide,
   cached,
-  onSuggest,
 }: {
-  guide: DebugGuide;
+  guide: NonNullable<FailureReport["guia"]>;
   cached: boolean;
-  onSuggest?: (question: string) => void;
 }) {
   return (
     <article className="mt-8 border-t border-line pt-6">
       <p className="font-mono text-sm text-copper">{cached ? "Misma guía, sin otra llamada" : "Guía del fallo"}</p>
 
       <div className="mt-4 flex flex-col gap-5">
-        <section>
-          <h3 className="font-serif text-xl">Lo que dice el mensaje</h3>
-          <p className="mt-2 text-pretty">{guide.reading}</p>
-        </section>
-        {guide.locate && (
-          <section>
+        {guide.leerElMensaje.map((afirmacion, index) => (
+          <section key={index}>
+            <h3 className="font-serif text-xl">Lo que dice el mensaje</h3>
+            <p className="mt-2 text-pretty">{afirmacion.texto}</p>
+          </section>
+        ))}
+        {guide.localizarElSitio.map((afirmacion, index) => (
+          <section key={index}>
             <h3 className="font-serif text-xl">Dónde mirar</h3>
-            <p className="mt-2 text-pretty">{guide.locate}</p>
+            <p className="mt-2 text-pretty">{afirmacion.texto}</p>
           </section>
-        )}
-        {guide.hypotheses.length > 0 && (
-          <section>
-            <h3 className="font-serif text-xl">Hipótesis, para comprobar en orden</h3>
-            <ol className="mt-3 flex flex-col gap-4">
-              {guide.hypotheses.map((item, index) => (
-                <li key={index} className="border-l border-line pl-4">
-                  <p className="text-pretty">{item.hypothesis}</p>
-                  <p className="mt-1 text-pretty text-muted">
-                    <span className="font-mono text-sm text-copper">Cómo comprobarla: </span>
-                    {item.howToCheck}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          </section>
-        )}
-        {(guide.repro.failing || guide.repro.passing) && (
-          <section>
-            <h3 className="font-serif text-xl">Dos entradas para una prueba</h3>
-            {guide.repro.failing && (
-              <div className="mt-3">
-                <p className="font-mono text-sm text-copper">Debería fallar hoy</p>
-                <p className="mt-1 whitespace-pre-wrap text-pretty">{guide.repro.failing}</p>
-              </div>
-            )}
-            {guide.repro.passing && (
-              <div className="mt-3">
-                <p className="font-mono text-sm text-copper">Debería seguir funcionando mañana</p>
-                <p className="mt-1 whitespace-pre-wrap text-pretty">{guide.repro.passing}</p>
-              </div>
-            )}
-          </section>
-        )}
-        {guide.caughtEarlier && (
-          <section>
-            <h3 className="font-serif text-xl">Cómo saltaba antes</h3>
-            <p className="mt-2 text-pretty">{guide.caughtEarlier}</p>
-          </section>
-        )}
-
-        <div className="grid gap-6 sm:grid-cols-2">
-          <section>
-            <h3 className="font-mono text-sm text-ink">En los textos</h3>
-            <FactList items={guide.checked} empty="Nada separado como comprobado." />
-          </section>
-          <section>
-            <h3 className="font-mono text-sm text-muted">Sin ejecutar</h3>
-            <FactList items={guide.inferred} empty="No hay nada que suponer." />
-          </section>
-        </div>
-
-        {guide.askNext && onSuggest && (
-          <div>
-            <Button tone="ghost" className="h-auto max-w-full py-3 text-left whitespace-normal" onClick={() => onSuggest(guide.askNext)}>
-              Siguiente sospecha: {guide.askNext}
-            </Button>
+        ))}
+        <section>
+          <h3 className="font-serif text-xl">Hipótesis, para comprobar en orden</h3>
+          <ol className="mt-3 flex flex-col gap-4">
+            {guide.hipotesis.map((item, index) => (
+              <li key={index} className="border-l border-line pl-4">
+                <p className="text-pretty">{item.texto}</p>
+                <p className="mt-1 text-pretty text-muted">
+                  <span className="font-mono text-sm text-copper">
+                    Coste {item.coste} de 3. Cómo comprobarla:{" "}
+                  </span>
+                  {item.comoComprobarla}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <section>
+          <h3 className="font-serif text-xl">Dos entradas para una prueba</h3>
+          <div className="mt-3">
+            <p className="font-mono text-sm text-copper">Debería fallar hoy</p>
+            <p className="mt-1 whitespace-pre-wrap text-pretty">{guide.entradaQueFallaHoy}</p>
           </div>
-        )}
+          <div className="mt-3">
+            <p className="font-mono text-sm text-copper">Debería seguir funcionando mañana</p>
+            <p className="mt-1 whitespace-pre-wrap text-pretty">{guide.entradaQueDebeSeguirFuncionando}</p>
+          </div>
+        </section>
+        <section>
+          <h3 className="font-serif text-xl">Cómo saltaba antes</h3>
+          <p className="mt-2 text-pretty">{guide.comoHabriaSaltadoAntes}</p>
+        </section>
       </div>
     </article>
-  );
-}
-
-function FactList({ items, empty }: { items: string[]; empty: string }) {
-  if (items.length === 0) return <p className="mt-2 text-pretty text-muted">{empty}</p>;
-  return (
-    <ul className="mt-2 flex flex-col gap-2">
-      {items.map((item) => (
-        <li key={item} className="text-pretty">
-          {item}
-        </li>
-      ))}
-    </ul>
   );
 }

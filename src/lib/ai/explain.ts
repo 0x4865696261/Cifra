@@ -8,6 +8,7 @@ import {
   isSkillId,
   lockedSkills,
   skillIds,
+  versionSkills,
   type SkillId,
 } from "@/lib/skills/registry";
 
@@ -93,6 +94,7 @@ export const askCifra = createServerFn({ method: "POST" })
     const topic = input.kind === "matematicas" ? getMathTopic(input.topic ?? "") : undefined;
     const cacheKey = await digest(
       JSON.stringify({
+        versionSkills,
         kind: input.kind,
         level: input.level,
         language: input.language ?? "",
