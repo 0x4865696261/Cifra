@@ -104,7 +104,7 @@ escribe una IA, y leer la arquitectura de un sistema.** Va desde cero hasta nive
 | 0.2 | Depuración como método | hecha; 0.2.1 fusionada en `main` (PR #1) |
 | 0.3 | Ejecutar con seguridad | hecha en la rama; pendiente de revisión y fusión |
 | 0.4 | Dos caminos y retos de fundamentos | en la rama `version/0.4` |
-| 0.5 | Retos profesionales: leer qué pasó | pendiente |
+| 0.5 | Retos profesionales: leer qué pasó | en la rama `version/0.5` |
 | 0.6 | Plataforma modular | pendiente |
 | 0.7 | La red de conocimiento, completa | pendiente |
 | 0.8 | Un compilador que comprueba | pendiente |
@@ -1186,4 +1186,55 @@ lo que quedó:
   de consola en escritorio ni en móvil.
 - **Queda para después de esta versión**: la petición de fusión a `main` (la rama ya está
   empujada y los commits firmados; la 0.3 sigue pendiente de revisión).
+
+## Plan de commits 0.5
+
+La 0.5 (Retos profesionales: leer qué pasó) se divide en estos commits, en este orden, en la
+rama `version/0.5` creada desde `version/0.4` (los paquetes piden el progreso y la prueba de
+nivel que nacieron ahí; al fusionar, `version/0.5` se ajusta sobre `main`). Cada commit deja
+typecheck, pruebas y, cuando toca, build en verde, y lleva la prueba de lo que añade:
+
+| # | Commit | Tarea de §0.5 |
+|---|---|---|
+| 1 | docs(novedades): registra el plan de commits de la 0.5 | — (este commit) |
+| 2 | feat(incidentes): contrato 4.6 `IncidentSpec` y tipos del análisis | datos base de 0.5.C/D |
+| 3 | feat(incidentes): terminal simulada de solo lectura sobre el sistema de ficheros virtual | 0.5.B |
+| 4 | feat(incidentes): evaluación estructurada campo por campo marcando lo comprobado y lo deducido | 0.5.D |
+| 5 | feat(incidentes): progreso del navegador, export e import | 0.5.H |
+| 6 | feat(incidentes): escribe los 8 paquetes sintéticos con su respuesta esperada verificable | 0.5.A/F/G |
+| 7 | feat(modelo): la IA redacta la comparación sin poder cambiarla | 0.5.D/E |
+| 8 | feat(incidentes): pantallas de incidente con terminal y análisis, y puerta del profesional | 0.5.C |
+| 9 | docs(novedades): refleja el estado real de la 0.5 | — (hasta un commit propio) |
+
+Notas de la 0.5 tomadas al empezar (usa las propuestas de §8):
+
+- Los paquetes son 8 (§8) y cubren 8 de las 10 familias de 0.5.F: **valores nulos**, **estados
+  intermedios corruptos**, **secretos expuestos**, **permisos de más**, **consultas lentas**,
+  **bloqueos y esperas**, **desbordes de recursos** y **discrepancias entre lo que el mensaje
+  dice y lo que ocurrió**. «Límites de colección» y «nombres inexistentes» se quedan fuera de
+  este mínimo a propósito: ya los atienden los retos de fundamentos (0.4) y el
+  estudio del fallo (0.2), y las familias de la 0.5 piden sucesos con sistema alrededor
+  (logs, métricas, configuración). Familias nuevas llegarán como contenido nuevo, no con
+  paquetes reutilizados.
+- La evaluación es **local y pura** (`src/lib/incidentes/evaluar.ts`), sin red y sin modelo:
+  los campos se comparan campo por campo contra `respuestaEsperada` y la evidencia contra el
+  sistema de ficheros real del paquete. Si un campo encaja con la causa pero ninguna cita
+  sostenida la prueba, queda marcado «deducido sin evidencia» (0.5.D). La IA (0.5.E) recibe
+  solo esa comparación y redacta; nunca recibe `respuestaEsperada` ni devuelve juicio.- La evidencia de `respuestaEsperada` se escribe como `ruta:cadena` (el texto de la línea que
+  lo prueba) o `ruta` (el fichero entero): citar por número de línea absoluto se descarta al
+  primer movimiento del contenido. Una cita de la persona se comprueba contra la línea real
+  que contiene esa cadena (±2 de tolerancia de renumeración); citar una línea que no dice eso
+  se marca y es `comprobado-regla`.
+- La terminal simula con la lista cerrada de 0.5.B (`ls`, `cat`, `head`, `tail`, `grep`, `wc`,
+  `sort`, `uniq`, `diff`, `find`, `cut`), acepta tuberías entre comandos de la lista, es de
+  solo lectura (no existe operación que-escriba) y no puede salir del sistema de ficheros
+  virtual: rutas `../` se resuelven dentro de la raíz del paquete o se marcan como inexistentes;
+  nunca tocan nada fuera. Sin `cd`: la raíz del paquete es el sistema entero.
+- La puerta del profesional se hereda de 0.4: sin plan profesional activo (elegido o
+  desbloqueado y activado desde Ajustes), los paquetes se listan pero la pantalla de incidente
+  explica cómo se abre el camino. Sin botones vacíos.
+
+### El estado real de la 0.5
+
+(Se completa al cerrar la versión.)
 
