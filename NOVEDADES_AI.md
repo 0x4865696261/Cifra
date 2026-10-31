@@ -1002,3 +1002,56 @@ sobre `module level directive`.
   contenido bloqueado, respuesta inesperada) y la clave de Google dejó de viajar en la query.
 - La huella de la caché lleva la versión de las skills (`versionSkills` en el registro) y el tope
   de tokens de salida por petición vive en un único sitio (`limits.ts`).
+
+## Plan de commits 0.3
+
+La 0.3 (Ejecutar con seguridad) se divide en estos commits, en este orden, en la rama
+`version/0.3` creada desde `main` tras fusionar la 0.2.1. Cada commit deja typecheck, pruebas
+(build cuando toque) en verde y lleva la prueba de lo que añade:
+
+| # | Commit | Tarea de §0.3 |
+|---|---|---|
+| 1 | `docs(novedades): registra el plan de commits de la 0.3` | — (este commit) |
+| 2 | `feat(ejecucion): fija los límites y los tipos del contrato 4.4` | 1 |
+| 3 | `feat(ejecucion): instrumenta JavaScript para la traza paso a paso` | 6 (JavaScript) |
+| 4 | `feat(ejecucion): ejecuta JavaScript en un Worker con corte y salida capturada` | 2 |
+| 5 | `test(ejecucion): los límites cortan el programa de JavaScript` | 3 |
+| 6 | `feat(ejecucion): el ejecutor de pruebas devuelve un resultado fijo` | 4 |
+| 7 | `feat(ejecucion): ejecuta Python con Pyodide trazado y acotado` | 5, 6 (Python) |
+| 8 | `feat(ejecucion): compara mediciones sin prometer lo que no se midió` | 7 |
+| 9 | `feat(ejecucion): ejecuta Rust en local con límites y limpieza` | 9 |
+| 10 | `feat(estudio): botón Ejecutar con salidas, traza y puente al estudia el fallo` | 8 |
+| 11 | `feat(estudio): compara las mediciones de dos versiones en el estudio` | 8 (mediciones) |
+| 12 | `docs(novedades): refleja el estado real de la 0.3` | — |
+
+El módulo de ejecución vive en `src/lib/ejecucion/`. El script `test` de `package.json` sigue
+listando los ficheros uno a uno: cada fichero de prueba nuevo entra en el mismo commit. Vale
+seguir ignorando el aviso no fatal de rolldown sobre `module level directive`.
+
+### Lo que la 0.3 decide al empezar
+
+- El contrato 4.4 se amplía con `trazaTruncada?: boolean` en `RunResult`: la traza se recorta al
+  tope de pasos y se marca como truncada en el propio resultado, en lugar de inventar un campo
+  dentro de `TraceStep`. El cambio del contrato se hace en el commit del apartado 4.4.
+- **Python se ejecuta con Pyodide cargado por CDN** (`importScripts` de jsDelivr) en un Worker a
+  parte, bajo demanda en la primera ejecución. No entra como dependencia de `npm`: pesaría cientos
+  de MB en el árbol y el resto de la web ya necesita red (las llamadas al modelo); la lista de
+  paquetes Python queda cerrada a la biblioteca estándar.
+- **El tope de memoria de JavaScript se mide** con el delta de heap (`performance.memory` en el
+  navegador Chrome; `process.memoryUsage` en las pruebas de Node). Si el motor no ofrece lectura,
+  el límite de memoria no se puede aplicar y el resultado lo dice; no se simula un corte.
+- **La traza de JavaScript** se genera instrumentando el código con inserciones antes de cada
+  sentencia (escáner propio que salta cadenas y comentarios): evento `linea` en cada paso,
+  `retorno` cuando hay `return` con valor y `excepcion` cuando salta un fallo. No se instrumenta el
+  anidamiento completo de llamadas: es una traza didáctica, no un depurador de studio.
+- **Código asíncrono de JavaScript no se cubre en la 0.3**: el motor corre el cuerpo síncrono. Si
+  el programa deja callbacks pendientes (`setTimeout`, promesas), termina cuando el cuerpo acaba y
+  se dice en la salida que quedó trabajo sin correr.
+- **El ejecutor de pruebas** soporta tipo `salida` (compara lo escrito en la salida) y `retorno` /
+  `propiedad` (el código debe acabar en una expresión que se evalúa; `propiedad` espera un
+  booleano). Las pruebas de Rust quedan para cuando existan retos que las exijan (0.4): ahí se
+  deciden las entradas por stdin.
+- **Claves de comparación de medición**: descartar 2 corridas de calentamiento, correr 10 válidas,
+  mediana y mediana de desviaciones absolutas (MAD). Solo se declara que una versión es más rápida
+  si la diferencia de medianas supera el doble del mayor MAD de las dos; si no, «la diferencia
+  cae dentro de la dispersión».
