@@ -39,6 +39,7 @@ ella y las fusiones irán en ese orden (primero el trabajo de 0.2.1, después `c
 | cifra-diseno-y-movimiento | Al crear o tocar pantallas, componentes o animaciones, y al verificar render y a11y (0.4.F, 0.9) | `.opencode/skills/cifra-diseno-y-movimiento/SKILL.md` |
 | cifra-privacidad-y-seguridad | Al tocar claves, logs, servidor, datos personales o dependencias; complementa cifra-flujo-git en la revisión del diff | `.opencode/skills/cifra-privacidad-y-seguridad/SKILL.md` |
 | cifra-diferenciacion-producto | Al cerrar cualquier funcionalidad nueva o cambio de alcance; la lupa de producto | `.opencode/skills/cifra-diferenciacion-producto/SKILL.md` |
+| cifra-sincronia-documental | Al actualizar NOVEDADES.md / NOVEDADES_AI.md, planes de commits y estados de versión o decisiones | `.opencode/skills/cifra-sincronia-documental/SKILL.md` |
 
 ---
 
