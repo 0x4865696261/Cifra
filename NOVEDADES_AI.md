@@ -25,6 +25,7 @@ ella y las fusiones irán en ese orden (primero el trabajo de 0.2.1, después `c
 | Nombre | Cuándo usarla | Ruta |
 |---|---|---|
 | cifra-orientacion | Siempre, la primera, al empezar cualquier sesión | `.opencode/skills/cifra-orientacion/SKILL.md` |
+| cifra-flujo-git | Antes de crear la rama y de cada commit de cualquier tarea | `.opencode/skills/cifra-flujo-git/SKILL.md` |
 
 ---
 
