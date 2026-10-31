@@ -1,5 +1,6 @@
 import { Worker } from "node:worker_threads";
 import { codigoWorker } from "./worker-javascript.ts";
+import { codigoWorkerPyodide } from "./worker-pyodide.ts";
 import type { Transporte } from "./motor-javascript.ts";
 
 /**
@@ -40,6 +41,40 @@ parentPort.on("message", function (mensaje) {
 ${codigoWorker()}`;
     const worker = new Worker(fuente, { eval: true });
     worker.unref(); // el hilo no mantiene la prueba viva: la corta el propio motor
+    hilos.push(worker);
+    return {
+      enviar: (mensaje) => worker.postMessage(mensaje),
+      terminar: () => worker.terminate(),
+      alResultado: (observador) => {
+        worker.on("message", (mensaje) => observador(mensaje));
+      },
+      alFallo: (observador) => {
+        worker.on("error", (error) => observador(String(error)));
+      },
+    };
+  };
+}
+
+export function transporteHiloPyodide(): () => Transporte {
+  return () => {
+    const fuente = `const { parentPort } = require("worker_threads");
+var self = {
+  postMessage: function (m) { parentPort.postMessage(m); }
+};
+// La prueba nunca descarga el CDN: el worker debe contarlo como error, no fingir union.
+var importScripts = function (url) {
+  throw new Error("la prueba de Node no descarga Pyodide de la red (url pedida: " + url + ")");
+};
+parentPort.on("message", function (mensaje) {
+  try {
+    self.onmessage({ data: mensaje });
+  } catch (error) {
+    parentPort.postMessage({ tipo: "cifra-fallo", aviso: String(error && error.stack || error) });
+  }
+});
+${codigoWorkerPyodide()}`;
+    const worker = new Worker(fuente, { eval: true });
+    worker.unref();
     hilos.push(worker);
     return {
       enviar: (mensaje) => worker.postMessage(mensaje),

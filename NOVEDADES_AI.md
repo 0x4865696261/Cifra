@@ -1040,6 +1040,12 @@ seguir ignorando el aviso no fatal de rolldown sobre `module level directive`.
   parte, bajo demanda en la primera ejecución. No entra como dependencia de `npm`: pesaría cientos
   de MB en el árbol y el resto de la web ya necesita red (las llamadas al modelo); la lista de
   paquetes Python queda cerrada a la biblioteca estándar.
+- **La traza de Python** usa `sys.settrace` del intérprete: cada línea manda su línea y sus
+  variables locales (repr) por el puente `js` de Pyodide, con el mismo tope de pasos y de valor
+  que JavaScript. La salida se captura con el tope de 0.3.B sin interrumpir el programa: al
+  superarlo, la salida queda recortada y el estado indica `salida-excedida`. La memoria de
+  Pyodide no se mide (`memoriaMBUsada` ausente) y la carga del CDN cuenta dentro del tope de
+  tiempo de la primera ejecución; la interfaz avisará del tiempo de carga.
 - **El tope de memoria de JavaScript se mide** con el delta de heap (`performance.memory` en el
   navegador Chrome; `process.memoryUsage` en las pruebas de Node). Si el motor no ofrece lectura,
   el límite de memoria no se puede aplicar y el resultado lo dice (`memoriaMBUsada` ausente);
