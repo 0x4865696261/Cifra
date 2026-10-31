@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 const links = [
+  { to: "/retos", label: "Retos" },
   { to: "/estudio", label: "Estudio" },
   { to: "/matematicas", label: "Matemáticas" },
   { to: "/biblioteca", label: "Biblioteca" },
@@ -48,7 +49,10 @@ export function Shell({ children }: { children: ReactNode }) {
       {children}
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-8 font-mono text-sm text-muted sm:flex-row sm:justify-between">
-          <p>Cifra no ejecuta el código que pegas.</p>
+          <p>
+            El código corre en tu navegador: aislado, con límites y sin salir a la red. Los
+            veredictos de los retos salen de ahí, no de un modelo.
+          </p>
           <p>La lectura recordada se queda en este navegador.</p>
         </div>
       </footer>

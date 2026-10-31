@@ -18,9 +18,17 @@ function Home() {
         poder ir de una ecuación a los pasos que la calculan.
       </p>
 
-      <div className="mt-12 grid gap-10 border-t border-line pt-8 md:grid-cols-2">
-        <Link to="/estudio" className="group block min-h-11">
+      <div className="mt-12 grid gap-10 border-t border-line pt-8 md:grid-cols-3">
+        <Link to="/retos" className="group block min-h-11">
           <p className="font-mono text-sm text-muted">01</p>
+          <h2 className="mt-2 font-serif text-3xl group-hover:text-copper">Retos</h2>
+          <p className="mt-3 max-w-md text-pretty">
+            Fundamentos con veredicto real: pruebas que corren en tu navegador y una defensa que
+            comprueba que entiendes lo que escribiste.
+          </p>
+        </Link>
+        <Link to="/estudio" className="group block min-h-11">
+          <p className="font-mono text-sm text-muted">02</p>
           <h2 className="mt-2 font-serif text-3xl group-hover:text-copper">Un programa</h2>
           <p className="mt-3 max-w-md text-pretty">
             Pega un fragmento. Cifra separa lo que está escrito de lo que solo se puede deducir, y lo explica al nivel
@@ -28,7 +36,7 @@ function Home() {
           </p>
         </Link>
         <Link to="/matematicas" className="group block min-h-11">
-          <p className="font-mono text-sm text-muted">02</p>
+          <p className="font-mono text-sm text-muted">03</p>
           <h2 className="mt-2 font-serif text-3xl group-hover:text-copper">Una ecuación</h2>
           <p className="mt-3 max-w-md text-pretty">
             De la fórmula al razonamiento, al pseudocódigo y a una implementación cuyos valores puedes mover.
@@ -80,14 +88,15 @@ function Home() {
       <section className="mt-16 max-w-2xl">
         <h2 className="font-serif text-3xl">Qué hace esta versión</h2>
         <p className="mt-3 text-pretty">
-          Puedes leer un fragmento, pedir una explicación al nivel que marques y recorrer ocho puentes entre una idea
-          matemática y su código. Hay dieciocho conceptos enlazados y el mismo conteo de palabras escrito en cinco
-          lenguajes, con lo que de verdad cambia.
+          Puedes leer un fragmento, pedir una explicación al nivel que marques, recorrer ocho puentes entre una idea
+          matemática y su código, y resolver retos de fundamentos con veredicto real. La ejecución corre en tu
+          navegador, en un Worker aislado y con límites; el veredicto de un reto sale de sus pruebas fijas, no de un
+          modelo: la IA lo explica y pregunta en la defensa, sin decidir nada.
         </p>
         <p className="mt-3 text-pretty">
-          Todavía no ejecuta tu código: haría falta un entorno aislado, y fingirlo sería mentir. Tampoco abre un
-          proyecto entero, ni sigue imports entre archivos, ni tiene cuentas. El progreso de lectura se queda en este
-          navegador. Los frameworks no tienen todavía un ensayo propio; si aparecen, será con contenido, no con un
+          No abre todavía un proyecto entero, ni sigue imports entre archivos, ni tiene cuentas ni ranking. El progreso
+          de lectura y de retos se queda en este navegador, y se puede exportar e importar como fichero. Los retos
+          profesionales y los paquetes de incidentes no han llegado aún; si aparecen, será con contenido, no con un
           botón vacío.
         </p>
       </section>

@@ -17,6 +17,8 @@ import { Route as BibliotecaIndexRouteImport } from './routes/biblioteca.index'
 import { Route as BibliotecaSlugRouteImport } from './routes/biblioteca.$slug'
 import { Route as MatematicasIndexRouteImport } from './routes/matematicas.index'
 import { Route as MatematicasSlugRouteImport } from './routes/matematicas.$slug'
+import { Route as RetosIndexRouteImport } from './routes/retos.index'
+import { Route as RetosIdRouteImport } from './routes/retos.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +60,16 @@ const MatematicasSlugRoute = MatematicasSlugRouteImport.update({
   path: '/matematicas/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RetosIndexRoute = RetosIndexRouteImport.update({
+  id: '/retos/',
+  path: '/retos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RetosIdRoute = RetosIdRouteImport.update({
+  id: '/retos/$id',
+  path: '/retos/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -66,8 +78,10 @@ export interface FileRoutesByFullPath {
   '/lenguajes': typeof LenguajesRoute
   '/biblioteca/$slug': typeof BibliotecaSlugRoute
   '/matematicas/$slug': typeof MatematicasSlugRoute
+  '/retos/$id': typeof RetosIdRoute
   '/biblioteca/': typeof BibliotecaIndexRoute
   '/matematicas/': typeof MatematicasIndexRoute
+  '/retos/': typeof RetosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -76,8 +90,10 @@ export interface FileRoutesByTo {
   '/lenguajes': typeof LenguajesRoute
   '/biblioteca/$slug': typeof BibliotecaSlugRoute
   '/matematicas/$slug': typeof MatematicasSlugRoute
+  '/retos/$id': typeof RetosIdRoute
   '/biblioteca': typeof BibliotecaIndexRoute
   '/matematicas': typeof MatematicasIndexRoute
+  '/retos': typeof RetosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -87,8 +103,10 @@ export interface FileRoutesById {
   '/lenguajes': typeof LenguajesRoute
   '/biblioteca/$slug': typeof BibliotecaSlugRoute
   '/matematicas/$slug': typeof MatematicasSlugRoute
+  '/retos/$id': typeof RetosIdRoute
   '/biblioteca/': typeof BibliotecaIndexRoute
   '/matematicas/': typeof MatematicasIndexRoute
+  '/retos/': typeof RetosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -99,8 +117,10 @@ export interface FileRouteTypes {
     | '/lenguajes'
     | '/biblioteca/$slug'
     | '/matematicas/$slug'
+    | '/retos/$id'
     | '/biblioteca/'
     | '/matematicas/'
+    | '/retos/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,8 +129,10 @@ export interface FileRouteTypes {
     | '/lenguajes'
     | '/biblioteca/$slug'
     | '/matematicas/$slug'
+    | '/retos/$id'
     | '/biblioteca'
     | '/matematicas'
+    | '/retos'
   id:
     | '__root__'
     | '/'
@@ -119,8 +141,10 @@ export interface FileRouteTypes {
     | '/lenguajes'
     | '/biblioteca/$slug'
     | '/matematicas/$slug'
+    | '/retos/$id'
     | '/biblioteca/'
     | '/matematicas/'
+    | '/retos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -130,8 +154,10 @@ export interface RootRouteChildren {
   LenguajesRoute: typeof LenguajesRoute
   BibliotecaSlugRoute: typeof BibliotecaSlugRoute
   MatematicasSlugRoute: typeof MatematicasSlugRoute
+  RetosIdRoute: typeof RetosIdRoute
   BibliotecaIndexRoute: typeof BibliotecaIndexRoute
   MatematicasIndexRoute: typeof MatematicasIndexRoute
+  RetosIndexRoute: typeof RetosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +218,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatematicasSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/retos/': {
+      id: '/retos/'
+      path: '/retos'
+      fullPath: '/retos/'
+      preLoaderRoute: typeof RetosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/retos/$id': {
+      id: '/retos/$id'
+      path: '/retos/$id'
+      fullPath: '/retos/$id'
+      preLoaderRoute: typeof RetosIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -202,8 +242,10 @@ const rootRouteChildren: RootRouteChildren = {
   LenguajesRoute: LenguajesRoute,
   BibliotecaSlugRoute: BibliotecaSlugRoute,
   MatematicasSlugRoute: MatematicasSlugRoute,
+  RetosIdRoute: RetosIdRoute,
   BibliotecaIndexRoute: BibliotecaIndexRoute,
   MatematicasIndexRoute: MatematicasIndexRoute,
+  RetosIndexRoute: RetosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

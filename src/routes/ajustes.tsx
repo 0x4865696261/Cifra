@@ -1,9 +1,19 @@
 import { useEffect, useState } from "react";
+import type { ChangeEvent } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { aiStatus, type AiStatus } from "@/lib/ai/explain";
 import { providers } from "@/lib/ai/providers";
 import { clearAiSettings, loadAiSettings, modelInUse, saveAiSettings, type AiSettings } from "@/lib/ai/settings";
+import {
+  exportarProgreso,
+  importarProgreso,
+  umbralProfesional,
+  versionProgreso,
+  type Progreso,
+} from "@/lib/retos/progreso";
+import { useProgreso } from "@/lib/retos/use-progreso";
+import type { Plan } from "@/lib/retos/tipos";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 
@@ -147,6 +157,113 @@ function AjustesPage() {
               : "El servidor no trae clave. Sin una tuya aquí, las explicaciones y la guía de fallo no tienen modelo; el análisis de texto del estudio sigue funcionando igual."}
         </p>
       </div>
+
+      <SeccionProgreso />
     </main>
+  );
+}
+
+/**
+ * El camino y el progreso (0.4.A/E): cambiar de plan es reversible y no toca el progreso; el
+ * progreso se exporta e importa como fichero. Nada de esto sale de este navegador.
+ */
+function SeccionProgreso() {
+  const { progreso, cargado, elegirPlan, reemplazar } = useProgreso();
+  const [aviso, setAviso] = useState<string | null>(null);
+
+  const cambiar = (plan: Plan) => {
+    const error = elegirPlan(plan);
+    setAviso(error ?? `Camino cambiado a ${plan === "profesional" ? "profesional" : "desde cero"}.`);
+  };
+
+  const exportar = () => {
+    const texto = exportarProgreso(progreso);
+    const fichero = new Blob([texto], { type: "application/json" });
+    const url = URL.createObjectURL(fichero);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `cifra-progreso-v${versionProgreso}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setAviso("Progreso exportado: un JSON con todo lo que hay en este navegador.");
+  };
+
+  const alImportar = async (evento: ChangeEvent<HTMLInputElement>) => {
+    const fichero = evento.target.files?.[0];
+    evento.target.value = "";
+    if (!fichero) return;
+    const leido = await fichero.text();
+    const resultado = importarProgreso(leido);
+    if (resultado.ok) {
+      reemplazar(resultado.progreso);
+      setAviso("Progreso importado: reemplazó al de este navegador, tras validar la forma entera.");
+    } else {
+      setAviso(resultado.error);
+    }
+  };
+
+  if (!cargado) {
+    return (
+      <div className="mt-10 border border-line p-5">
+        <p className="font-mono text-sm text-muted">Leyendo tu progreso…</p>
+      </div>
+    );
+  }
+
+  const superados = Object.values(progreso.retos).length;
+
+  return (
+    <div className="mt-10 border border-line p-5">
+      <h2 className="font-serif text-2xl">Tu camino en los retos</h2>
+      <p className="mt-3 text-pretty">
+        El camino (0.4.A) es reversible y nunca borra lo que llevas. Superado:{" "}
+        {superados === 1 ? "un reto" : `${superados} retos`}
+        {progreso.pruebaNivel
+          ? ` · prueba de nivel: nivel ${progreso.pruebaNivel.nivelEstimado}`
+          : ""}{" "}
+        · profesional{" "}
+        {progreso.profesionalDesbloqueado
+          ? "desbloqueado"
+          : `cerrado (se abre superando un reto de nivel ${umbralProfesional} o más)`}
+        .
+      </p>
+
+      <div className="mt-4 flex flex-wrap gap-3">
+        <button
+          type="button"
+          aria-pressed={progreso.plan === "desde-cero"}
+          onClick={() => cambiar("desde-cero")}
+          className={cn(
+            "tap min-h-11 px-3 font-mono text-sm",
+            progreso.plan === "desde-cero" ? "bg-ink text-paper" : "border border-line bg-paper text-ink",
+          )}
+        >
+          Desde cero
+        </button>
+        <button
+          type="button"
+          aria-pressed={progreso.plan === "profesional"}
+          onClick={() => cambiar("profesional")}
+          className={cn(
+            "tap min-h-11 px-3 font-mono text-sm",
+            progreso.plan === "profesional" ? "bg-ink text-paper" : "border border-line bg-paper text-ink",
+          )}
+        >
+          Profesional
+        </button>
+        <Button tone="ghost" onClick={exportar}>
+          Exportar el progreso
+        </Button>
+        <label className="inline-flex min-h-11 cursor-pointer items-center border border-line bg-paper px-4 font-mono text-sm text-ink">
+          Importar un fichero…
+          <input type="file" accept="application/json,.json" className="sr-only" onChange={alImportar} />
+        </label>
+      </div>
+      {aviso && <p className="mt-3 text-pretty text-muted">{aviso}</p>}
+      <p className="mt-3 text-pretty text-muted">
+        Importar reemplaza el progreso de este navegador por el del fichero: solo se acepta un
+        JSON exportado por Cifra con la misma versión.
+      </p>
+    </div>
   );
 }
