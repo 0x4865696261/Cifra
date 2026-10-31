@@ -52,7 +52,7 @@ explicaciones honestas y contenido interconectado.
 **Criterio de terminación:** typecheck, pruebas y build en verde; cada pantalla se renderiza con
 consola limpia en escritorio y móvil.
 
-## 0.2 — Depuración como método (hecha)
+## 0.2 — Depuración como método (base hecha; 0.2.1 completada, pendiente de revisión)
 
 **Objetivo:** que un error deje de ser algo que la IA tapa. Estudio del fallo: qué falló, por qué
 ocurrió, cómo se habría detectado antes y cómo reproducirlo.
@@ -65,6 +65,8 @@ ocurrió, cómo se habría detectado antes y cómo reproducirlo.
 - Skill de depuración fija: leer el mensaje, localizar el sitio, hipótesis ordenadas de la más
   barata a la más cara con cómo comprobar cada una, una entrada que falla hoy y otra que debería
   seguir funcionando mañana, y cómo el fallo habría saltado antes.
+- Límites de entrada del modo «Estudia el fallo», fijados en la 0.2.1: 20 000 caracteres de código y
+  8 000 de mensaje, con aviso en la interfaz y envío bloqueado hasta que quepa.
 - Ajustes: proveedor y modelo propios (xAI, OpenAI, Anthropic, Google) con clave propia. La clave se
   guarda solo en el navegador y viaja con cada petición; el servidor la usa en esa llamada y no la
   guarda ni la registra en logs.

@@ -1,15 +1,14 @@
-export type DebugGuide = {
-  reading: string;
-  locate: string;
-  hypotheses: { hypothesis: string; howToCheck: string }[];
-  repro: { failing: string; passing: string };
-  caughtEarlier: string;
-  checked: string[];
-  inferred: string[];
-  askNext: string;
-};
+import type { FailureReport } from "../analyze/failure.ts";
 
-export function parseDebugGuide(raw: string): DebugGuide | null {
+/**
+ * El modelo contesta con su propia forma de JSON; aquí se valida contra la
+ * `guia` del contrato 4.2 y se convierte. Si no cumple la forma completa, no
+ * hay guía: se devuelve null y la superficie muestra un error útil.
+ */
+
+export type GuiaDeDepuracion = NonNullable<FailureReport["guia"]>;
+
+export function parseDebugGuide(raw: string): GuiaDeDepuracion | null {
   const trimmed = raw.trim();
   const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
   const candidate = fenced?.[1]?.trim() ?? trimmed;
@@ -24,38 +23,49 @@ export function parseDebugGuide(raw: string): DebugGuide | null {
   }
   if (!value || typeof value !== "object") return null;
   const record = value as Record<string, unknown>;
-  const reading = asString(record.reading);
-  if (!reading) return null;
+
+  const leerElMensaje = asString(record.reading);
+  const localizarElSitio = asString(record.locate);
+  if (!leerElMensaje || !localizarElSitio) return null;
+
   const reproRecord =
     record.repro && typeof record.repro === "object" ? (record.repro as Record<string, unknown>) : {};
+  const entradaQueFallaHoy = asString(reproRecord.failing);
+  const entradaQueDebeSeguirFuncionando = asString(reproRecord.passing);
+  if (!entradaQueFallaHoy || !entradaQueDebeSeguirFuncionando) return null;
+
+  const comoHabriaSaltadoAntes = asString(record.caughtEarlier);
+  if (!comoHabriaSaltadoAntes) return null;
+
+  const hipotesis = asList(record.hypotheses)
+    .map((item) => {
+      const texto = asString(item.hypothesis);
+      const coste = asCoste(item.coste);
+      const comoComprobarla = asString(item.howToCheck);
+      if (!texto || !coste || !comoComprobarla) return null;
+      return { texto, coste, comoComprobarla };
+    });
+  if (hipotesis.length === 0 || hipotesis.some((item) => item === null)) return null;
+  const hipotesisValidas = hipotesis
+    .map((item) => item as { texto: string; coste: 1 | 2 | 3; comoComprobarla: string })
+    .slice(0, 4);
+
   return {
-    reading,
-    locate: asString(record.locate),
-    hypotheses: asList(record.hypotheses)
-      .map((item) => ({
-        hypothesis: asString(item.hypothesis),
-        howToCheck: asString(item.howToCheck),
-      }))
-      .filter((item) => item.hypothesis && item.howToCheck)
-      .slice(0, 4),
-    repro: {
-      failing: asString(reproRecord.failing),
-      passing: asString(reproRecord.passing),
-    },
-    caughtEarlier: asString(record.caughtEarlier),
-    checked: asStrings(record.checked).slice(0, 5),
-    inferred: asStrings(record.inferred).slice(0, 5),
-    askNext: asString(record.askNext),
+    leerElMensaje: [{ texto: leerElMensaje, procedencia: "deducido" }],
+    localizarElSitio: [{ texto: localizarElSitio, procedencia: "deducido" }],
+    hipotesis: hipotesisValidas,
+    entradaQueFallaHoy,
+    entradaQueDebeSeguirFuncionando,
+    comoHabriaSaltadoAntes,
   };
+}
+
+function asCoste(value: unknown): 1 | 2 | 3 | null {
+  return value === 1 || value === 2 || value === 3 ? value : null;
 }
 
 function asString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
-}
-
-function asStrings(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.map(asString).filter(Boolean);
 }
 
 function asList(value: unknown): Record<string, unknown>[] {
