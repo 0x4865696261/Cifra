@@ -1,13 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { parseDebugGuide, type DebugGuide } from "@/lib/ai/debug-parse";
+import { parseDebugGuide, type GuiaDeDepuracion } from "@/lib/ai/debug-parse";
 import { callModel, cleanApiKey, isProviderId, keyLooksValid, type ProviderId } from "@/lib/ai/providers";
 import { composeSkills, lockedSkills } from "@/lib/skills/registry";
 
-export type { DebugGuide };
+export type { GuiaDeDepuracion };
 
 export type DebugResult =
-  | { ok: true; guide: DebugGuide; cached: boolean }
+  | { ok: true; guide: GuiaDeDepuracion; cached: boolean }
   | { ok: false; error: string; raw?: string };
 
 const payloadSchema = z.object({
@@ -23,7 +23,7 @@ const payloadSchema = z.object({
   model: z.string().max(64).optional(),
 });
 
-const cache = new Map<string, DebugGuide>();
+const cache = new Map<string, GuiaDeDepuracion>();
 const hits = new Map<string, number[]>();
 const WINDOW_MS = 10 * 60 * 1000;
 const IP_LIMIT = 8;
@@ -93,14 +93,13 @@ export const askDebug = createServerFn({ method: "POST" })
     const system = [
       "Eres Cifra, en el estudio del fallo. Conduces el análisis de un error. No entregas una corrección a secas y no reescribes el programa.",
       "Responde solo con un objeto JSON, sin markdown, con estas claves:",
-      '{"reading": string, "locate": string, "hypotheses": [{"hypothesis": string, "howToCheck": string}], "repro": {"failing": string, "passing": string}, "caughtEarlier": string, "checked": string[], "inferred": string[], "askNext": string}',
+      '{"reading": string, "locate": string, "hypotheses": [{"hypothesis": string, "coste": 1, "howToCheck": string}], "repro": {"failing": string, "passing": string}, "caughtEarlier": string}',
       "reading: qué dice el mensaje con sus palabras y qué deja de garantizarse. 2 a 4 frases.",
       "locate: a qué parte del código apunta el mensaje y qué mirar en las líneas vecinas antes de juzgar. Frases cortas.",
-      "hypotheses: de 2 a 4, ordenadas de la más barata de comprobar a la más cara. Cada howToCheck es una acción concreta: una entrada, un imprimir, una línea que leer.",
+      "hypotheses: de 2 a 4, ordenadas de la más barata de comprobar a la más cara. Cada una lleva su propio coste de comprobarla como número: 1 barata, 2 normal, 3 cara, y concuerda con el orden. Cada howToCheck es una acción concreta: una entrada, un imprimir, una línea que leer.",
       "repro.failing: una entrada pequeña y concreta que, si la hipótesis más probable es cierta, reproduce el fallo. repro.passing: otra entrada que debería seguir funcionando cuando el arreglo sea bueno. Describelas; no afirmes que las has probado.",
       "caughtEarlier: qué aviso, prueba o hábito habría destapado este fallo antes de que lo encontrara esta persona.",
-      "checked: solo lo que está en el código o en las observaciones recibidas. inferred: lo que exigiría ejecutar. Nada inventado presentado como ocurrido.",
-      "askNext: una pregunta que vale la pena hacerse después.",
+      "Nada inventado presentado como ocurrido: solo deduces a partir del código y del mensaje que te llegan.",
       composeSkills(lockedSkills("codigo")),
     ].join("\n\n");
 
@@ -150,7 +149,7 @@ function allow(key: string, limit: number): boolean {
   return true;
 }
 
-function remember(key: string, guide: DebugGuide) {
+function remember(key: string, guide: GuiaDeDepuracion) {
   cache.set(key, guide);
   if (cache.size > 32) {
     const oldest = cache.keys().next().value;
