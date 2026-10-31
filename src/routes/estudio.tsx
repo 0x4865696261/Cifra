@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Studio } from "@/components/studio/studio";
 import { DebugStudio } from "@/components/studio/debug";
 import { RunStudio } from "@/components/studio/run";
+import { CompararStudio } from "@/components/studio/comparar";
 import type { LanguageId } from "@/lib/analyze/structure";
 import { cn } from "@/lib/cn";
 
@@ -15,6 +16,7 @@ const modes = [
   { id: "lee", label: "Lee el programa" },
   { id: "fallo", label: "Estudia el fallo" },
   { id: "ejecuta", label: "Ejecuta" },
+  { id: "compara", label: "Compara" },
 ] as const;
 
 type PendienteFallo = { code: string; errorMessage: string; language: LanguageId };
@@ -39,7 +41,7 @@ function EstudioPage() {
         pulsas. La pestaña Ejecuta corre el código en tu propio navegador, aislado y con límites,
         y si falla lleva el mensaje a «Estudia el fallo».
       </p>
-      <div className="mt-6 grid grid-cols-3 max-w-xl border border-line">
+      <div className="mt-6 grid grid-cols-2 max-w-xl border border-line sm:grid-cols-4">
         {modes.map((option) => (
           <button
             key={option.id}
@@ -61,6 +63,7 @@ function EstudioPage() {
         {mode === "ejecuta" && (
           <RunStudio onEstudiarFallo={(codigo, mensaje, lenguaje) => llevarAlFallo(codigo, mensaje, lenguaje)} />
         )}
+        {mode === "compara" && <CompararStudio />}
       </div>
     </main>
   );
