@@ -28,3 +28,11 @@ export function definicionIncidentePorId(id: string): DefinicionIncidente | unde
 export const familiasDeIncidentes: string[] = [
   ...new Set(definicionesIncidentes.map((paquete) => paquete.familia)),
 ];
+
+/** La nota de cada familia del registro: la lleva el primer paquete escrito de esa familia. */
+export const notasFamiliasIncidentes: Record<string, string> = Object.fromEntries(
+  familiasDeIncidentes.map((familia) => [
+    familia,
+    definicionesIncidentes.find((paquete) => paquete.familia === familia)?.notaFamilia ?? "",
+  ]),
+);

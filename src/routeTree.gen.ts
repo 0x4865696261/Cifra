@@ -15,6 +15,8 @@ import { Route as EstudioRouteImport } from './routes/estudio'
 import { Route as LenguajesRouteImport } from './routes/lenguajes'
 import { Route as BibliotecaIndexRouteImport } from './routes/biblioteca.index'
 import { Route as BibliotecaSlugRouteImport } from './routes/biblioteca.$slug'
+import { Route as IncidentesIndexRouteImport } from './routes/incidentes.index'
+import { Route as IncidentesIdRouteImport } from './routes/incidentes.$id'
 import { Route as MatematicasIndexRouteImport } from './routes/matematicas.index'
 import { Route as MatematicasSlugRouteImport } from './routes/matematicas.$slug'
 import { Route as RetosIndexRouteImport } from './routes/retos.index'
@@ -50,6 +52,16 @@ const BibliotecaSlugRoute = BibliotecaSlugRouteImport.update({
   path: '/biblioteca/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IncidentesIndexRoute = IncidentesIndexRouteImport.update({
+  id: '/incidentes/',
+  path: '/incidentes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IncidentesIdRoute = IncidentesIdRouteImport.update({
+  id: '/incidentes/$id',
+  path: '/incidentes/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MatematicasIndexRoute = MatematicasIndexRouteImport.update({
   id: '/matematicas/',
   path: '/matematicas/',
@@ -77,9 +89,11 @@ export interface FileRoutesByFullPath {
   '/estudio': typeof EstudioRoute
   '/lenguajes': typeof LenguajesRoute
   '/biblioteca/$slug': typeof BibliotecaSlugRoute
+  '/incidentes/$id': typeof IncidentesIdRoute
   '/matematicas/$slug': typeof MatematicasSlugRoute
   '/retos/$id': typeof RetosIdRoute
   '/biblioteca/': typeof BibliotecaIndexRoute
+  '/incidentes/': typeof IncidentesIndexRoute
   '/matematicas/': typeof MatematicasIndexRoute
   '/retos/': typeof RetosIndexRoute
 }
@@ -89,9 +103,11 @@ export interface FileRoutesByTo {
   '/estudio': typeof EstudioRoute
   '/lenguajes': typeof LenguajesRoute
   '/biblioteca/$slug': typeof BibliotecaSlugRoute
+  '/incidentes/$id': typeof IncidentesIdRoute
   '/matematicas/$slug': typeof MatematicasSlugRoute
   '/retos/$id': typeof RetosIdRoute
   '/biblioteca': typeof BibliotecaIndexRoute
+  '/incidentes': typeof IncidentesIndexRoute
   '/matematicas': typeof MatematicasIndexRoute
   '/retos': typeof RetosIndexRoute
 }
@@ -102,9 +118,11 @@ export interface FileRoutesById {
   '/estudio': typeof EstudioRoute
   '/lenguajes': typeof LenguajesRoute
   '/biblioteca/$slug': typeof BibliotecaSlugRoute
+  '/incidentes/$id': typeof IncidentesIdRoute
   '/matematicas/$slug': typeof MatematicasSlugRoute
   '/retos/$id': typeof RetosIdRoute
   '/biblioteca/': typeof BibliotecaIndexRoute
+  '/incidentes/': typeof IncidentesIndexRoute
   '/matematicas/': typeof MatematicasIndexRoute
   '/retos/': typeof RetosIndexRoute
 }
@@ -116,9 +134,11 @@ export interface FileRouteTypes {
     | '/estudio'
     | '/lenguajes'
     | '/biblioteca/$slug'
+    | '/incidentes/$id'
     | '/matematicas/$slug'
     | '/retos/$id'
     | '/biblioteca/'
+    | '/incidentes/'
     | '/matematicas/'
     | '/retos/'
   fileRoutesByTo: FileRoutesByTo
@@ -128,9 +148,11 @@ export interface FileRouteTypes {
     | '/estudio'
     | '/lenguajes'
     | '/biblioteca/$slug'
+    | '/incidentes/$id'
     | '/matematicas/$slug'
     | '/retos/$id'
     | '/biblioteca'
+    | '/incidentes'
     | '/matematicas'
     | '/retos'
   id:
@@ -140,9 +162,11 @@ export interface FileRouteTypes {
     | '/estudio'
     | '/lenguajes'
     | '/biblioteca/$slug'
+    | '/incidentes/$id'
     | '/matematicas/$slug'
     | '/retos/$id'
     | '/biblioteca/'
+    | '/incidentes/'
     | '/matematicas/'
     | '/retos/'
   fileRoutesById: FileRoutesById
@@ -153,9 +177,11 @@ export interface RootRouteChildren {
   EstudioRoute: typeof EstudioRoute
   LenguajesRoute: typeof LenguajesRoute
   BibliotecaSlugRoute: typeof BibliotecaSlugRoute
+  IncidentesIdRoute: typeof IncidentesIdRoute
   MatematicasSlugRoute: typeof MatematicasSlugRoute
   RetosIdRoute: typeof RetosIdRoute
   BibliotecaIndexRoute: typeof BibliotecaIndexRoute
+  IncidentesIndexRoute: typeof IncidentesIndexRoute
   MatematicasIndexRoute: typeof MatematicasIndexRoute
   RetosIndexRoute: typeof RetosIndexRoute
 }
@@ -204,6 +230,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BibliotecaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/incidentes/': {
+      id: '/incidentes/'
+      path: '/incidentes'
+      fullPath: '/incidentes/'
+      preLoaderRoute: typeof IncidentesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/incidentes/$id': {
+      id: '/incidentes/$id'
+      path: '/incidentes/$id'
+      fullPath: '/incidentes/$id'
+      preLoaderRoute: typeof IncidentesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/matematicas/': {
       id: '/matematicas/'
       path: '/matematicas'
@@ -241,9 +281,11 @@ const rootRouteChildren: RootRouteChildren = {
   EstudioRoute: EstudioRoute,
   LenguajesRoute: LenguajesRoute,
   BibliotecaSlugRoute: BibliotecaSlugRoute,
+  IncidentesIdRoute: IncidentesIdRoute,
   MatematicasSlugRoute: MatematicasSlugRoute,
   RetosIdRoute: RetosIdRoute,
   BibliotecaIndexRoute: BibliotecaIndexRoute,
+  IncidentesIndexRoute: IncidentesIndexRoute,
   MatematicasIndexRoute: MatematicasIndexRoute,
   RetosIndexRoute: RetosIndexRoute,
 }
