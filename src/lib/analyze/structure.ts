@@ -1,57 +1,8 @@
-export const languageIds = [
-  "python",
-  "javascript",
-  "typescript",
-  "rust",
-  "go",
-  "c",
-  "cpp",
-  "java",
-  "csharp",
-  "ruby",
-  "php",
-  "sql",
-  "html",
-  "css",
-] as const;
+import { familiaDe } from "../modulos/lenguajes/index.ts";
+import type { Familia, LanguageId } from "../modulos/lenguajes/index.ts";
 
-export type LanguageId = (typeof languageIds)[number];
-
-export const languageLabels: Record<LanguageId, string> = {
-  python: "Python",
-  javascript: "JavaScript",
-  typescript: "TypeScript",
-  rust: "Rust",
-  go: "Go",
-  c: "C",
-  cpp: "C++",
-  java: "Java",
-  csharp: "C#",
-  ruby: "Ruby",
-  php: "PHP",
-  sql: "SQL",
-  html: "HTML",
-  css: "CSS",
-};
-
-type Family = "python" | "ruby" | "brace" | "sql" | "html" | "css";
-
-const familyOf: Record<LanguageId, Family> = {
-  python: "python",
-  ruby: "ruby",
-  javascript: "brace",
-  typescript: "brace",
-  rust: "brace",
-  go: "brace",
-  c: "brace",
-  cpp: "brace",
-  java: "brace",
-  csharp: "brace",
-  php: "brace",
-  sql: "sql",
-  html: "html",
-  css: "css",
-};
+export { isLanguageId, languageIds, languageLabels } from "../modulos/lenguajes/index.ts";
+export type { LanguageId };
 
 export type Fact = {
   lines: string;
@@ -86,12 +37,8 @@ const CONTROL_WORDS = new Set([
   "else",
 ]);
 
-export function isLanguageId(value: string): value is LanguageId {
-  return (languageIds as readonly string[]).includes(value);
-}
-
 export function analyze(source: string, language: LanguageId): Analysis {
-  const family = familyOf[language];
+  const family = familiaDe(language);
   const scanned = scan(source, family === "python" || family === "ruby");
   const facts: Fact[] = [];
   const nonEmpty = scanned.filter((line) => line.text.trim().length > 0).length;
@@ -359,7 +306,7 @@ function findImports(lines: Scanned[], language: LanguageId): Fact[] {
   return facts;
 }
 
-function findLoops(lines: Scanned[], family: Family): { lines: number[]; nested: { outer: number; inner: number }[] } {
+function findLoops(lines: Scanned[], family: Familia): { lines: number[]; nested: { outer: number; inner: number }[] } {
   if (family === "python" || family === "ruby") return findIndentLoops(lines);
   const found: number[] = [];
   const nested: { outer: number; inner: number }[] = [];
@@ -397,7 +344,7 @@ function findIndentLoops(lines: Scanned[]): { lines: number[]; nested: { outer: 
 function findRecursion(
   lines: Scanned[],
   definitions: Definition[],
-  family: Family,
+  family: Familia,
 ): { name: string; call: number }[] {
   const found: { name: string; call: number }[] = [];
   for (const definition of definitions) {
