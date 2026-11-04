@@ -1236,5 +1236,53 @@ Notas de la 0.5 tomadas al empezar (usa las propuestas de §8):
 
 ### El estado real de la 0.5
 
-(Se completa al cerrar la versión.)
+La 0.5 cierra con las nueve tareas del plan de commits hechas (más un arreglo pequeño
+`d3144a8 fix(repo): quita el BOM del package.json que dejaba sin arrancar el dev server`,
+encontrado al relanzar el servidor: un BOM que la herramienta de edición había dejado en
+`package.json`) y typecheck, pruebas y build en verde (356 pruebas: 354 pasan, 2 se saltan por
+falta de `cargo`, igual que en la 0.3 y la 0.4). Auditoría de lo que quedó:
+
+- **Dónde vive cada cosa.** El contrato de la sección 4.6 (`IncidentSpec`, `AnalizoIncidente`,
+  `EvaluacionIncidente`) en `src/lib/incidentes/tipos.ts`. La terminal pura en
+  `src/lib/incidentes/terminal.ts` + el sistema de ficheros virtual en `sistema.ts`, con su
+  componente `src/components/incidentes/terminal.tsx`. La evaluación en
+  `src/lib/incidentes/evaluar.ts` (local, pura, sin red). El progreso con export/import en
+  `src/lib/incidentes/progreso.ts` y su gancho `use-progreso.ts`. Los 8 paquetes en
+  `src/lib/incidentes/contenido/` (`datos.ts` + `recursos.ts`, agregados por `paquetes.ts`).
+  La IA en `src/lib/ai/incidentes.ts` (función de servidor `redactarComparacion`) sobre el
+  contrato puro `src/lib/ai/incidentes-parse.ts`. Interfaz: `src/routes/incidentes.index.tsx`
+  (tablero por familias con puerta del profesional) y `src/routes/incidentes.$id.tsx`
+  (síntoma, terminal, análisis y comparación); Ajustes lleva la sección propia de export/import
+  de incidentes, fichero aparte del de retos.
+- **La evaluación no lo dirime el modelo (0.5.D/E).** Sale de `evaluar`, que compara campo por
+  campo contra `respuestaEsperada` con cobertura de palabras (≥ 0.6 sobre las que no son de
+  parada) y cita con tolerancia de ±2 líneas. Un campo que encaja pero ninguna cita sostenida
+  prueba queda «deducido sin evidencia». La IA recibe solo la comparación (estados, citas y
+  puntos pasados por alto) y redacta; una respuesta que intente devolver su propio juicio se
+  rechaza entera, con prueba propia. `respuestaEsperada` nunca sale de Cifra hacia el modelo.
+- **La lista cerrada de la terminal se comprueba** (0.5.B): `ls, cat, head, tail, grep, wc,
+  sort, uniq, diff, find, cut`, tuberías entre comandos de la lista, solo lectura (no existe
+  operación que escriba) y sin salida del sistema de ficheros virtual: las rutas `../` se
+  resuelven dentro de la raíz del paquete o caen, y nunca tocan nada fuera.
+- **La puerta del profesional se hereda de 0.4**: sin plan activo los paquetes se listan y las
+  pantallas explican cómo se abre el camino, sin botones vacíos. El progreso del navegador
+  recuerda qué se abrió (0.5.H) aunque el plan se desactive, y se exporta e importa a parte.
+- **Los 8 paquetes cubren 8 de las 10 familias** acordadas: valor-nulo, estado-corrupto,
+  secreto-expuesto, permiso-de-mas, consulta-lenta, bloqueo-espera, desborde-recursos y
+  discrepancia-mensaje. Cada punto de evidencia esperada es citable contra los ficheros
+  reales del paquete (±2), el análisis de ejemplo de cada uno sale «acertado» y una batería
+  comprueba que nadie lleva credenciales reales, dominios del mundo ni direcciones de correo.
+- **Lo que la web demuestra en el navegador** (Playwright, `scripts/qa-incidentes.mjs`, contra
+  el servidor de desarrollo, 20 comprobaciones, con capturas en `screenshots/`): la puerta sin
+  plan (tablero y pantalla, sin lista ni terminal), la activación del plan desde Ajustes vía el
+  fichero importado, el tablero con las 8 familias, `ls` y `grep` en la terminal del paquete
+  «El perfil que devuelve 500 de madrugada», la entrega completa hasta la comparación campo por
+  campo (4 «acertado»), el recuerdo de la entrega en Ajustes y en el tablero (1/8), y el
+  pantallazo de los 390 px. Sin errores de consola en ninguna pantalla, escritorio ni móvil.
+- **Limitación de esta máquina, no del código**: `scripts/preview.mjs` solo corre dentro del
+  sandbox (`/proc`) y `vite preview` directo se queda sin responder aquí, así que el humo del
+  build no se pudo servir localmente; el de la 0.4 sí se había corrido contra 8081. La build de
+  producción (`npm run build`) está en verde en esta máquina.
+- **Queda para después de esta versión**: la petición de fusión a `main` (esta rama se queda
+  en el remoto con este commit; la revisión de la 0.3/0.4 sigue pendiente).
 
