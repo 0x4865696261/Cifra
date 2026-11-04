@@ -13,6 +13,12 @@ import {
   type Progreso,
 } from "@/lib/retos/progreso";
 import { useProgreso } from "@/lib/retos/use-progreso";
+import {
+  exportarProgresoIncidentes,
+  importarProgresoIncidentes,
+  versionProgresoIncidentes,
+} from "@/lib/incidentes/progreso";
+import { useIncidentesProgreso } from "@/lib/incidentes/use-progreso";
 import type { Plan } from "@/lib/retos/tipos";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
@@ -159,6 +165,7 @@ function AjustesPage() {
       </div>
 
       <SeccionProgreso />
+      <SeccionIncidentes />
     </main>
   );
 }
@@ -263,6 +270,81 @@ function SeccionProgreso() {
       <p className="mt-3 text-pretty text-muted">
         Importar reemplaza el progreso de este navegador por el del fichero: solo se acepta un
         JSON exportado por Cifra con la misma versión.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * El progreso de los incidentes (0.5.H): mismo contrato que el de los retos, fichero aparte.
+ * Vive en su propia clave del navegador, así que exportar e importar aquí no toca el de retos.
+ */
+function SeccionIncidentes() {
+  const { progresoIncidentes, cargado, reemplazar } = useIncidentesProgreso();
+  const [aviso, setAviso] = useState<string | null>(null);
+
+  const exportar = () => {
+    const texto = exportarProgresoIncidentes(progresoIncidentes);
+    const fichero = new Blob([texto], { type: "application/json" });
+    const url = URL.createObjectURL(fichero);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `cifra-incidentes-v${versionProgresoIncidentes}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setAviso("Progreso de incidentes exportado: un JSON aparte del de retos.");
+  };
+
+  const alImportar = async (evento: ChangeEvent<HTMLInputElement>) => {
+    const fichero = evento.target.files?.[0];
+    evento.target.value = "";
+    if (!fichero) return;
+    const leido = await fichero.text();
+    const resultado = importarProgresoIncidentes(leido);
+    if (resultado.ok) {
+      reemplazar(resultado.progreso);
+      setAviso("Progreso de incidentes importado: reemplazó al de este navegador, tras validar la forma entera.");
+    } else {
+      setAviso(resultado.error);
+    }
+  };
+
+  if (!cargado) {
+    return (
+      <div className="mt-6 border border-line p-5">
+        <p className="font-mono text-sm text-muted">Leyendo tu progreso de incidentes…</p>
+      </div>
+    );
+  }
+
+  const abiertos = Object.values(progresoIncidentes.paquetes).filter(
+    (entrada) => entrada.estado === "abierto",
+  ).length;
+  const entregados = Object.values(progresoIncidentes.paquetes).filter(
+    (entrada) => entrada.estado === "entregado",
+  ).length;
+
+  return (
+    <div className="mt-6 border border-line p-5">
+      <h2 className="font-serif text-2xl">Tu progreso en los incidentes</h2>
+      <p className="mt-3 text-pretty">
+        Se guarda en este navegador junto al de los retos, pero con su fichero aparte. Abiertos sin
+        entregar: {abiertos === 1 ? "un paquete" : `${abiertos} paquetes`} · entregados:{" "}
+        {entregados === 1 ? "un paquete" : `${entregados} paquetes`}.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Button tone="ghost" onClick={exportar}>
+          Exportar el progreso de incidentes
+        </Button>
+        <label className="inline-flex min-h-11 cursor-pointer items-center border border-line bg-paper px-4 font-mono text-sm text-ink">
+          Importar un fichero de incidentes…
+          <input type="file" accept="application/json,.json" className="sr-only" onChange={alImportar} />
+        </label>
+      </div>
+      {aviso && <p className="mt-3 text-pretty text-muted">{aviso}</p>}
+      <p className="mt-3 text-pretty text-muted">
+        Importar reemplaza solo el progreso de incidentes de este navegador: el de los retos no se
+        toca. Solo se acepta un JSON exportado por Cifra con la misma versión.
       </p>
     </div>
   );

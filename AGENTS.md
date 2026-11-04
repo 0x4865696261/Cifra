@@ -10,7 +10,7 @@ theirs; the rules below name the file to open at each point it matters.
 
 ---
 
-## Skills (in `.grok/skills/` — consult BEFORE building)
+## Skills (in `.grok/skills/` + `.opencode/skills/` + `.agents/skills/` — consult BEFORE building)
 
 Skills are auto-listed with trigger words; open the matching `SKILL.md` (plus
 its `references/`) **before** you build or polish. Routing the triggers miss:
@@ -22,6 +22,18 @@ docs) → **`app-data`** — mandatory before writing **or refusing** such
 integration, and when you think "can't access user data", "needs OAuth",
 "Grok Dashboard instead": it serves viewer connector data via the gate;
 **`neon`** / **`auth`** only per §0.5.
+
+**En Cifra, los skills reales de este repositorio son estos dos (y su tabla de
+ruteo está en la sección «Skills de Cifra» al final de este fichero):**
+
+- **`.opencode/skills/`** — los doce skills propios, prefijo `cifra-`
+  (`cifra-reglas-de-trabajo`, `cifra-porton-calidad`, …). La fuente de verdad de
+  Cifra es **`NOVEDADES_AI.md` + `NOVEDADES.md`**: si un skill los contradice,
+  ganan los documentos.
+- **`.agents/skills/`** — los ~45 instalados (superpowers, gsap-*, animación,
+  vercel-react-*, web-design-guidelines, agent-browser, webapp-testing,
+  skill-creator, find-skills, context7, design-md, …). Solo referencia de trabajo;
+  instalan skills, nunca dependencias de `package.json`.
 
 **Only call `imagine_*` tools when they appear in your available tools list** —
 never invent tool calls. Without them ship art with **CSS, SVG, emoji, canvas
@@ -350,3 +362,60 @@ auth/db: OFF by default — sign-in, @/lib/db or migrations ONLY on an accounts 
 never:   build an app for a greeting/number/question; invent imagine_* calls;
          ask the user to run commands; delete or abandon /workspace/startup.sh
 ```
+
+---
+
+## Skills de Cifra (leer ANTES de empezar cada tipo de tarea)
+
+**Ritual de arranque de CUALQUIER sesión o encargo (innegociable, vale siempre):**
+
+1. **Memoria del proyecto antes que nada:** lee `NOVEDADES.md`, el apartado 0 y los
+   apartados «El estado real de la 0.X» / «Decisiones abiertas» de `NOVEDADES_AI.md`,
+   y el `git log --oneline` reciente (y la rama activa), para saber **dónde se quedó
+   la última vez** antes de escribir una línea. La memoria de la sesión anterior NO
+   se vuelve a descubrir por tanteo: vive en el documento y en el historial.
+2. Pregúntate qué skills de la tabla de abajo aplican a la tarea **y valóralos cada vez antes de empezar** (los que ya conozcas de memoria se refrescan al vuelo).
+3. Handrail de git: sin `git commit` salvo como parte del plan de commits
+   documentado de la versión activa, **nunca `git push` ni merge ni PR ni
+   `reset --hard` sin confirmación del usuario**.
+4. **Prohibido borrar o dejar vacío nada del repositorio** (ficheros, código,
+   documentación, skills, scripts, assets) sin permiso explícito del usuario. Si
+   algo parece sobrar: propón el borrado y espera. Los documentos NOVEDADES*.md y
+   AGENTS.md no se borran ni se sobrescriben a secas; NOVEDADES_AI.md solo se
+   actualiza siguiendo su formato.
+5. En design general: **NOVEDADES_AI.md + NOVEDADES.md manda sobre cualquier
+   skill instalado**; si hay conflicto, gana el documento.
+
+**Cifra es una web en español que enseña a programar. La fuente de verdad es
+`NOVEDADES_AI.md` (+ `NOVEDADES.md`): si un skill instalado la contradice, gana
+el documento.** Los skills propios viven en `.opencode/skills/` (prefijo
+`cifra-`). Tabla de enrutado:
+
+| Tipo de tarea | Skills que se leen ANTES de empezar |
+|---|---|
+| Cualquier tarea (siempre) | `cifra-reglas-de-trabajo` |
+| Cierre de cualquier tarea | `cifra-porton-calidad`, `verification-before-completion` |
+| Cualquier función/feature | `test-driven-development`, `cifra-reglas-de-trabajo` |
+| Cualquier bug | `systematic-debugging`, `cifra-reglas-de-trabajo` |
+| Toca un contrato de datos (apartado 4) | `cifra-contratos-datos`, `cifra-comprobado-deducido-opinion` |
+| Textos de interfaz (UI copy) | `cifra-i18n-es` |
+| Editor de código | `cifra-editor-codigo`, `cifra-porton-calidad` |
+| Ejecución de código (Workers, Pyodide, límites) | `cifra-ejecucion-aislada`, `cifra-contratos-datos` |
+| IA de la web (prompts, src/lib/ai/) | `cifra-defensa-ia`, `cifra-privacidad-secretos` |
+| Claves, logs, caché | `cifra-privacidad-secretos`, `cifra-defensa-ia` |
+| Animación | `cifra-animacion`, `gsap-core`, `gsap-timeline`, `gsap-scrolltrigger`, `gsap-react`, `gsap-performance`, `gsap-plugins`, `gsap-utils`, `gsap-web`, `60fps-animation`, `accessible-animation`, `micro-interaction`, `page-transition-animation`, `svg-animation`, `motion` (los skills de animación son GUÍA de diseño: no añaden ninguna dependencia a package.json sin justificar en una línea) |
+| Componentes React / patrones | `vercel-react-best-practices`, `vercel-composition-patterns`, `vercel-react-view-transitions` |
+| Tailwind / sistema de diseño | `tailwind-design-system`, `frontend-design` |
+| Diseño / pantallas nuevas | `frontend-design`, `web-design-guidelines`, `cifra-accesibilidad-rendimiento` |
+| Revisión visual / accesibilidad / rendimiento | `web-design-guidelines`, `cifra-accesibilidad-rendimiento` |
+| Ver la app en un navegador real (QA, animaciones) | `agent-browser`, `webapp-testing` |
+| Documentar el diseño actual | `design-md` (ESCRIBE en DESIGN.md; no cambia el diseño) |
+| Buscar cómo hacer algo / docs de librerías | `find-skills`, `context7` |
+| Planear o descomponer una versión | `writing-plans`, `brainstorming` (con `cifra-reglas-de-trabajo`) |
+| Git: commit, rama, revert | `cifra-git-commits` |
+| Trabajo paralelo con subagentes | `subagent-driven-development`, `using-git-worktrees` |
+
+Reglas que atraviesan todo lo anterior: una tarea a la vez, leer antes de
+escribir, no inventar, no ampliar alcance, cambios pequeños, sin dependencias
+nuevas sin justificar (una línea), ninguna clave en código ni en logs, **sin
+push/merge/PR sin confirmación del usuario**.
