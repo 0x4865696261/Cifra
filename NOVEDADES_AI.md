@@ -118,7 +118,7 @@ escribe una IA, y leer la arquitectura de un sistema.** Va desde cero hasta nive
 | 0.4 | Dos caminos y retos de fundamentos | en la rama `version/0.4` |
 | 0.5 | Retos profesionales: leer qué pasó | en la rama `version/0.5` |
 | 0.6 | Plataforma modular | hecha en la rama; pendiente de revisión y fusión |
-| 0.7 | La red de conocimiento, completa | pendiente |
+| 0.7 | La red de conocimiento, completa | hecha |
 | 0.8 | Un compilador que comprueba | pendiente |
 | 0.9 | Pulido y endurecimiento | pendiente |
 | 1.0 | Lanzamiento público | pendiente |

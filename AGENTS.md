@@ -34,3 +34,10 @@ Cifra es una aplicación de aprendizaje técnico orientada a comprender código,
 
 ## Regla de cierre
 La tarea no está terminada si no se ha dejado una documentación mínima actualizada y se ha verificado que el cambio no rompe el comportamiento esperado del módulo.
+
+6. **Brand-asset pass** — a subagent, never waited for. When the app needs its share card or identity, dispatch the brand-asset pass as a `task` subagent and keep building. While the pass keeps `/workspace/.grok/og-pending` fresh, brand checks say nothing about the card: in flight is not a finding. The marker goes stale after 10 minutes, so a very long pass lets the warning through — but a brand warning while it runs is never a cue to redo its work. No `wait_tasks`, and never `get_task_output` on the brand task: reading a task's output consumes it, and a consumed task sends no completion notification, so the result — a failure included — would reach nobody. Answer as soon as the app renders; the pass wakes you later with one short sentence at most asking for a republish.
+
+7. **Verify before closing** — run the relevant tests and checks for the module, confirm the UI renders correctly, and make sure the change does not break expected behavior.
+debes leer novedades.md 
+para hacer la version indicada 
+Debes Leer Novedades_Ai.md

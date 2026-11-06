@@ -6,6 +6,7 @@ import { explicarVeredicto, defenderSolucion } from "@/lib/ai/retos";
 import type { GuiaVeredicto, JuicioDefensa } from "@/lib/ai/retos-parse";
 import { limitesEntrada } from "@/lib/ai/limits";
 import { todasPasadas } from "@/lib/ejecucion/pruebas";
+import { getConcept } from "@/lib/content/concepts";
 import type { RunResult } from "@/lib/ejecucion/tipos";
 import { definicionPorId, instanciaReto } from "@/lib/retos/retos";
 import { useProgreso } from "@/lib/retos/use-progreso";
@@ -149,15 +150,21 @@ function RetoViva({
               .join("\n")}
           </pre>
           <p className="mt-2 font-mono text-sm text-muted">
-            Los datos salen de la semilla de este navegador: otra persona tiene otros y una
-            solución copiada de fuera con su salida incluida no vale tal cual.
+            Los datos salen de la semilla de este navegador: otra persona tiene otros y una solución
+            copiada de fuera con su salida incluida no vale tal cual.
           </p>
           <div className="mt-6">
             <h3 className="font-mono text-sm">Conceptos por detrás</h3>
             <ul className="mt-2 flex flex-wrap gap-2">
               {instancia.conceptos.map((concepto) => (
-                <li key={concepto} className="border border-line px-2 py-1 font-mono text-xs">
-                  {concepto}
+                <li key={concepto}>
+                  <Link
+                    to="/biblioteca/$slug"
+                    params={{ slug: concepto }}
+                    className="tap inline-flex min-h-9 items-center border border-line px-3 py-1 font-mono text-xs"
+                  >
+                    {getConcept(concepto)?.title ?? concepto}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -198,7 +205,9 @@ function RetoViva({
                 <Button
                   className="mt-3"
                   tone="ghost"
-                  onClick={() => alEstudiarFallo(entrega.codigo, mensajeDelFallo(entrega.resultado))}
+                  onClick={() =>
+                    alEstudiarFallo(entrega.codigo, mensajeDelFallo(entrega.resultado))
+                  }
                 >
                   Estudiar este fallo →
                 </Button>
@@ -225,8 +234,8 @@ function RetoViva({
               )}
               {desbloqueo && (
                 <p className="mt-4 text-pretty">
-                  Has alcanzado el umbral del nivel {umbralProfesional}: el camino profesional
-                  queda desbloqueado en Ajustes, con tu progreso intacto.
+                  Has alcanzado el umbral del nivel {umbralProfesional}: el camino profesional queda
+                  desbloqueado en Ajustes, con tu progreso intacto.
                 </p>
               )}
             </section>
@@ -270,7 +279,10 @@ function Defensa({
           codigo: codigo.slice(0, limitesEntrada.codigo),
           preguntas: preguntas.map((pregunta) => pregunta.slice(0, 600)),
           respuestas: respuestas.map((respuesta) => respuesta.slice(0, 4000)),
-          señales: señales.map((senal) => ({ tipo: senal.tipo, detalle: senal.detalle.slice(0, 300) })),
+          señales: señales.map((senal) => ({
+            tipo: senal.tipo,
+            detalle: senal.detalle.slice(0, 300),
+          })),
         },
       });
       if (respuesta.ok) {
@@ -279,7 +291,9 @@ function Defensa({
         setError(respuesta.error);
       }
     } catch (errorRed) {
-      setError(errorRed instanceof Error ? errorRed.message : "No ha salido la petición al modelo.");
+      setError(
+        errorRed instanceof Error ? errorRed.message : "No ha salido la petición al modelo.",
+      );
     } finally {
       setCargando(false);
     }
@@ -291,14 +305,15 @@ function Defensa({
     <section className="mb-8 border border-copper p-4">
       <h2 className="font-serif text-2xl">Defiende tu solución</h2>
       <p className="mt-2 text-pretty">
-        Las pruebas pasaron; el reto podría quedar superado ya, pero antes: explica en tus
-        palabras tu propio código. Si no lo entiendes, queda «superado, con repaso», que no
-        degrada nada cuando la defensa salga bien más tarde.
+        Las pruebas pasaron; el reto podría quedar superado ya, pero antes: explica en tus palabras
+        tu propio código. Si no lo entiendes, queda «superado, con repaso», que no degrada nada
+        cuando la defensa salga bien más tarde.
       </p>
       {señales.length > 0 && (
         <p className="mt-2 font-mono text-sm text-muted">
           Contexto del editor (solo consulta, nunca bloquea): {señales.length}{" "}
-          {señales.length === 1 ? "señal" : "señales"} — {señales.map((senal) => senal.tipo).join(", ")}.
+          {señales.length === 1 ? "señal" : "señales"} —{" "}
+          {señales.map((senal) => senal.tipo).join(", ")}.
         </p>
       )}
 
@@ -309,7 +324,9 @@ function Defensa({
             <textarea
               value={respuestas[indice] ?? ""}
               onChange={(evento) =>
-                setRespuestas(respuestas.map((dada, j) => (j === indice ? evento.target.value : dada)))
+                setRespuestas(
+                  respuestas.map((dada, j) => (j === indice ? evento.target.value : dada)),
+                )
               }
               rows={4}
               disabled={juicios !== null || cargando}
@@ -350,7 +367,9 @@ function Defensa({
       {juicios && (
         <div className="mt-4">
           <p className="font-mono text-sm">
-            {defendido ? "Defensa superada: queda registrado como superado." : "Defensa sin comprensión: queda «superado, con repaso»."}
+            {defendido
+              ? "Defensa superada: queda registrado como superado."
+              : "Defensa sin comprensión: queda «superado, con repaso»."}
           </p>
           <ul className="mt-2 grid gap-2">
             {juicios.map((juicio, indice) => (
@@ -401,7 +420,8 @@ function ExplicarIA({
             id: prueba.id,
             nombre: nombreDe.get(prueba.id) ?? prueba.id,
             pasada: prueba.pasada,
-            obtenido: prueba.obtenido === undefined ? undefined : aTexto(prueba.obtenido).slice(0, 400),
+            obtenido:
+              prueba.obtenido === undefined ? undefined : aTexto(prueba.obtenido).slice(0, 400),
             error: prueba.error?.slice(0, 600),
           })),
           señales: [],
@@ -410,7 +430,9 @@ function ExplicarIA({
       if (respuesta.ok) setGuia(respuesta.guia);
       else setError(respuesta.error);
     } catch (errorRed) {
-      setError(errorRed instanceof Error ? errorRed.message : "No ha salido la petición al modelo.");
+      setError(
+        errorRed instanceof Error ? errorRed.message : "No ha salido la petición al modelo.",
+      );
     } finally {
       setCargando(false);
     }
@@ -426,7 +448,9 @@ function ExplicarIA({
       {error && <p className="mt-3 border-l border-copper pl-4 text-pretty">{error}</p>}
       {guia && (
         <div>
-          <h3 className="font-mono text-sm text-copper">La lectura de la IA, sobre el veredicto real</h3>
+          <h3 className="font-mono text-sm text-copper">
+            La lectura de la IA, sobre el veredicto real
+          </h3>
           <p className="mt-2 text-pretty">{guia.resumen}</p>
           <ul className="mt-3 grid gap-2">
             {guia.constata.map((comentario, indice) => (
@@ -481,7 +505,8 @@ function entiquetaEstado(estado: "pendiente" | "superado" | "superado-sin-compre
 
 function entrenarProgreso(estado: "pendiente" | "superado" | "superado-sin-comprender"): string {
   if (estado === "superado") return "Guardado: superado, con la defensa bien explicada.";
-  if (estado === "superado-sin-comprender") return "Guardado: «superado, con repaso»; el repaso está en tu biblioteca de conceptos.";
+  if (estado === "superado-sin-comprender")
+    return "Guardado: «superado, con repaso»; el repaso está en tu biblioteca de conceptos.";
   return "Sin cambio guardado todavía.";
 }
 

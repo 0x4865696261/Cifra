@@ -1,17 +1,17 @@
 # CIFRA Roadmap
 
-## Estado actual (0.6)
-- Estado: funcional y validado por pruebas relevantes.
-- Base consolidada en estudio, retos, incidentes, matemática, biblioteca y ejecución segura.
-- La prioridad actual es ordenar la documentación, reducir la carga cognitiva del repositorio y dejar una arquitectura de navegación clara para agentes y desarrolladores.
+## Estado actual (0.7)
+- Estado: funcional y consolidado en la parte de navegación documental y red de conocimiento.
+- Base consolidada en estudio, retos, incidentes, matemática, biblioteca, módulos y ejecución segura.
+- La prioridad actual es cerrar validación, endurecimiento y preparación para la 1.0.
 
 ## 0.7 — Red de conocimiento
-- Descripción: unificar documentación, módulos y reglas operativas para que cualquier agente encuentre la información precisa rápidamente.
+- Descripción: unificar documentación, módulos y reglas operativas para que cualquier agente encuentre la información precisa rápidamente y la biblioteca funcione como red de conceptos.
 - Prioridad: alta
-- Estado: en progreso
-- Dependencias: `NOVEDADES_AI.md`, `NOVEDADES.md`, `src/lib/modulos`, `src/routes`
-- Módulos afectados: documentación, IA, módulos y biblioteca
-- Criterio de finalización: docs centralizadas, módulo index funcional y rutas de navegación consistentes
+- Estado: completa
+- Dependencias: `NOVEDADES_AI.md`, `NOVEDADES.md`, `src/lib/modulos`, `src/routes`, `src/lib/content`
+- Módulos afectados: documentación, IA, módulos, biblioteca y navegación
+- Criterio de finalización: docs centralizadas, módulo index funcional, rutas de navegación consistentes y la biblioteca como red de conceptos con conexiones explícitas
 
 ## 0.8 — Validación y endurecimiento
 - Descripción: cerrar más pruebas de integración, validación de ejecución y reglas de seguridad defensiva.
