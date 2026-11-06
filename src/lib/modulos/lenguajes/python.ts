@@ -1,3 +1,4 @@
+import { ejecutarPython } from "../../ejecucion/motor-python.ts";
 import { contratosDeModulo, type Modulo } from "../tipos.ts";
 import type { Lenguaje } from "./tipos.ts";
 
@@ -5,7 +6,7 @@ export const python = {
   manifiesto: {
     id: "python",
     tipo: "lenguaje",
-    aporta: ["analizador", "señales", "reglas", "nota"],
+    aporta: ["analizador", "señales", "reglas", "nota", "motor"],
     versionContrato: contratosDeModulo.lenguaje.version,
     necesita: ["contrato:4.2"],
   },
@@ -48,6 +49,10 @@ export const python = {
         "split corta por espacios y tira los vacíos de los extremos, pero deja puntuación pegada a la palabra. «fin.» y «fin» son claves distintas. Eso es una decisión del corte, no del diccionario.",
         "lower devuelve un texto nuevo. El original no cambia. Quien llama sigue viendo sus mayúsculas.",
       ],
+    },
+    motor: {
+      notas: "Pyodide se baja del CDN la primera vez; tarda al cargar",
+      ejecutar: ejecutarPython,
     },
   },
 } as const satisfies Modulo<Lenguaje>;

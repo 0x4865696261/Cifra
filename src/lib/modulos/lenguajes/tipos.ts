@@ -1,4 +1,5 @@
 import type { TipoError } from "../../analyze/failure.ts";
+import type { MotorLenguaje } from "../../ejecucion/tipos.ts";
 
 /**
  * Contrato del módulo de lenguaje (0.6): la forma que `registro.ts` comprueba y
@@ -43,4 +44,6 @@ export type Lenguaje = {
   readonly reglasError?: readonly ReglaTipo[];
   readonly nota?: Omit<NotaLenguaje, "id" | "label">;
   readonly ensayo?: EnsayoLenguaje;
+  /** Ejecutor de este lenguaje (0.6): quien lo tenga puede correr código; quien no, no-soportado. */
+  readonly motor?: MotorLenguaje;
 };

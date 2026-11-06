@@ -2,17 +2,23 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { languageIds as languageIdsDeStructure } from "../../analyze/structure.ts";
 import { languageEssays, wordCountNotes } from "../../content/languages.ts";
+import { ejecutarJavaScript } from "../../ejecucion/motor-javascript.ts";
+import { ejecutarPython } from "../../ejecucion/motor-python.ts";
+import { limitesDefecto } from "../../ejecucion/limites.ts";
 import { cargarModulos } from "../registro.ts";
 import { contratosDeModulo, type Modulo } from "../tipos.ts";
 import {
   agregarLenguajes,
   catalogoLenguajes,
+  ejecutarLenguaje,
   ensayosDeLenguajes,
   familiaDe,
   isLanguageId,
+  lenguajesConMotor,
   lenguajesRechazados,
   languageIds,
   languageLabels,
+  motorDe,
   notasDeLenguajes,
   reglasDeError,
   senalesCodigo,
@@ -53,7 +59,7 @@ describe("los lenguajes entran como módulos (0.6)", () => {
   it("cada módulo aporta en el manifiesto lo que trae en el contenido", () => {
     for (const modulo of modulos) {
       const { aporta, necesita, id } = modulo.manifiesto;
-      const { label, familia, senales, reglasError, nota, ensayo } = modulo.contenido;
+      const { label, familia, senales, reglasError, nota, ensayo, motor } = modulo.contenido;
       assert.equal(id, modulo.contenido.id, `${id}: el id del manifiesto no es el del contenido`);
       assert.ok(label.trim().length > 0, `${id}: sin label`);
       assert.ok(aporta.includes("analizador"), `${id}: no declara el analizador`);
@@ -69,6 +75,11 @@ describe("los lenguajes entran como módulos (0.6)", () => {
       );
       assert.equal(aporta.includes("nota"), nota !== undefined, `${id}: nota mal declarada`);
       assert.equal(aporta.includes("ensayo"), ensayo !== undefined, `${id}: ensayo mal declarado`);
+      assert.equal(aporta.includes("motor"), motor !== undefined, `${id}: motor mal declarado`);
+      if (motor) {
+        assert.ok(motor.notas.trim().length > 0, `${id}: motor sin notas`);
+        assert.equal(typeof motor.ejecutar, "function", `${id}: motor sin ejecutar`);
+      }
       const contratoDeReglas = reglasError ? ["contrato:4.2"] : [];
       assert.deepEqual(
         [...necesita],
@@ -172,5 +183,47 @@ describe("los lenguajes entran como módulos (0.6)", () => {
     assert.ok(agregado.notas.some((nota) => nota.id === "elixir"));
     assert.ok(agregado.ensayos.some((ensayo) => ensayo.id === "proceso"));
     assert.equal(agregado.notas.find((nota) => nota.id === "elixir")!.label, "Elixir");
+    assert.equal(agregado.motores["elixir"], undefined, "el módulo falso no trae motor");
+  });
+});
+
+describe("el motor de cada lenguaje vive en su módulo (0.6)", () => {
+  it("el registro dice qué lenguajes se ejecutan y con qué notas", () => {
+    assert.deepEqual([...lenguajesConMotor()], ["python", "javascript"]);
+    assert.equal(motorDe("javascript"), catalogoLenguajes[1].contenido.motor);
+    assert.equal(motorDe("python"), catalogoLenguajes[0].contenido.motor);
+    assert.equal(motorDe("javascript")?.notas, "corre en un Worker de tu navegador");
+    assert.equal(
+      motorDe("python")?.notas,
+      "Pyodide se baja del CDN la primera vez; tarda al cargar",
+    );
+    // Rust y los demás están en el registro, pero sin motor: no entran en el selector.
+    assert.equal(motorDe("rust"), undefined);
+    assert.equal(motorDe("go"), undefined);
+    assert.equal(motorDe("elixir"), undefined);
+  });
+
+  it("el disparo pasa por el motor del módulo, sin lista de la interfaz", async () => {
+    const pedido = { codigo: "console.log(1)", limites: limitesDefecto(), trazar: false };
+    const directo = await ejecutarJavaScript({ ...pedido, lenguaje: "javascript" });
+    const despachado = await ejecutarLenguaje({ ...pedido, lenguaje: "javascript" });
+    assert.deepEqual(despachado, directo);
+    assert.equal(motorDe("javascript")?.ejecutar, ejecutarJavaScript);
+    assert.equal(motorDe("python")?.ejecutar, ejecutarPython);
+  });
+
+  it("un id sin motor no se ejecuta: vuelve no-soportado con el motivo", async () => {
+    for (const id of ["rust", "go", "elixir", ""]) {
+      const resultado = await ejecutarLenguaje({
+        lenguaje: id,
+        codigo: "x",
+        limites: limitesDefecto(),
+      });
+      assert.equal(resultado.estado, "no-soportado", `${id}: debería no soportarse`);
+      assert.equal(resultado.origen, "ejecucion-real");
+      assert.ok(resultado.stderr.includes(id), `${id}: el motivo no nombra al lenguaje`);
+      assert.equal(resultado.stdout, "");
+      assert.equal(resultado.traza, undefined);
+    }
   });
 });

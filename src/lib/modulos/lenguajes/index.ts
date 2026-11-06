@@ -1,3 +1,4 @@
+import type { MotorLenguaje, RunRequest, RunResult } from "../../ejecucion/tipos.ts";
 import { cargarModulos } from "../registro.ts";
 import type { Modulo, RechazoModulo } from "../tipos.ts";
 import { c } from "./c.ts";
@@ -62,6 +63,7 @@ export type AgregadoLenguajes = {
   readonly reglas: Readonly<Record<string, readonly ReglaTipo[]>>;
   readonly notas: readonly NotaLenguaje[];
   readonly ensayos: readonly EnsayoLenguaje[];
+  readonly motores: Readonly<Record<string, MotorLenguaje>>;
 };
 
 /** Agrega en el orden del lote lo que cada módulo aporta. Pura: no mira el catálogo. */
@@ -74,9 +76,10 @@ export function agregarLenguajes(modulos: readonly Modulo<Lenguaje>[]): Agregado
   const reglas: Record<string, readonly ReglaTipo[]> = {};
   const notas: NotaLenguaje[] = [];
   const ensayos: EnsayoLenguaje[] = [];
+  const motores: Record<string, MotorLenguaje> = {};
 
   for (const modulo of modulos) {
-    const { id, label, familia, senales, reglasError, nota, ensayo } = modulo.contenido;
+    const { id, label, familia, senales, reglasError, nota, ensayo, motor } = modulo.contenido;
     ids.push(id);
     etiquetas[id] = label;
     familias[id] = familia;
@@ -85,9 +88,20 @@ export function agregarLenguajes(modulos: readonly Modulo<Lenguaje>[]): Agregado
     if (reglasError) reglas[id] = reglasError;
     if (nota) notas.push({ id, label, code: nota.code, changed: [...nota.changed] });
     if (ensayo) ensayos.push({ ...ensayo, body: [...ensayo.body] });
+    if (motor) motores[id] = motor;
   }
 
-  return { ids, etiquetas, familias, senalesCodigo, senalesMensaje, reglas, notas, ensayos };
+  return {
+    ids,
+    etiquetas,
+    familias,
+    senalesCodigo,
+    senalesMensaje,
+    reglas,
+    notas,
+    ensayos,
+    motores,
+  };
 }
 
 const carga = cargarModulos<Lenguaje>(catalogoLenguajes);
@@ -119,4 +133,33 @@ export function familiaDe(id: LanguageId): Familia {
 /** Reglas del contrato 4.2 de ese lenguaje; vacío si su módulo no trae. */
 export function reglasDeError(lenguaje: string): readonly ReglaTipo[] {
   return agregado.reglas[lenguaje] ?? [];
+}
+
+/** El motor que el módulo de ese lenguaje aporta; `undefined` si no trae uno. */
+export function motorDe(id: string): MotorLenguaje | undefined {
+  return agregado.motores[id];
+}
+
+/** Lenguajes con motor, en orden de catálogo: los que entran en el selector del estudio. */
+export function lenguajesConMotor(): readonly LanguageId[] {
+  return languageIds.filter((id) => agregado.motores[id] !== undefined);
+}
+
+/**
+ * Despacho del contrato 4.4 (0.6): el motor que su módulo registra; un id sin
+ * motor no se ejecuta, vuelve `no-soportado` con el motivo, nunca algo simulado.
+ */
+export async function ejecutarLenguaje(solicitud: RunRequest): Promise<RunResult> {
+  const motor = motorDe(solicitud.lenguaje);
+  if (!motor) {
+    return {
+      estado: "no-soportado",
+      stdout: "",
+      stderr: `«${solicitud.lenguaje}» no tiene motor de ejecución en esta versión.`,
+      duracionMs: 0,
+      motor: { nombre: solicitud.lenguaje, version: "n/d" },
+      origen: "ejecucion-real",
+    };
+  }
+  return motor.ejecutar(solicitud);
 }

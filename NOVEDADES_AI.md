@@ -213,13 +213,20 @@ proveedor.
 type Limites = { tiempoMs: number; memoriaMB: number; salidaKB: number; pasosTraza: number };
 
 type RunRequest = {
-  lenguaje: "javascript" | "python" | "rust"; // los demás llegan por módulos (0.6)
+  lenguaje: string;             // 0.6: qué ids se pueden ejecutar lo dice el registro de módulos
   codigo: string;
   entrada?: string;           // stdin
   limites: Limites;
   pruebas?: TestSpec[];
   trazar?: boolean;
 };
+
+// 0.6: el motor de un lenguaje vive en su módulo, con las notas para quien lo usa.
+type MotorLenguaje = {
+  notas: string;
+  ejecutar: (solicitud: RunRequest) => Promise<RunResult>;
+};
+// Un lenguaje sin motor no aparece en el selector y, si se pide, vuelve `no-soportado`.
 
 type RunResult = {
   estado: "ok" | "error" | "tiempo" | "memoria" | "salida-excedida" | "no-soportado";

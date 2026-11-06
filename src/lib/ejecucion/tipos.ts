@@ -3,9 +3,9 @@
  * Cualquier estado distinto de `ok` es un corte que hay que explicar, nunca algo simulado.
  * `trazaTruncada` es la ampliación acordada en la 0.3: la traza se recorta al tope de pasos
  * y el propio resultado lo señala.
+ * En la 0.6 `lenguaje` deja de ser una lista fija: qué ids se pueden ejecutar lo dice el
+ * registro de módulos, por el `MotorLenguaje` que cada módulo aporta; sin motor, no-soportado.
  */
-
-export type LenguajeEjecutable = "javascript" | "python" | "rust";
 
 export type Limites = {
   tiempoMs: number;
@@ -15,7 +15,7 @@ export type Limites = {
 };
 
 export type RunRequest = {
-  lenguaje: LenguajeEjecutable;
+  lenguaje: string;
   codigo: string;
   entrada?: string; // stdin
   limites: Limites;
@@ -31,6 +31,12 @@ export type TestSpec = {
   tipo: "salida" | "retorno" | "propiedad";
   visible: boolean; // las no visibles no se muestran antes de entregar
   tolerancia?: number; // 0.3: diferencia máxima para números con decimales; ausente = igualdad estricta
+};
+
+/** Lo que el módulo de un lenguaje aporta a la 0.6: su ejecutor, con las notas para quien lo usa. */
+export type MotorLenguaje = {
+  readonly notas: string;
+  readonly ejecutar: (solicitud: RunRequest) => Promise<RunResult>;
 };
 
 export type RunResult = {
