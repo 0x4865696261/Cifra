@@ -105,7 +105,7 @@ escribe una IA, y leer la arquitectura de un sistema.** Va desde cero hasta nive
 | 0.3 | Ejecutar con seguridad | hecha en la rama; pendiente de revisión y fusión |
 | 0.4 | Dos caminos y retos de fundamentos | en la rama `version/0.4` |
 | 0.5 | Retos profesionales: leer qué pasó | en la rama `version/0.5` |
-| 0.6 | Plataforma modular | pendiente |
+| 0.6 | Plataforma modular | hecha en la rama; pendiente de revisión y fusión |
 | 0.7 | La red de conocimiento, completa | pendiente |
 | 0.8 | Un compilador que comprueba | pendiente |
 | 0.9 | Pulido y endurecimiento | pendiente |
@@ -1333,7 +1333,9 @@ build en verde, y lleva la prueba de lo que añade:
 | 6 | `feat(ai): adaptador de modelo por modulo; anadir un modelo no toca ninguna skill` | Multi-modelo |
 | 7 | `feat(modulos): retos y paquetes de incidente entran por el registro` | Registro común |
 | 8 | `test(porton): pruebas de seguridad y de coste con el mismo criterio de paso` | Portón |
-| 9 | `docs(novedades): refleja el estado real de la 0.6` | — (hasta un commit propio) |
+| 9 | `fix(porton): endurece deteccion y falla ante directorios ausentes` | Corrección detectada al cerrar el portón |
+| 10 | `fix(test): ejecuta suite mjs y aisla pruebas de PWA` | Portabilidad y fixtures deterministas |
+| 11 | `docs(novedades): refleja el estado real de la 0.6` | — (hasta un commit propio) |
 
 Notas de la 0.6 tomadas al empezar (decisiones que el texto de §0.6 no fijaba):
 
@@ -1386,7 +1388,7 @@ Notas de la 0.6 tomadas al empezar (decisiones que el texto de §0.6 no fijaba):
   petición de ningún adaptador registrado) y `src/lib/ai/porton-coste.test.ts` (tope de 1400
   tokens de §8, límites de entrada 20 000 / 8 000 / 600 de §8, y la petición de cada adaptador
   pidiendo como mucho ese tope). Los dos entran en `npm test`: **mismo criterio de paso**,
-  todas sus pruebas en verde; un fallo detiene la versión (§6 se actualiza en el commit 9).
+  todas sus pruebas en verde; un fallo detiene la versión (§6 se actualiza en el commit 11).
 - **Fuera de alcance**: añadir lenguajes, proveedores, retos o paquetes nuevos (esta versión
   construye la puerta, no la llena); Rust en el selector de ejecución; comparación de
   mediciones solo en JavaScript; retos entregados solo en JavaScript; cuentas o base de datos.
@@ -1394,3 +1396,30 @@ Notas de la 0.6 tomadas al empezar (decisiones que el texto de §0.6 no fijaba):
   móvil con capturas en `screenshots/`, y el criterio de terminación de §0.6 comprobado en el
   código (ningún componente de interfaz lista lenguajes ni motores a mano).
 
+La revisión del cierre encontró que el escáner podía pasar por alto una carpeta vigilada si no
+existía: `archivosDe()` devolvía una lista vacía. El commit 9 amplía la detección a credenciales
+comunes en variables y hace fallar el portón de forma explícita ante carpetas ausentes, con pruebas
+de regresión. El commit 10 corrige el descubrimiento de pruebas `.mjs` en Windows y aísla los
+fixtures de PWA del `site.json` y los assets reales del proyecto; el commit 11 registra los
+resultados y el estado real.
+
+### El estado real de la 0.6
+
+La 0.6 queda terminada en `version/0.6`: las ocho tareas del plan están implementadas y probadas,
+más el cierre del escáner de seguridad cuando falta una carpeta vigilada y la verificación
+reproducible de todos los grupos de pruebas en Windows.
+
+- **Criterio modular:** los selectores derivan los lenguajes y los motores del registro; el
+  disparo de ejecución usa `ejecutarLenguaje`. El registro de skills no nombra proveedores.
+- **Portones:** `npm run test` pasa con 599 pruebas: las 206 pruebas `.mjs` aprobadas y 393
+  pruebas TypeScript (391 aprobadas, 2 omitidas por falta de `cargo`), sin fallos. La prueba de
+  seguridad verifica formatos de credenciales, que existan las carpetas vigiladas y que las claves
+  no aparezcan en URL ni cuerpo; typecheck y `npm run build` también pasan.
+- **Navegador:** el humo de desarrollo y producción pasa en escritorio (1280×800) y móvil
+  (390×844): contenido visible, sin errores de consola ni página y sin desbordamiento horizontal.
+  Los veredictos de ambos entornos coinciden. En el estudio se comprobó además la ejecución real
+  de JavaScript en el Worker, con salida y traza. Capturas y veredictos: `screenshots/cifra-v0.6-dev*`
+  y `screenshots/cifra-v0.6-built*`.
+- **Previsualización de producción:** `preview:restart` no funciona en Windows porque depende de
+  `/proc`; se usó `npm run preview` en un puerto libre para servir el build y completar el humo.
+- **Queda para después:** revisión y fusión a `main`; esta rama no se fusiona como parte de la 0.6.

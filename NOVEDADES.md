@@ -162,7 +162,7 @@ llegaría en el trabajo, y deduzca qué ocurrió.
 simulada y entregar con un análisis, y la comparación separa lo comprobado de lo deducido sin
 falsear el programa ni dar por bueno un intento solo por sonar convincente.
 
-## 0.6 — Plataforma modular
+## 0.6 — Plataforma modular (hecha en la rama; pendiente de revisión y fusión)
 
 **Objetivo:** que el crecimiento no requiera rehacer. Se hace antes de ampliar el contenido
 (0.7) para no tener que reconstruirlo después.
