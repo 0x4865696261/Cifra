@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtempSync, mkdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test } from "node:test";
 import { escanearCredenciales, hayCredencial } from "./porton-seguridad.mjs";
 import { providers } from "../src/lib/ai/providers.ts";
@@ -30,10 +33,31 @@ test("reconoce formatos habituales de credenciales reales", () => {
 test("no marca credenciales de ejemplo que llevan una marca sintética explícita", () => {
   assert.equal(hayCredencial("sk-sintetica-0001-mudo-teclado"), false);
   assert.equal(hayCredencial("sk-test-9f8e7d6c5b4a3210-CLAVE-DE-PRUEBA"), false);
+  assert.equal(hayCredencial('const token = "demo-token-1234567890";'), false);
+});
+
+test("detecta tokens guardados en variables comunes aunque no sigan un formato provedor", () => {
+  const token = "token=" + "f8a3c1d9" + "e7b4521a" + "9d82c7fe4b91a3c2";
+  const accessKeyId = "ACCESS_KEY_ID=" + "A1B2C3D4" + "E5F6G7H8" + "I9J0K1L2M3N4O5P6";
+  assert.equal(hayCredencial(token), true);
+  assert.equal(hayCredencial(accessKeyId), true);
 });
 
 test("src, server, public y scripts no contienen credenciales reales", () => {
   assert.deepEqual(escanearCredenciales(), []);
+});
+
+test("falla explícitamente si falta un directorio vigilado", () => {
+  const root = mkdtempSync(join(tmpdir(), "cifra-porton-"));
+  try {
+    for (const nombre of ["src", "server", "public"]) {
+      mkdirSync(join(root, nombre));
+    }
+
+    assert.throws(() => escanearCredenciales(root), /Directorio vigilado ausente: scripts/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 for (const provider of providers) {
