@@ -23,6 +23,18 @@ una fórmula matemática al código que la calcula.
 - **Lenguajes** — el mismo problema resuelto en varios lenguajes, con las diferencias que de verdad
   cambian la forma de escribir, y ensayos sobre las particularidades de cada uno.
 
+## Documentación central
+
+La referencia rápida del proyecto se encuentra en:
+
+- [`CIFRA_AI.md`](CIFRA_AI.md)
+- [`CIFRA_ARCHITECTURE.md`](CIFRA_ARCHITECTURE.md)
+- [`CIFRA_ROADMAP.md`](CIFRA_ROADMAP.md)
+- [`docs/modules/README.md`](docs/modules/README.md)
+- [`docs/history/README.md`](docs/history/README.md)
+
+La documentación histórica sigue en [`NOVEDADES.md`](NOVEDADES.md) y [`NOVEDADES_AI.md`](NOVEDADES_AI.md), pero la navegación operativa del proyecto ya está centralizada en los archivos anteriores.
+
 ## Principios
 
 - La plataforma no ejecuta el código del usuario y lo dice por escrito; no simula lo que no hace.

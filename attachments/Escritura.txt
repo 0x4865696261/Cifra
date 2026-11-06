@@ -1,0 +1,536 @@
+MISIÓN PRINCIPAL: REESTRUCTURACIÓN INTELIGENTE DE CIFRA PARA DESARROLLO CON AGENTES DE IA
+
+1. CONTEXTO Y OBJETIVO
+
+Estás trabajando en CIFRA, un proyecto de software en desarrollo, actualmente en su versión 0.6.
+
+Cifra es una plataforma orientada al aprendizaje de programación, matemáticas y otras disciplinas relacionadas con el conocimiento y la tecnología.
+
+El proyecto está creciendo considerablemente y tiene una cantidad elevada de código, funcionalidades, documentación, sistemas internos y más de 100 skills (habilidades) disponibles.
+
+El problema actual es que los agentes de IA necesitan consumir demasiados tokens para comprender el proyecto antes de ejecutar una tarea.
+
+Esto debe solucionarse mediante una reestructuración profunda de la arquitectura documental y del sistema de conocimiento del repositorio.
+
+Tu misión es conseguir que cualquier agente de IA pueda comprender la estructura de Cifra, localizar exactamente lo que necesita y trabajar sin tener que analizar todo el proyecto en cada conversación.
+
+No queremos reducir las capacidades del proyecto. Queremos mejorar su organización, mantenibilidad y eficiencia.
+
+2. REGLAS INNEGOCIABLES
+
+1. No elimines funcionalidades existentes por considerarlas poco importantes.
+2. No modifiques código funcional sin una razón técnica justificada.
+3. No elimines ninguna skill existente.
+4. No modifiques el contenido de las skills.
+5. No elimines documentación sin haber preservado previamente toda su información útil.
+6. No inventes funcionalidades, dependencias o relaciones entre módulos.
+7. No dupliques documentación innecesariamente.
+8. No crees archivos gigantes que vuelvan a convertirse en un problema.
+9. No reconstruyas todos los mapas e historiales después de cada tarea.
+10. No hagas una reestructuración que rompa la compatibilidad del proyecto.
+11. Respeta las convenciones y tecnologías existentes.
+12. Utiliza Git para proteger los cambios y facilitar su recuperación.
+
+Si encuentras información contradictoria, registra la contradicción y determina qué información está respaldada por el código actual.
+
+Antes de realizar operaciones destructivas, solicita autorización.
+
+3. PRIMERA FASE: AUDITORÍA COMPLETA DEL PROYECTO
+
+Realiza una auditoría inicial de Cifra.
+
+Necesitas identificar:
+
+- Estructura general de carpetas.
+- Arquitectura del software.
+- Tecnologías y frameworks.
+- Sistemas principales.
+- Módulos y subsistemas.
+- Funcionalidades existentes.
+- Dependencias internas y externas.
+- Puntos de entrada.
+- Configuraciones.
+- Sistemas de almacenamiento.
+- APIs.
+- Servicios.
+- Tests.
+- Documentación.
+- Skills disponibles.
+- Archivos de instrucciones para agentes.
+- Sistemas de automatización.
+
+No leas indiscriminadamente todos los archivos de contenido.
+
+Empieza por los archivos estructurales, configuraciones, índices y documentación existente. Después inspecciona el código de forma dirigida para verificar cómo funciona realmente cada módulo.
+
+Identifica archivos enormes, documentación duplicada, información obsoleta y documentación que no tiene una utilidad clara.
+
+Presta especial atención a:
+
+- novedades_ai.md
+- Historiales de desarrollo.
+- Mapas de arquitectura.
+- Documentación generada por agentes.
+- Archivos de contexto.
+- Archivos de instrucciones.
+
+No borres nada durante esta fase.
+
+Genera un informe de auditoría con los problemas encontrados y las mejoras propuestas.
+
+4. SEGUNDA FASE: NUEVO SISTEMA CENTRAL DE CONOCIMIENTO
+
+Diseña una arquitectura documental modular.
+
+El objetivo es disponer de un punto de entrada central que cualquier agente pueda consultar rápidamente.
+
+Crea o adapta los siguientes archivos:
+
+AGENTS.md
+
+Debe ser el punto de entrada para los agentes que utilicen OpenCode, siempre que el mecanismo de instrucciones de la versión instalada lo admita.
+
+Debe contener instrucciones breves:
+
+- Leer el índice principal de Cifra.
+- Identificar el módulo relacionado con la tarea.
+- Consultar exclusivamente su documentación relevante.
+- Localizar el código afectado.
+- Comprobar dependencias necesarias.
+- Implementar los cambios.
+- Actualizar únicamente la documentación afectada.
+
+No debe contener toda la arquitectura del proyecto.
+
+Comprueba cómo OpenCode carga realmente las instrucciones y configura el mecanismo adecuado. No asumas que crear un archivo garantiza que todos los agentes lo leerán automáticamente.
+
+CIFRA_AI.md
+
+Este será el índice central del conocimiento de Cifra.
+
+Debe ser extremadamente conciso y contener:
+
+1. Identidad y descripción del proyecto.
+2. Versión actual.
+3. Tecnologías principales.
+4. Arquitectura general resumida.
+5. Índice de módulos.
+6. Ubicación de los mapas de arquitectura.
+7. Ubicación de los historiales.
+8. Ubicación de la documentación técnica.
+9. Ubicación del inventario de skills.
+10. Estado general del desarrollo.
+11. Roadmap principal.
+12. Instrucciones para localizar información adicional.
+
+IMPORTANTE:
+
+Este archivo NO debe contener el historial completo, explicaciones extensas ni documentación de cada funcionalidad.
+
+Debe funcionar como un índice de navegación.
+
+Establece como objetivo que pueda leerse rápidamente, idealmente en unos pocos miles de tokens como máximo.
+
+CIFRA_ARCHITECTURE.md
+
+Contendrá una visión general de la arquitectura.
+
+Debe explicar:
+
+- Cómo está construido Cifra.
+- Qué módulos existen.
+- Cómo se relacionan.
+- Qué responsabilidades tiene cada uno.
+- Qué dependencias son importantes.
+- Qué partes son independientes.
+- Qué partes están acopladas.
+
+No introduzcas detalles innecesarios del código.
+
+CIFRA_ROADMAP.md
+
+Construye una hoja de ruta realista del proyecto.
+
+Organízala en:
+
+- Estado actual: versión 0.6.
+- Objetivos de la versión 0.7.
+- Objetivos de la versión 0.8.
+- Objetivos de la versión 0.9.
+- Preparación para la versión 1.0.
+- Evolución posterior a la versión 1.0.
+- Visión a largo plazo hasta la versión 2.0.
+
+Cada objetivo debe incluir:
+
+- Descripción.
+- Prioridad.
+- Estado.
+- Dependencias.
+- Módulos afectados.
+- Criterios de finalización.
+
+No inventes funcionalidades futuras como si ya estuvieran aprobadas. Separa claramente las propuestas de los compromisos existentes.
+
+5. TERCERA FASE: DOCUMENTACIÓN MODULAR
+
+Cada módulo importante debe disponer de documentación independiente.
+
+Organiza la documentación de forma que un agente pueda encontrar la información sin tener que leer archivos gigantes.
+
+Una estructura de referencia sería:
+
+docs/
+ai/
+CIFRA_AI.md
+CIFRA_ARCHITECTURE.md
+CIFRA_ROADMAP.md
+
+modules/
+  module-index.md
+
+  authentication/
+    README.md
+    architecture.md
+    dependencies.md
+    history.md
+
+  learning/
+    README.md
+    architecture.md
+    dependencies.md
+    history.md
+
+  mathematics/
+    README.md
+    architecture.md
+    dependencies.md
+    history.md
+
+  programming/
+    README.md
+    architecture.md
+    dependencies.md
+    history.md
+
+  [otros módulos reales del proyecto]
+
+Adapta esta estructura a la arquitectura real de Cifra.
+
+No crees carpetas para módulos inexistentes.
+
+Cada documentación modular debe explicar:
+
+- Responsabilidad del módulo.
+- Archivos principales.
+- Componentes relevantes.
+- Relaciones con otros módulos.
+- Dependencias.
+- Funcionamiento general.
+- Estado de implementación.
+- Limitaciones conocidas.
+- Tests relacionados.
+- Historial resumido de cambios importantes.
+
+Los mapas deben describir la realidad del código, no una arquitectura imaginada.
+
+6. CUARTA FASE: RECONSTRUCCIÓN DEL HISTORIAL
+
+Actualmente existe documentación histórica, especialmente novedades_ai.md, que ha crecido demasiado.
+
+No quiero que un agente tenga que leer 2.000 líneas para conocer el estado actual del proyecto.
+
+Reestructura el historial.
+
+Divide la información en documentos independientes según:
+
+- Módulo.
+- Versión.
+- Fecha.
+- Tipo de cambio.
+
+Conserva la información histórica importante.
+
+Separa:
+
+1. Estado actual.
+2. Cambios recientes.
+3. Historial antiguo.
+4. Decisiones arquitectónicas.
+5. Problemas conocidos.
+6. Funcionalidades pendientes.
+
+Los documentos históricos deben poder consultarse individualmente.
+
+El índice principal solo debe enlazar con ellos.
+
+No elimines novedades_ai.md hasta comprobar que toda la información importante ha sido migrada y preservada.
+
+Una vez verificada la migración, puedes convertirlo en un índice histórico pequeño o mantenerlo como archivo de compatibilidad que enlace a la nueva documentación.
+
+Evita que el historial vuelva a convertirse en un archivo infinito.
+
+7. QUINTA FASE: SISTEMA DE SKILLS
+
+Cifra dispone de más de 100 skills.
+
+Es importante que entiendas lo siguiente:
+
+NO QUIERO ELIMINAR NI MODIFICAR LAS SKILLS EXISTENTES.
+
+No quiero perder habilidades que puedan resultar útiles ahora o en el futuro.
+
+Quiero que las analices y crees un inventario organizado.
+
+Clasifica cada skill según:
+
+- Nombre.
+- Ubicación.
+- Función.
+- Especialidad.
+- Relación con Cifra.
+- Situaciones en las que puede utilizarse.
+- Relevancia para el proyecto.
+
+Utiliza categorías como:
+
+- Desarrollo principal.
+- Programación.
+- Matemáticas.
+- Educación y aprendizaje.
+- Diseño e interfaz.
+- Backend.
+- Frontend.
+- Bases de datos.
+- Seguridad.
+- Testing.
+- DevOps.
+- Git y control de versiones.
+- Documentación.
+- Inteligencia artificial.
+- Herramientas generales.
+- Otras especialidades.
+
+También identifica habilidades que aparentemente no tengan relación con el proyecto.
+
+Por ejemplo, una skill relacionada con videojuegos podría ser relevante si Cifra incorpora aprendizaje mediante juegos, programación interactiva o gamificación.
+
+No descartes una habilidad solamente por su nombre.
+
+No elimines ninguna skill ni cambies su contenido.
+
+Crea un índice que permita localizar las habilidades adecuadas cuando una tarea las necesite.
+
+El agente debe consultar el índice de skills y abrir únicamente las habilidades relevantes para la tarea actual.
+
+No debe cargar las 100 skills en cada conversación.
+
+8. SEXTA FASE: SISTEMA DE NAVEGACIÓN INTELIGENTE PARA CADA NUEVA TAREA
+
+Esta es una de las partes más importantes.
+
+Quiero que diseñes un protocolo de trabajo para que cualquier agente de IA pueda trabajar de forma eficiente.
+
+El protocolo será:
+
+PASO 1.
+
+Recibir la tarea del usuario.
+
+PASO 2.
+
+Consultar AGENTS.md y CIFRA_AI.md, utilizando el mecanismo de instrucciones disponible.
+
+PASO 3.
+
+Identificar qué módulo o módulos están relacionados con la tarea.
+
+PASO 4.
+
+Consultar exclusivamente los mapas, documentación y skills necesarios de esos módulos.
+
+PASO 5.
+
+Inspeccionar los archivos de código directamente relacionados.
+
+PASO 6.
+
+Consultar dependencias adicionales únicamente cuando sean necesarias.
+
+PASO 7.
+
+Elaborar un plan de implementación breve.
+
+PASO 8.
+
+Realizar los cambios.
+
+PASO 9.
+
+Ejecutar las comprobaciones y tests relevantes.
+
+PASO 10.
+
+Actualizar la documentación afectada.
+
+PASO 11.
+
+Actualizar el índice central solamente cuando cambie información estructural importante.
+
+PASO 12.
+
+Informar al usuario de los cambios realizados.
+
+REGLA FUNDAMENTAL:
+
+No vuelvas a analizar todo Cifra para cada tarea.
+
+La documentación sirve para localizar y comprender el código, pero nunca sustituye la comprobación del código real.
+
+Si una tarea afecta a varios módulos, consulta únicamente los módulos involucrados y sus dependencias necesarias.
+
+9. SÉPTIMA FASE: DOCUMENTACIÓN INCREMENTAL
+
+Diseña un sistema para evitar que la documentación crezca descontroladamente.
+
+Establece las siguientes reglas:
+
+- Actualizar documentación solamente cuando exista un cambio relevante.
+- No registrar cada pequeña operación interna.
+- No duplicar información.
+- No almacenar conversaciones completas con agentes.
+- No repetir explicaciones que ya estén documentadas.
+- No regenerar mapas que no hayan cambiado.
+- Mantener historiales resumidos.
+- Archivar información antigua sin perderla.
+- Mantener enlaces internos actualizados.
+
+Cuando cambie un módulo, actualiza su documentación.
+
+Cuando cambie una dependencia entre módulos, actualiza el mapa arquitectónico correspondiente.
+
+Cuando cambie la estructura general, actualiza CIFRA_AI.md.
+
+Cuando no haya cambios documentales relevantes, no escribas nada.
+
+10. OCTAVA FASE: CONTROL DE CALIDAD
+
+Comprueba que:
+
+- Todos los enlaces internos funcionan.
+- No existen referencias a archivos inexistentes.
+- No hay módulos duplicados en los índices.
+- No hay documentación contradictoria.
+- Los mapas coinciden con el código.
+- El roadmap refleja el estado real.
+- El inventario de skills está completo.
+- Las skills originales siguen intactas.
+- Los archivos principales son pequeños.
+- Los historiales están correctamente organizados.
+- Las instrucciones de OpenCode funcionan según su configuración real.
+
+Comprueba también que un agente nuevo pueda encontrar la documentación de un módulo sin leer todos los documentos del proyecto.
+
+11. NOVENA FASE: RESULTADO Y ENTREGA
+
+Al terminar, presenta un informe con:
+
+1. Problemas detectados.
+2. Cambios realizados.
+3. Nueva estructura documental.
+4. Archivos creados.
+5. Archivos reorganizados.
+6. Documentación histórica preservada.
+7. Número de skills inventariadas.
+8. Skills conservadas.
+9. Roadmap creado.
+10. Mejoras en el protocolo de trabajo de los agentes.
+11. Problemas que no hayas podido resolver.
+12. Recomendaciones adicionales.
+
+Incluye un apartado especial:
+
+EFICIENCIA DE CONTEXTO
+
+Explica cómo debe trabajar un agente nuevo para evitar cargar información innecesaria.
+
+Si es posible, realiza una prueba con una tarea representativa y registra:
+
+- Archivos consultados.
+- Documentos cargados.
+- Tokens consumidos, si el proveedor los informa.
+- Archivos modificados.
+- Documentación actualizada.
+
+No inventes cifras de ahorro ni prometas un consumo determinado sin medirlo.
+
+12. DÉCIMA FASE: PROTECCIÓN DEL FUTURO DE CIFRA
+
+El sistema debe estar preparado para que Cifra pueda crecer hasta la versión 1.0, 2.0 y posteriores.
+
+No diseñes una solución que funcione solamente con el tamaño actual del proyecto.
+
+Prioriza:
+
+- Modularidad.
+- Escalabilidad.
+- Mantenibilidad.
+- Compatibilidad con diferentes agentes.
+- Documentación independiente del proveedor de IA.
+- Navegación rápida.
+- Actualización incremental.
+- Integridad del código.
+- Trazabilidad de decisiones.
+
+No introduzcas sistemas complejos de automatización si una solución sencilla y fiable puede resolver el problema.
+
+13. ORDEN DE EJECUCIÓN
+
+Trabaja siguiendo estas etapas:
+
+FASE A: Auditoría y diagnóstico.
+
+FASE B: Diseño de la nueva estructura.
+
+FASE C: Creación del índice y archivos centrales.
+
+FASE D: Organización modular de documentación.
+
+FASE E: Migración y conservación de historiales.
+
+FASE F: Inventario de skills.
+
+FASE G: Configuración del protocolo de navegación de agentes.
+
+FASE H: Verificación y pruebas.
+
+FASE I: Informe final y roadmap.
+
+Antes de empezar, comprueba el estado de Git y protege los cambios existentes.
+
+No sobrescribas cambios del usuario.
+
+Si necesitas realizar una operación irreversible, detente y solicita autorización.
+
+Puedes trabajar autónomamente en las operaciones seguras y reversibles. No solicites confirmación para cada archivo individual.
+
+---
+
+OBJETIVO FINAL
+
+Quiero que CIFRA deje de ser un proyecto en el que cada agente necesita reconstruir mentalmente toda la aplicación antes de programar.
+
+Quiero un proyecto donde:
+
+- La IA conozca la arquitectura mediante un índice pequeño.
+- Cada módulo tenga su propio conocimiento.
+- Las skills estén organizadas y sean fáciles de localizar.
+- El historial no consuma miles de líneas en cada tarea.
+- La documentación se actualice de manera incremental.
+- Los nuevos chats puedan empezar rápidamente.
+- Los agentes consulten únicamente lo que necesitan.
+- El proyecto pueda crecer sin que su mantenimiento se vuelva inmanejable.
+
+No sacrifiques funcionalidades ni conocimiento para conseguirlo. Organiza el conocimiento para que sea accesible de forma inteligente.
+
+La prioridad es construir una infraestructura de desarrollo con IA sostenible para CIFRA a largo plazo.

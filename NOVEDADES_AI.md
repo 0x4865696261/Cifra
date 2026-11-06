@@ -1,5 +1,17 @@
 # Cifra — Novedades y hoja de ruta
 
+Este documento sigue siendo la referencia histórica del proyecto, pero la navegación operativa y la
+arquitectura actual se centralizan en:
+
+- [`CIFRA_AI.md`](CIFRA_AI.md)
+- [`CIFRA_ARCHITECTURE.md`](CIFRA_ARCHITECTURE.md)
+- [`CIFRA_ROADMAP.md`](CIFRA_ROADMAP.md)
+- [`docs/modules/README.md`](docs/modules/README.md)
+- [`docs/history/README.md`](docs/history/README.md)
+
+La documentación histórica sigue siendo útil para trazabilidad, pero no es la entrada primaria para
+agentes ni para la navegación diaria del proyecto.
+
 Este documento es la fuente de verdad del proyecto. Dice qué es Cifra, adónde va, qué trae cada
 versión, qué decisiones ya están tomadas y cómo se sabe que una versión está terminada.
 
