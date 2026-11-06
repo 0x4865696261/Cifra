@@ -194,6 +194,18 @@ type FailureReport = {
 ### 4.3 Adaptador de modelo (0.2)
 
 ```ts
+// 0.6: QUÉ se quiere responder; el adaptador solo lo traduce a su proveedor.
+type PlanDeRespuesta = {
+  superficie: "explicar" | "depurar" | "veredicto" | "defensa" | "comparacion";
+  proposito: string[];        // quién habla y qué trabajo tiene
+  nivel?: string;             // nivel de lectura, cuando la superficie lo pide
+  skills: SkillId[];          // instrucciones activas del registro de skills
+  formato: string[];          // esquema de salida y qué significa cada campo
+  reglas: string[];           // límites que no se negocian
+  material: string[];         // código, mensaje, pruebas, material: el contenido
+};
+// sistemaDelPlan → proposito + formato + reglas + composeSkills; usuarioDelPlan → nivel + material.
+
 interface ModelAdapter {
   id: string;                       // "openai", "anthropic", "google", "xai", ...
   modelosSoportados: string[];

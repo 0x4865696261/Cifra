@@ -2,9 +2,15 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getMathTopic, mathBrief } from "@/lib/content/math";
 import { parseExplanation, type Explanation } from "@/lib/ai/parse";
-import { callModel, cleanApiKey, isProviderId, keyLooksValid, type ProviderId } from "@/lib/ai/providers";
 import {
-  composeSkills,
+  callModel,
+  cleanApiKey,
+  isProviderId,
+  keyLooksValid,
+  type ProviderId,
+} from "@/lib/ai/providers";
+import { sistemaDelPlan, usuarioDelPlan, type PlanDeRespuesta } from "@/lib/ai/plan";
+import {
   isSkillId,
   lockedSkills,
   skillIds,
@@ -59,12 +65,22 @@ export const askCifra = createServerFn({ method: "POST" })
     if (input.apiKey) {
       const cleaned = cleanApiKey(input.apiKey);
       if (!input.provider || !isProviderId(input.provider)) {
-        return { ok: false, error: "El proveedor indicado no está en la lista. Revisa los ajustes." };
+        return {
+          ok: false,
+          error: "El proveedor indicado no está en la lista. Revisa los ajustes.",
+        };
       }
       if (!keyLooksValid(input.provider, cleaned)) {
-        return { ok: false, error: "La clave no tiene la forma esperada para ese proveedor. Revísala en Ajustes." };
+        return {
+          ok: false,
+          error: "La clave no tiene la forma esperada para ese proveedor. Revísala en Ajustes.",
+        };
       }
-      userKey = { provider: input.provider, apiKey: cleaned, model: input.model ? cleanApiKey(input.model) : "" };
+      userKey = {
+        provider: input.provider,
+        apiKey: cleaned,
+        model: input.model ? cleanApiKey(input.model) : "",
+      };
     }
 
     const apiKey = userKey?.apiKey ?? process.env.XAI_API_KEY;
@@ -86,7 +102,8 @@ export const askCifra = createServerFn({ method: "POST" })
     if (!allow(`ip:${ip}`, IP_LIMIT) || !allow("global", GLOBAL_LIMIT)) {
       return {
         ok: false,
-        error: "Has pedido varias explicaciones seguidas. Espera un momento: cada una gasta cuota real del modelo.",
+        error:
+          "Has pedido varias explicaciones seguidas. Espera un momento: cada una gasta cuota real del modelo.",
       };
     }
 
@@ -111,32 +128,38 @@ export const askCifra = createServerFn({ method: "POST" })
     const cached = cache.get(cacheKey);
     if (cached) return { ok: true, explanation: cached, cached: true };
 
-    const system = [
-      "Eres Cifra. Ayudas a entender programas. No eres un generador que suelta código y se calla.",
-      "Responde solo con un objeto JSON, sin markdown, con estas claves:",
-      '{"summary": string, "walkthrough": [{"lines": string, "text": string}], "decisions": [{"choice": string, "why": string, "simpler": string | null}], "skipped": string, "checked": string[], "inferred": string[], "askNext": string}',
-      "summary: 2 a 5 frases. walkthrough: como mucho 6 entradas, solo si ordenan la lectura. decisions: como mucho 3. checked e inferred: como mucho 5 cada una. askNext: una sola pregunta que la persona podría hacer después.",
-      "lines usa números del fragmento (\"4\" o \"4-8\") o, si hablas de matemáticas, una etiqueta corta (\"fórmula\", \"pseudocódigo\").",
-      "simpler es null si no hace falta una versión más corta.",
-      composeSkills(chosen),
-    ].join("\n\n");
+    const plan: PlanDeRespuesta = {
+      superficie: "explicar",
+      proposito: [
+        "Eres Cifra. Ayudas a entender programas. No eres un generador que suelta código y se calla.",
+      ],
+      nivel: input.level,
+      skills: chosen,
+      formato: [
+        "Responde solo con un objeto JSON, sin markdown, con estas claves:",
+        '{"summary": string, "walkthrough": [{"lines": string, "text": string}], "decisions": [{"choice": string, "why": string, "simpler": string | null}], "skipped": string, "checked": string[], "inferred": string[], "askNext": string}',
+        "summary: 2 a 5 frases. walkthrough: como mucho 6 entradas, solo si ordenan la lectura. decisions: como mucho 3. checked e inferred: como mucho 5 cada una. askNext: una sola pregunta que la persona podría hacer después.",
+        'lines usa números del fragmento ("4" o "4-8") o, si hablas de matemáticas, una etiqueta corta ("fórmula", "pseudocódigo").',
+        "simpler es null si no hace falta una versión más corta.",
+      ],
+      reglas: [],
+      material: [
+        `Superficie: ${input.kind}`,
+        input.language ? `Lenguaje etiquetado por la persona: ${input.language}` : "",
+        input.selection ? `Líneas que ha marcado: ${input.selection}` : "No ha marcado líneas.",
+        input.question?.trim()
+          ? `Pregunta: ${input.question.trim()}`
+          : "No hay pregunta. Explica qué hace y cómo se recorre, al nivel indicado.",
+        input.facts.length
+          ? `Observaciones de un analizador de texto (no es una ejecución):\n${input.facts.map((fact) => `- ${fact}`).join("\n")}`
+          : "El analizador no aportó observaciones.",
+        input.kind === "codigo" ? `Código:\n${input.code}` : "",
+        topic ? `Material de la plataforma sobre este puente:\n${mathBrief(topic)}` : "",
+      ],
+    };
 
-    const user = [
-      `Nivel: ${input.level}`,
-      `Superficie: ${input.kind}`,
-      input.language ? `Lenguaje etiquetado por la persona: ${input.language}` : "",
-      input.selection ? `Líneas que ha marcado: ${input.selection}` : "No ha marcado líneas.",
-      input.question?.trim()
-        ? `Pregunta: ${input.question.trim()}`
-        : "No hay pregunta. Explica qué hace y cómo se recorre, al nivel indicado.",
-      input.facts.length
-        ? `Observaciones de un analizador de texto (no es una ejecución):\n${input.facts.map((fact) => `- ${fact}`).join("\n")}`
-        : "El analizador no aportó observaciones.",
-      input.kind === "codigo" ? `Código:\n${input.code}` : "",
-      topic ? `Material de la plataforma sobre este puente:\n${mathBrief(topic)}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n\n");
+    const system = sistemaDelPlan(plan);
+    const user = usuarioDelPlan(plan);
 
     try {
       const content = await callModel(
@@ -150,7 +173,8 @@ export const askCifra = createServerFn({ method: "POST" })
       if (!explanation) {
         return {
           ok: false,
-          error: "El modelo contestó, pero no en la forma esperada. No he inventado una explicación.",
+          error:
+            "El modelo contestó, pero no en la forma esperada. No he inventado una explicación.",
           raw: content.slice(0, 1500),
         };
       }
@@ -199,6 +223,6 @@ async function digest(value: string): Promise<string> {
 export type AiStatus = { platformKey: boolean };
 
 /** El estado no revela la clave: solo si existe. */
-export const aiStatus = createServerFn({ method: "GET" }).handler(
-  async (): Promise<AiStatus> => ({ platformKey: Boolean(process.env.XAI_API_KEY) }),
-);
+export const aiStatus = createServerFn({ method: "GET" }).handler(async (): Promise<AiStatus> => ({
+  platformKey: Boolean(process.env.XAI_API_KEY),
+}));
