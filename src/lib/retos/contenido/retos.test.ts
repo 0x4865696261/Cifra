@@ -4,7 +4,7 @@ import { correrPruebasPorTransporte, todasPasadas } from "../../ejecucion/prueba
 import { liberarHilos, transporteHilo } from "../../ejecucion/hiloPrueba.ts";
 import { limitesDefecto } from "../../ejecucion/limites.ts";
 import type { RunRequest } from "../../ejecucion/tipos.ts";
-import { definiciones, instanciaReto } from "../retos.ts";
+import { definiciones, instanciaReto, retosRechazados } from "../retos.ts";
 import type { InstanciaReto } from "../tipos.ts";
 import type { RetoCompleto } from "./utiles.ts";
 import type { DatosReto } from "../tipos.ts";
@@ -33,6 +33,7 @@ async function entregar(reto: RetoCompleto, datos: DatosReto, cual: "referencia"
 describe("el contenido de la 0.4: cinco familias × tres niveles", () => {
   it("hay 15 retos con 5 familias y niveles 2, 5 y 8, bien escritos", () => {
     assert.equal(definiciones.length, 15);
+    assert.deepEqual(retosRechazados, [], "el registro rechazó algún módulo de retos");
     assert.deepEqual(
       new Set(definiciones.map((reto) => reto.familia)),
       new Set(["bucles", "condicionales", "funciones", "colecciones", "cadenas"]),

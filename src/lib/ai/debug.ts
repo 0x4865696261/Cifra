@@ -1,10 +1,22 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { parseDebugGuide, type GuiaDeDepuracion } from "@/lib/ai/debug-parse";
-import { callModel, cleanApiKey, isProviderId, keyLooksValid, type ProviderId } from "@/lib/ai/providers";
-import { composeSkills, lockedSkills } from "@/lib/skills/registry";
+import {
+  callModel,
+  cleanApiKey,
+  isProviderId,
+  keyLooksValid,
+  type ProviderId,
+} from "@/lib/ai/providers";
+import { type PlanDeRespuesta } from "@/lib/ai/plan";
+import { lockedSkills } from "@/lib/skills/registry";
 import { limitesEntrada } from "@/lib/ai/limits";
-import { guardarGuiaEnCache, guiaEnCache, huellaDeGuia, type EntradaDeGuia } from "@/lib/ai/guia-cache";
+import {
+  guardarGuiaEnCache,
+  guiaEnCache,
+  huellaDeGuia,
+  type EntradaDeGuia,
+} from "@/lib/ai/guia-cache";
 
 export type { GuiaDeDepuracion };
 
@@ -44,12 +56,22 @@ export const askDebug = createServerFn({ method: "POST" })
     if (input.apiKey) {
       const cleaned = cleanApiKey(input.apiKey);
       if (!input.provider || !isProviderId(input.provider)) {
-        return { ok: false, error: "El proveedor indicado no está en la lista. Revisa los ajustes." };
+        return {
+          ok: false,
+          error: "El proveedor indicado no está en la lista. Revisa los ajustes.",
+        };
       }
       if (!keyLooksValid(input.provider, cleaned)) {
-        return { ok: false, error: "La clave no tiene la forma esperada para ese proveedor. Revísala en Ajustes." };
+        return {
+          ok: false,
+          error: "La clave no tiene la forma esperada para ese proveedor. Revísala en Ajustes.",
+        };
       }
-      userKey = { provider: input.provider, apiKey: cleaned, model: input.model ? cleanApiKey(input.model) : "" };
+      userKey = {
+        provider: input.provider,
+        apiKey: cleaned,
+        model: input.model ? cleanApiKey(input.model) : "",
+      };
     }
 
     const apiKey = userKey?.apiKey ?? process.env.XAI_API_KEY;
@@ -71,7 +93,8 @@ export const askDebug = createServerFn({ method: "POST" })
     if (!allow(`ip:${ip}`, IP_LIMIT) || !allow("global", GLOBAL_LIMIT)) {
       return {
         ok: false,
-        error: "Has pedido varias guías seguidas. Espera un momento: cada una gasta cuota real del modelo.",
+        error:
+          "Has pedido varias guías seguidas. Espera un momento: cada una gasta cuota real del modelo.",
       };
     }
 
@@ -89,37 +112,47 @@ export const askDebug = createServerFn({ method: "POST" })
     const cached = guiaEnCache(cacheKey);
     if (cached) return { ok: true, guide: cached, cached: true };
 
-    const system = [
-      "Eres Cifra, en el estudio del fallo. Conduces el análisis de un error. No entregas una corrección a secas y no reescribes el programa.",
-      "Responde solo con un objeto JSON, sin markdown, con estas claves:",
-      '{"reading": string, "locate": string, "hypotheses": [{"hypothesis": string, "coste": 1, "howToCheck": string}], "repro": {"failing": string, "passing": string}, "caughtEarlier": string}',
-      "reading: qué dice el mensaje con sus palabras y qué deja de garantizarse. 2 a 4 frases.",
-      "locate: a qué parte del código apunta el mensaje y qué mirar en las líneas vecinas antes de juzgar. Frases cortas.",
-      "hypotheses: de 2 a 4, ordenadas de la más barata de comprobar a la más cara. Cada una lleva su propio coste de comprobarla como número: 1 barata, 2 normal, 3 cara, y concuerda con el orden. Cada howToCheck es una acción concreta: una entrada, un imprimir, una línea que leer.",
-      "repro.failing: una entrada pequeña y concreta que, si la hipótesis más probable es cierta, reproduce el fallo. repro.passing: otra entrada que debería seguir funcionando cuando el arreglo sea bueno. Describelas; no afirmes que las has probado.",
-      "caughtEarlier: qué aviso, prueba o hábito habría destapado este fallo antes de que lo encontrara esta persona.",
-      "Nada inventado presentado como ocurrido: solo deduces a partir del código y del mensaje que te llegan.",
-      composeSkills(lockedSkills("codigo")),
-    ].join("\n\n");
-
-    const user = [
-      `Nivel: ${input.level}`,
-      input.language ? `Lenguaje etiquetado por la persona: ${input.language}` : "",
-      input.question?.trim() ? `Sospecha de la persona: ${input.question.trim()}` : "No hay sospecha declarada.",
-      `Mensaje del error, tal como llegó:\n${input.errorMessage}`,
-      input.messageFacts.length
-        ? `Observaciones sobre el mensaje, hechas sin ejecutar nada:\n${input.messageFacts.map((fact) => `- ${fact}`).join("\n")}`
-        : "",
-      input.codeFacts.length
-        ? `Observaciones sobre el código, hechas sin ejecutar nada:\n${input.codeFacts.map((fact) => `- ${fact}`).join("\n")}`
-        : "",
-      `Código:\n${input.code}`,
-    ]
-      .filter(Boolean)
-      .join("\n\n");
+    const plan: PlanDeRespuesta = {
+      superficie: "depurar",
+      proposito: [
+        "Eres Cifra, en el estudio del fallo. Conduces el análisis de un error. No entregas una corrección a secas y no reescribes el programa.",
+      ],
+      nivel: input.level,
+      skills: lockedSkills("codigo"),
+      formato: [
+        "Responde solo con un objeto JSON, sin markdown, con estas claves:",
+        '{"reading": string, "locate": string, "hypotheses": [{"hypothesis": string, "coste": 1, "howToCheck": string}], "repro": {"failing": string, "passing": string}, "caughtEarlier": string}',
+        "reading: qué dice el mensaje con sus palabras y qué deja de garantizarse. 2 a 4 frases.",
+        "locate: a qué parte del código apunta el mensaje y qué mirar en las líneas vecinas antes de juzgar. Frases cortas.",
+        "hypotheses: de 2 a 4, ordenadas de la más barata de comprobar a la más cara. Cada una lleva su propio coste de comprobarla como número: 1 barata, 2 normal, 3 cara, y concuerda con el orden. Cada howToCheck es una acción concreta: una entrada, un imprimir, una línea que leer.",
+        "repro.failing: una entrada pequeña y concreta que, si la hipótesis más probable es cierta, reproduce el fallo. repro.passing: otra entrada que debería seguir funcionando cuando el arreglo sea bueno. Describelas; no afirmes que las has probado.",
+        "caughtEarlier: qué aviso, prueba o hábito habría destapado este fallo antes de que lo encontrara esta persona.",
+      ],
+      reglas: [
+        "Nada inventado presentado como ocurrido: solo deduces a partir del código y del mensaje que te llegan.",
+      ],
+      material: [
+        input.language ? `Lenguaje etiquetado por la persona: ${input.language}` : "",
+        input.question?.trim()
+          ? `Sospecha de la persona: ${input.question.trim()}`
+          : "No hay sospecha declarada.",
+        `Mensaje del error, tal como llegó:\n${input.errorMessage}`,
+        input.messageFacts.length
+          ? `Observaciones sobre el mensaje, hechas sin ejecutar nada:\n${input.messageFacts.map((fact) => `- ${fact}`).join("\n")}`
+          : "",
+        input.codeFacts.length
+          ? `Observaciones sobre el código, hechas sin ejecutar nada:\n${input.codeFacts.map((fact) => `- ${fact}`).join("\n")}`
+          : "",
+        `Código:\n${input.code}`,
+      ],
+    };
 
     try {
-      const content = await callModel(userKey?.provider ?? "xai", apiKey, userKey?.model ?? "", system, user);
+      const content = await callModel(plan, {
+        proveedor: userKey?.provider ?? "xai",
+        clave: apiKey,
+        modelo: userKey?.model ?? "",
+      });
       const guide = parseDebugGuide(content);
       if (!guide) {
         return {

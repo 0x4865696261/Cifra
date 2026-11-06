@@ -4,7 +4,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { aiStatus, type AiStatus } from "@/lib/ai/explain";
 import { providers } from "@/lib/ai/providers";
-import { clearAiSettings, loadAiSettings, modelInUse, saveAiSettings, type AiSettings } from "@/lib/ai/settings";
+import {
+  clearAiSettings,
+  loadAiSettings,
+  modelInUse,
+  saveAiSettings,
+  type AiSettings,
+} from "@/lib/ai/settings";
 import {
   exportarProgreso,
   importarProgreso,
@@ -59,7 +65,7 @@ function AjustesPage() {
         ? hasOwnKey
           ? "Guardado en este navegador. Las explicaciones usan tu clave y tu modelo."
           : "Guardado. Sin clave propia, se usa la clave de plataforma si existe."
-        : outcome.error ?? "No se ha podido guardar.",
+        : (outcome.error ?? "No se ha podido guardar."),
     );
   };
 
@@ -75,9 +81,9 @@ function AjustesPage() {
       <p className="font-mono text-sm text-copper">Ajustes</p>
       <h1 className="mt-3 font-serif text-4xl">Tu modelo, tus claves, tu cuota.</h1>
       <p className="mt-4 text-pretty">
-        Cifra llama al modelo una vez por cada clic que pides una explicación o una guía de fallo. Aquí decides con
-        qué clave y qué modelo: la de plataforma (si el servidor la trae) o la tuya propia, pegada en este
-        navegador.
+        Cifra llama al modelo una vez por cada clic que pides una explicación o una guía de fallo.
+        Aquí decides con qué clave y qué modelo: la de plataforma (si el servidor la trae) o la tuya
+        propia, pegada en este navegador.
       </p>
 
       <div className="mt-8 border border-line p-5">
@@ -96,14 +102,16 @@ function AjustesPage() {
                 }}
                 className={cn(
                   "tap min-h-11 px-2 font-mono text-sm",
-                  providerId === item.id ? "bg-ink text-paper" : "border border-line bg-paper text-ink",
+                  providerId === item.id
+                    ? "bg-ink text-paper"
+                    : "border border-line bg-paper text-ink",
                 )}
               >
                 {item.label}
               </button>
             ))}
           </div>
-          <p className="mt-2 text-pretty text-muted">{provider.note}</p>
+          <p className="mt-2 text-pretty text-muted">{provider.nota}</p>
         </fieldset>
 
         <label className="mt-6 flex flex-col gap-2 font-mono text-sm">
@@ -117,12 +125,16 @@ function AjustesPage() {
               setMessage(null);
             }}
             className="min-h-11 w-full border border-line bg-paper px-3 font-mono text-sm text-ink"
-            placeholder={hasOwnKey ? "•••• ya guardada; escribe para cambiar" : `Pega tu clave de ${provider.label}`}
+            placeholder={
+              hasOwnKey
+                ? "•••• ya guardada; escribe para cambiar"
+                : `Pega tu clave de ${provider.label}`
+            }
           />
         </label>
         <p className="mt-2 text-pretty text-muted">
-          La clave se guarda solo en este navegador y viaja con cada petición para usarse en esa llamada. El servidor
-          no la guarda ni la anota.
+          La clave se guarda solo en este navegador y viaja con cada petición para usarse en esa
+          llamada. El servidor no la guarda ni la anota.
         </p>
 
         <label className="mt-6 flex flex-col gap-2 font-mono text-sm">
@@ -180,7 +192,9 @@ function SeccionProgreso() {
 
   const cambiar = (plan: Plan) => {
     const error = elegirPlan(plan);
-    setAviso(error ?? `Camino cambiado a ${plan === "profesional" ? "profesional" : "desde cero"}.`);
+    setAviso(
+      error ?? `Camino cambiado a ${plan === "profesional" ? "profesional" : "desde cero"}.`,
+    );
   };
 
   const exportar = () => {
@@ -242,7 +256,9 @@ function SeccionProgreso() {
           onClick={() => cambiar("desde-cero")}
           className={cn(
             "tap min-h-11 px-3 font-mono text-sm",
-            progreso.plan === "desde-cero" ? "bg-ink text-paper" : "border border-line bg-paper text-ink",
+            progreso.plan === "desde-cero"
+              ? "bg-ink text-paper"
+              : "border border-line bg-paper text-ink",
           )}
         >
           Desde cero
@@ -253,7 +269,9 @@ function SeccionProgreso() {
           onClick={() => cambiar("profesional")}
           className={cn(
             "tap min-h-11 px-3 font-mono text-sm",
-            progreso.plan === "profesional" ? "bg-ink text-paper" : "border border-line bg-paper text-ink",
+            progreso.plan === "profesional"
+              ? "bg-ink text-paper"
+              : "border border-line bg-paper text-ink",
           )}
         >
           Profesional
@@ -263,13 +281,18 @@ function SeccionProgreso() {
         </Button>
         <label className="inline-flex min-h-11 cursor-pointer items-center border border-line bg-paper px-4 font-mono text-sm text-ink">
           Importar un fichero…
-          <input type="file" accept="application/json,.json" className="sr-only" onChange={alImportar} />
+          <input
+            type="file"
+            accept="application/json,.json"
+            className="sr-only"
+            onChange={alImportar}
+          />
         </label>
       </div>
       {aviso && <p className="mt-3 text-pretty text-muted">{aviso}</p>}
       <p className="mt-3 text-pretty text-muted">
-        Importar reemplaza el progreso de este navegador por el del fichero: solo se acepta un
-        JSON exportado por Cifra con la misma versión.
+        Importar reemplaza el progreso de este navegador por el del fichero: solo se acepta un JSON
+        exportado por Cifra con la misma versión.
       </p>
     </div>
   );
@@ -303,7 +326,9 @@ function SeccionIncidentes() {
     const resultado = importarProgresoIncidentes(leido);
     if (resultado.ok) {
       reemplazar(resultado.progreso);
-      setAviso("Progreso de incidentes importado: reemplazó al de este navegador, tras validar la forma entera.");
+      setAviso(
+        "Progreso de incidentes importado: reemplazó al de este navegador, tras validar la forma entera.",
+      );
     } else {
       setAviso(resultado.error);
     }
@@ -338,7 +363,12 @@ function SeccionIncidentes() {
         </Button>
         <label className="inline-flex min-h-11 cursor-pointer items-center border border-line bg-paper px-4 font-mono text-sm text-ink">
           Importar un fichero de incidentes…
-          <input type="file" accept="application/json,.json" className="sr-only" onChange={alImportar} />
+          <input
+            type="file"
+            accept="application/json,.json"
+            className="sr-only"
+            onChange={alImportar}
+          />
         </label>
       </div>
       {aviso && <p className="mt-3 text-pretty text-muted">{aviso}</p>}

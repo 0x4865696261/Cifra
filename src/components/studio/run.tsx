@@ -1,9 +1,15 @@
 import { useMemo, useState } from "react";
-import { ejecutarJavaScript } from "@/lib/ejecucion/motor-javascript";
-import { ejecutarPython } from "@/lib/ejecucion/motor-python";
 import { limitesDefecto } from "@/lib/ejecucion/limites";
 import { excedeLimite, limitesEntrada } from "@/lib/ai/limits";
 import type { RunRequest, RunResult, TraceStep } from "@/lib/ejecucion/tipos";
+import {
+  ejecutarLenguaje,
+  isLanguageId,
+  lenguajesConMotor,
+  languageLabels,
+  motorDe,
+  type LanguageId,
+} from "@/lib/modulos/lenguajes";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 
@@ -11,14 +17,13 @@ import { cn } from "@/lib/cn";
  * «Ejecuta con seguridad» (0.3.G, tarea 8): un botón Ejecutar en el estudio. El código corre
  * en el navegador (Worker aislado, sin red), la salida y la traza se ven bajo el editor, y si
  * el programa falla, el puente lleva al mensaje y el código a «Estudia el fallo» con un clic.
+ *
+ * 0.6: ni el selector ni el disparo conocen un lenguaje concreto. Salen del registro de
+ * módulos (`lenguajesConMotor`) y el disparo pasa por `ejecutarLenguaje`, que aplica el
+ * motor de cada módulo o devuelve `no-soportado`.
  */
 
-const lenguajes = [
-  { id: "javascript", label: "JavaScript", notas: "corre en un Worker de tu navegador" },
-  { id: "python", label: "Python", notas: "Pyodide se baja del CDN la primera vez; tarda al cargar" },
-] as const;
-
-type LenguajeRun = (typeof lenguajes)[number]["id"];
+const opcionesRun = lenguajesConMotor();
 
 const muestras = [
   {
@@ -33,7 +38,8 @@ const muestras = [
     id: "bucle",
     lenguaje: "javascript" as const,
     titulo: "Un bucle que no termina",
-    codigo: "let vueltas = 0;\nwhile (vueltas >= 0) {\n  vueltas = vueltas + 1;\n}\nconsole.log(vueltas);\n",
+    codigo:
+      "let vueltas = 0;\nwhile (vueltas >= 0) {\n  vueltas = vueltas + 1;\n}\nconsole.log(vueltas);\n",
     preguntaAlEjecutar: false,
   },
   {
@@ -61,7 +67,7 @@ export function RunStudio({
   onEstudiarFallo: (codigo: string, mensaje: string, lenguaje: string) => void;
 }) {
   const [muestraId, setMuestraId] = useState(muestras[0].id);
-  const [language, setLanguage] = useState<LenguajeRun>("javascript");
+  const [language, setLanguage] = useState<LanguageId>("javascript");
   const [code, setCode] = useState(muestras[0].codigo);
   const [trazar, setTrazar] = useState(true);
   const [corriendo, setCorriendo] = useState(false);
@@ -91,7 +97,7 @@ export function RunStudio({
       trazar,
     };
     try {
-      const respuesta = language === "javascript" ? await ejecutarJavaScript(pedido) : await ejecutarPython(pedido);
+      const respuesta = await ejecutarLenguaje(pedido);
       setResultado(respuesta);
     } catch (error) {
       setAviso(error instanceof Error ? error.message : "No se ha podido ejecutar aquí.");
@@ -110,25 +116,30 @@ export function RunStudio({
               className="min-h-11 border border-line bg-paper px-3 text-ink"
               value={language}
               onChange={(event) => {
-                if (event.target.value === "javascript" || event.target.value === "python") {
-                  setLanguage(event.target.value);
+                const id = event.target.value;
+                if (isLanguageId(id) && motorDe(id)) {
+                  setLanguage(id);
                   setResultado(null);
                 }
               }}
             >
-              {lenguajes.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
+              {opcionesRun.map((id) => (
+                <option key={id} value={id}>
+                  {languageLabels[id]}
                 </option>
               ))}
             </select>
           </label>
-          <p className="font-mono text-sm text-muted">{lenguajes.find((item) => item.id === language)?.notas}</p>
+          <p className="font-mono text-sm text-muted">{motorDe(language)?.notas}</p>
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
           {muestras.map((muestra) => (
-            <Button key={muestra.id} tone={muestra.id === muestraId ? "quiet" : "ghost"} onClick={() => carga(muestra)}>
+            <Button
+              key={muestra.id}
+              tone={muestra.id === muestraId ? "quiet" : "ghost"}
+              onClick={() => carga(muestra)}
+            >
               {muestra.titulo}
             </Button>
           ))}
@@ -156,8 +167,8 @@ export function RunStudio({
 
         <p className="mt-3 text-pretty text-muted">
           El código corre en tu propio navegador, dentro de un Worker sin red, con límites de
-          tiempo, memoria y salida. Nada sale de tu ordenador. Rust no está aquí: su modo local
-          es solo para desarrollo.
+          tiempo, memoria y salida. Nada sale de tu ordenador. Rust no está aquí: su modo local es
+          solo para desarrollo.
         </p>
       </section>
 
@@ -192,7 +203,14 @@ export function RunStudio({
           </div>
         )}
 
-        {resultado && <ResultadoView resultado={resultado} codigo={code} lenguaje={language} onEstudiarFallo={onEstudiarFallo} />}
+        {resultado && (
+          <ResultadoView
+            resultado={resultado}
+            codigo={code}
+            lenguaje={language}
+            onEstudiarFallo={onEstudiarFallo}
+          />
+        )}
       </section>
     </div>
   );
@@ -219,7 +237,10 @@ function ResultadoView({
           {etiquetasEstado[resultado.estado]} · {resultado.duracionMs} ms
         </p>
         {puedeEstudiar && (
-          <Button tone="ghost" onClick={() => onEstudiarFallo(codigo, resultado.stderr.trim(), lenguaje)}>
+          <Button
+            tone="ghost"
+            onClick={() => onEstudiarFallo(codigo, resultado.stderr.trim(), lenguaje)}
+          >
             Estudiar este fallo →
           </Button>
         )}
@@ -265,7 +286,8 @@ function ResultadoView({
       )}
       {resultado.trazaTruncada === true && (
         <p className="mt-3 text-pretty text-copper">
-          La traza se trunca en {limitesDefecto().pasosTraza} pasos (0.3.B): es un mapa, no la película completa.
+          La traza se trunca en {limitesDefecto().pasosTraza} pasos (0.3.B): es un mapa, no la
+          película completa.
         </p>
       )}
     </article>

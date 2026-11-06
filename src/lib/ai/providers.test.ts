@@ -1,13 +1,24 @@
 import assert from "node:assert/strict";
 import { afterEach, describe, it } from "node:test";
-import { callModel, FalloProveedor, providers, traducirError, type ProviderId } from "./providers.ts";
+import { adaptadorDe } from "./adaptadores/index.ts";
+import { callModel, FalloProveedor, providers, type ProviderId } from "./providers.ts";
 import { topeSalidaTokens } from "./limits.ts";
+import type { PlanDeRespuesta } from "./plan.ts";
 
 const fetchOriginal = globalThis.fetch;
 
 afterEach(() => {
   globalThis.fetch = fetchOriginal;
 });
+
+const plan: PlanDeRespuesta = {
+  superficie: "explicar",
+  proposito: ["Sistema de prueba."],
+  skills: [],
+  formato: [],
+  reglas: [],
+  material: ["Usuario de prueba."],
+};
 
 function responderCon(estado: number, cuerpo: string) {
   globalThis.fetch = (async () => new Response(cuerpo, { status: estado })) as typeof fetch;
@@ -21,7 +32,8 @@ const llamadas = {
 };
 
 function llamadaDe(proveedor: ProviderId) {
-  return () => callModel(proveedor, "clave-de-prueba-suficientemente-larga", "", "Sistema", "Usuario");
+  return () =>
+    callModel(plan, { proveedor, clave: "clave-de-prueba-suficientemente-larga", modelo: "" });
 }
 
 describe("callModel y traducirError, por proveedor y por caso", () => {
@@ -59,7 +71,9 @@ describe("callModel y traducirError, por proveedor y por caso", () => {
 
     it(`${label}: el tiempo agotado se traduce sin culpar a la clave`, async () => {
       globalThis.fetch = (async () => {
-        throw Object.assign(new Error("The operation was aborted due to timeout"), { name: "TimeoutError" });
+        throw Object.assign(new Error("The operation was aborted due to timeout"), {
+          name: "TimeoutError",
+        });
       }) as unknown as typeof fetch;
       await assert.rejects(llamadas[id](), (error: unknown) => {
         assert.ok(error instanceof FalloProveedor && error.tipo === "tiempo-agotado");
@@ -69,7 +83,10 @@ describe("callModel y traducirError, por proveedor y por caso", () => {
     });
 
     it(`${label}: la respuesta bloqueada por política se traduce a contenido-bloqueado`, async () => {
-      responderCon(400, '{"error": {"message": "The request was rejected because the content_filter flagged it."}}');
+      responderCon(
+        400,
+        '{"error": {"message": "The request was rejected because the content_filter flagged it."}}',
+      );
       await assert.rejects(llamadas[id](), (error: unknown) => {
         assert.ok(error instanceof FalloProveedor && error.tipo === "contenido-bloqueado");
         return true;
@@ -78,21 +95,29 @@ describe("callModel y traducirError, por proveedor y por caso", () => {
   }
 
   it("un fallo sin forma conocida queda como respuesta-invalida", () => {
-    const traducido = traducirError("xai", new Error("algo chungo"));
+    const adaptador = adaptadorDe("xai");
+    assert.ok(adaptador, "xai no está cargado");
+    const traducido = adaptador.traducirError(new Error("algo chungo"));
     assert.equal(traducido.tipo, "respuesta-invalida");
     assert.ok(traducido.mensaje.length > 0);
   });
 
   it("un error ya traducido no se envuelve otra vez", () => {
-    const original = traducirError("xai", new Error("x"));
-    assert.equal(traducirError("openai", original), original);
+    const xai = adaptadorDe("xai");
+    const openai = adaptadorDe("openai");
+    assert.ok(xai && openai, "el adaptador no está cargado");
+    const original = xai.traducirError(new Error("x"));
+    assert.ok(original instanceof FalloProveedor);
+    assert.equal(openai.traducirError(original), original);
   });
 
   it("la clave no viaja en la URL de Google", async () => {
     let urlPedida = "";
     globalThis.fetch = (async (url: string | URL) => {
       urlPedida = String(url);
-      return new Response('{"candidates": [{"content": {"parts": [{"text": "{}"}]}}]}', { status: 200 });
+      return new Response('{"candidates": [{"content": {"parts": [{"text": "{}"}]}}]}', {
+        status: 200,
+      });
     }) as unknown as typeof fetch;
     await llamadas.google();
     assert.doesNotMatch(urlPedida, /clave-de-prueba/);
@@ -109,7 +134,9 @@ describe("tope de salida por petición", () => {
       }, id);
       await llamadas[id]();
       const peticion = JSON.parse(cuerpo) as Record<string, unknown>;
-      const tope = peticion.max_tokens ?? (peticion.generationConfig as Record<string, unknown>).maxOutputTokens;
+      const tope =
+        peticion.max_tokens ??
+        (peticion.generationConfig as Record<string, unknown>).maxOutputTokens;
       assert.equal(tope, topeSalidaTokens);
     });
   }

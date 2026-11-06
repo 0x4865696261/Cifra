@@ -1,5 +1,7 @@
-import { paquetesDeDatos } from "./contenido/datos.ts";
-import { paquetesDeRecursos } from "./contenido/recursos.ts";
+import { cargarModulos } from "../modulos/registro.ts";
+import type { RechazoModulo } from "../modulos/tipos.ts";
+import { moduloIncidentesDatos } from "./contenido/datos.ts";
+import { moduloIncidentesRecursos } from "./contenido/recursos.ts";
 import type { DefinicionIncidente } from "./tipos.ts";
 
 /**
@@ -8,10 +10,15 @@ import type { DefinicionIncidente } from "./tipos.ts";
  * no reutilizando estos paquetes.
  */
 
-export const definicionesIncidentes: DefinicionIncidente[] = [
-  ...paquetesDeDatos,
-  ...paquetesDeRecursos,
-];
+const cargaIncidentes = cargarModulos<DefinicionIncidente[]>([
+  moduloIncidentesDatos,
+  moduloIncidentesRecursos,
+]);
+
+export const incidentesRechazados: readonly RechazoModulo[] = cargaIncidentes.rechazados;
+export const definicionesIncidentes: DefinicionIncidente[] = cargaIncidentes.cargados.flatMap(
+  ({ contenido }) => contenido,
+);
 
 /** En orden de dificultad, para el listado de la ruta de incidentes. */
 export function incidentesEnOrden(): Array<{ id: string; nivel: number; titulo: string; familia: string }> {

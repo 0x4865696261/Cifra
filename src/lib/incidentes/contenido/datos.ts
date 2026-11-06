@@ -1,4 +1,5 @@
 import type { DefinicionIncidente } from "../tipos.ts";
+import { contratosDeModulo, type Modulo } from "../../modulos/tipos.ts";
 
 /**
  * Paquetes de incidente con fallo de datos y de honestidad del mensaje (0.5.A): la limpieza
@@ -353,3 +354,19 @@ const discrepanciaMensaje: DefinicionIncidente = {
 };
 
 export const paquetesDeDatos = [valorNulo, estadoCorrupto, permisoDeMas, discrepanciaMensaje];
+
+export const moduloIncidentesDatos = {
+  manifiesto: {
+    id: "incidentes-datos",
+    tipo: "incidente",
+    aporta: [
+      "familia:valor-nulo",
+      "familia:estado-corrupto",
+      "familia:permiso-de-mas",
+      "familia:discrepancia-mensaje",
+    ],
+    versionContrato: contratosDeModulo.incidente.version,
+    necesita: ["contrato:4.6"],
+  },
+  contenido: paquetesDeDatos,
+} as const satisfies Modulo<DefinicionIncidente[]>;

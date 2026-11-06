@@ -1,6 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { callModel, cleanApiKey, isProviderId, keyLooksValid, type ProviderId } from "@/lib/ai/providers";
+import {
+  callModel,
+  cleanApiKey,
+  isProviderId,
+  keyLooksValid,
+  type ProviderId,
+} from "@/lib/ai/providers";
+import { type PlanDeRespuesta } from "@/lib/ai/plan";
 import { limitesEntrada } from "@/lib/ai/limits";
 import {
   explicarVeredictoLocal,
@@ -72,7 +79,7 @@ const GLOBAL_LIMIT = 30;
  * El paso 4 de 0.4.C: la IA lee el código, el `RunResult` y el enunciado, y explica qué
  * cumple, qué no y por qué. ElLLamante marca `paso` con `todasPasadas(resultado)` y aquí
  * llega como dato, no como decisión: la guía que vuelve no lleva veredicto.
- */export const explicarVeredicto = createServerFn({ method: "POST" })
+ */ export const explicarVeredicto = createServerFn({ method: "POST" })
   .validator((input: unknown) => input)
   .handler(async ({ data }): Promise<ResultadoDeVeredicto> => {
     const parsed = payloadVeredicto.safeParse(data);
@@ -86,12 +93,22 @@ const GLOBAL_LIMIT = 30;
     if (input.apiKey) {
       const cleaned = cleanApiKey(input.apiKey);
       if (!input.provider || !isProviderId(input.provider)) {
-        return { ok: false, error: "El proveedor indicado no está en la lista. Revisa los ajustes." };
+        return {
+          ok: false,
+          error: "El proveedor indicado no está en la lista. Revisa los ajustes.",
+        };
       }
       if (!keyLooksValid(input.provider, cleaned)) {
-        return { ok: false, error: "La clave no tiene la forma esperada para ese proveedor. Revísala en Ajustes." };
+        return {
+          ok: false,
+          error: "La clave no tiene la forma esperada para ese proveedor. Revísala en Ajustes.",
+        };
       }
-      userKey = { provider: input.provider, apiKey: cleaned, model: input.model ? cleanApiKey(input.model) : "" };
+      userKey = {
+        provider: input.provider,
+        apiKey: cleaned,
+        model: input.model ? cleanApiKey(input.model) : "",
+      };
     }
 
     const apiKey = userKey?.apiKey ?? process.env.XAI_API_KEY;
@@ -113,7 +130,8 @@ const GLOBAL_LIMIT = 30;
     if (!allow(`ip:${ip}`, IP_LIMIT) || !allow("global", GLOBAL_LIMIT)) {
       return {
         ok: false,
-        error: "Has pedido varias explicaciones seguidas. Espera un momento: cada una gasta cuota real del modelo.",
+        error:
+          "Has pedido varias explicaciones seguidas. Espera un momento: cada una gasta cuota real del modelo.",
       };
     }
 
@@ -130,40 +148,49 @@ const GLOBAL_LIMIT = 30;
       }),
     );
     const cached = cache.get(cacheKey);
-    if (cached) return { ok: true, guia: cached as GuiaVeredicto, superado: input.paso, cached: true };
+    if (cached)
+      return { ok: true, guia: cached as GuiaVeredicto, superado: input.paso, cached: true };
 
-    const system = [
-      "Eres Cifra. Acabas de correr el código de una persona contra las pruebas fijas del reto.",
-      "Tu trabajo es EXPLICAR. El veredicto —superado o no— ya lo dijo la ejecución y no te corresponde: no declares resultado.",
-      "Responde solo con un objeto JSON, sin markdown, con EXACTAMENTE estas claves:",
-      '{"resumen": string, "constata": [{"texto": string, "procedencia": "prueba" | "opinion"}], "siNoPasa": string}',
-      "resumen: 1 a 4 frases, contando lo que la ejecución ya dijo.",
-      "constata: de 1 a 6 comentarios. `procedencia: \"prueba\"` cuando salga de la lista de pruebas que te paso (cítala por su nombre); `\"opinion\"` para lo demás (claridad del código, detalles del enunciado).",
-      "siNoPasa: qué mirar primero si no pasó; cadena vacía si pasó. NO propongas código resuelto.",
-    ].join("\n\n");
-
-    const user = [
-      `Enunciado del reto:\n${input.enunciado}`,
-      `La ejecución real contra las pruebas fijas dijo: ${input.paso ? "todas las pruebas pasaron" : "al menos una prueba falló"}.`,
-      `Resultado de las pruebas:\n${lineasDePruebas(
-        input.pruebas.map((prueba) => ({
-          id: prueba.id ?? "",
-          nombre: prueba.nombre,
-          pasada: prueba.pasada,
-          obtenido: prueba.obtenido,
-          error: prueba.error,
-        })),
-      )}`,
-      input.señales.length
-        ? `Notas de cómo trabajó (solo contexto, no acusa a nadie): ${input.señales.map((senal) => `${senal.tipo}: ${senal.detalle}`).join("; ")}.`
-        : "",
-      `Código entregado:\n${input.codigo}`,
-    ]
-      .filter(Boolean)
-      .join("\n\n");
+    const plan: PlanDeRespuesta = {
+      superficie: "veredicto",
+      proposito: [
+        "Eres Cifra. Acabas de correr el código de una persona contra las pruebas fijas del reto.",
+        "Tu trabajo es EXPLICAR. El veredicto —superado o no— ya lo dijo la ejecución y no te corresponde: no declares resultado.",
+      ],
+      skills: [],
+      formato: [
+        "Responde solo con un objeto JSON, sin markdown, con EXACTAMENTE estas claves:",
+        '{"resumen": string, "constata": [{"texto": string, "procedencia": "prueba" | "opinion"}], "siNoPasa": string}',
+        "resumen: 1 a 4 frases, contando lo que la ejecución ya dijo.",
+        'constata: de 1 a 6 comentarios. `procedencia: "prueba"` cuando salga de la lista de pruebas que te paso (cítala por su nombre); `"opinion"` para lo demás (claridad del código, detalles del enunciado).',
+        "siNoPasa: qué mirar primero si no pasó; cadena vacía si pasó. NO propongas código resuelto.",
+      ],
+      reglas: [],
+      material: [
+        `Enunciado del reto:\n${input.enunciado}`,
+        `La ejecución real contra las pruebas fijas dijo: ${input.paso ? "todas las pruebas pasaron" : "al menos una prueba falló"}.`,
+        `Resultado de las pruebas:\n${lineasDePruebas(
+          input.pruebas.map((prueba) => ({
+            id: prueba.id ?? "",
+            nombre: prueba.nombre,
+            pasada: prueba.pasada,
+            obtenido: prueba.obtenido,
+            error: prueba.error,
+          })),
+        )}`,
+        input.señales.length
+          ? `Notas de cómo trabajó (solo contexto, no acusa a nadie): ${input.señales.map((senal) => `${senal.tipo}: ${senal.detalle}`).join("; ")}.`
+          : "",
+        `Código entregado:\n${input.codigo}`,
+      ],
+    };
 
     try {
-      const content = await callModel(userKey?.provider ?? "xai", apiKey, userKey?.model ?? "", system, user);
+      const content = await callModel(plan, {
+        proveedor: userKey?.provider ?? "xai",
+        clave: apiKey,
+        modelo: userKey?.model ?? "",
+      });
       const explicado = explicarVeredictoLocal(input.paso, content);
       if (!explicado.ok) {
         return { ok: false, error: explicado.error, raw: explicado.raw };
@@ -194,12 +221,22 @@ export const defenderSolucion = createServerFn({ method: "POST" })
     if (input.apiKey) {
       const cleaned = cleanApiKey(input.apiKey);
       if (!input.provider || !isProviderId(input.provider)) {
-        return { ok: false, error: "El proveedor indicado no está en la lista. Revisa los ajustes." };
+        return {
+          ok: false,
+          error: "El proveedor indicado no está en la lista. Revisa los ajustes.",
+        };
       }
       if (!keyLooksValid(input.provider, cleaned)) {
-        return { ok: false, error: "La clave no tiene la forma esperada para ese proveedor. Revísala en Ajustes." };
+        return {
+          ok: false,
+          error: "La clave no tiene la forma esperada para ese proveedor. Revísala en Ajustes.",
+        };
       }
-      userKey = { provider: input.provider, apiKey: cleaned, model: input.model ? cleanApiKey(input.model) : "" };
+      userKey = {
+        provider: input.provider,
+        apiKey: cleaned,
+        model: input.model ? cleanApiKey(input.model) : "",
+      };
     }
 
     const apiKey = userKey?.apiKey ?? process.env.XAI_API_KEY;
@@ -221,34 +258,46 @@ export const defenderSolucion = createServerFn({ method: "POST" })
     if (!allow(`defensa-ip:${ip}`, IP_LIMIT) || !allow("defensa-global", GLOBAL_LIMIT)) {
       return {
         ok: false,
-        error: "Has pedido varias defensas seguidas. Espera un momento: cada una gasta cuota real del modelo.",
+        error:
+          "Has pedido varias defensas seguidas. Espera un momento: cada una gasta cuota real del modelo.",
       };
     }
 
-    const system = [
-      "Eres Cifra. Una persona acaba de superar un reto y responde a las preguntas de defensa sobre SU propio código.",
-      "Tu trabajo es juzgar si cada respuesta demuestra que entiende lo que escribió: si el código hace, cómo lo hace y por qué así.",
-      "Responde solo con un objeto JSON, sin markdown, con EXACTAMENTE esta forma:",
-      '{"juicios": [{"entendido": boolean, "comentario": string}]}',
-      "un juicio por pregunta, EN ORDEN. `entendido` es true solo si la respuesta toca la pieza correcta del código y la explica con sus palabras; false si la repite sin entenderla, la desvía, o no sabe para qué sirve.",
-      "comentario: 1 a 3 frases que digan qué convenció o qué faltó.",
-      "Las notas de cómo trabajó esta persona son contexto, no acusación: cuídalas al preguntar, sin cargar el tono.",
-    ].join("\n\n");
-
-    const user = [
-      `Enunciado del reto:\n${input.enunciado}`,
-      `Código entregado (el de la persona, tal cual):\n${input.codigo}`,
-      input.señales?.length
-        ? `Notas de cómo trabajó esta persona en el editor (contexto, no acusación): ${input.señales.map((senal) => `${senal.tipo}: ${senal.detalle}`).join("; ")}.`
-        : "",
-      ...input.preguntas.map((pregunta, i) => {
-        const respuesta = input.respuestas[i];
-        return `Pregunta ${i + 1} (del reto, no tuya): ${pregunta}\nRespuesta de la persona: ${respuesta.trim() === "" ? "(vacía — ¿respondió de verdad?)" : respuesta}`;
-      }),
-    ].join("\n\n");
+    const plan: PlanDeRespuesta = {
+      superficie: "defensa",
+      proposito: [
+        "Eres Cifra. Una persona acaba de superar un reto y responde a las preguntas de defensa sobre SU propio código.",
+        "Tu trabajo es juzgar si cada respuesta demuestra que entiende lo que escribió: si el código hace, cómo lo hace y por qué así.",
+      ],
+      skills: [],
+      formato: [
+        "Responde solo con un objeto JSON, sin markdown, con EXACTAMENTE esta forma:",
+        '{"juicios": [{"entendido": boolean, "comentario": string}]}',
+        "un juicio por pregunta, EN ORDEN. `entendido` es true solo si la respuesta toca la pieza correcta del código y la explica con sus palabras; false si la repite sin entenderla, la desvía, o no sabe para qué sirve.",
+        "comentario: 1 a 3 frases que digan qué convenció o qué faltó.",
+      ],
+      reglas: [
+        "Las notas de cómo trabajó esta persona son contexto, no acusación: cuídalas al preguntar, sin cargar el tono.",
+      ],
+      material: [
+        `Enunciado del reto:\n${input.enunciado}`,
+        `Código entregado (el de la persona, tal cual):\n${input.codigo}`,
+        input.señales?.length
+          ? `Notas de cómo trabajó esta persona en el editor (contexto, no acusación): ${input.señales.map((senal) => `${senal.tipo}: ${senal.detalle}`).join("; ")}.`
+          : "",
+        ...input.preguntas.map((pregunta, i) => {
+          const respuesta = input.respuestas[i];
+          return `Pregunta ${i + 1} (del reto, no tuya): ${pregunta}\nRespuesta de la persona: ${respuesta.trim() === "" ? "(vacía — ¿respondió de verdad?)" : respuesta}`;
+        }),
+      ],
+    };
 
     try {
-      const content = await callModel(userKey?.provider ?? "xai", apiKey, userKey?.model ?? "", system, user);
+      const content = await callModel(plan, {
+        proveedor: userKey?.provider ?? "xai",
+        clave: apiKey,
+        modelo: userKey?.model ?? "",
+      });
       const juicios = parseDefensa(content, input.preguntas.length);
       if (!juicios) {
         return {

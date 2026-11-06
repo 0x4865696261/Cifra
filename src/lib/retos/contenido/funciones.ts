@@ -1,4 +1,5 @@
 import type { TestSpec } from "@/lib/ejecucion/tipos";
+import { contratosDeModulo, type Modulo } from "../../modulos/tipos.ts";
 import { elegirDe, enteroEntre } from "../semilla.ts";
 import type { DatosReto, Rand } from "../tipos";
 import { literalTexto, plantillaReto, type RetoCompleto } from "./utiles.ts";
@@ -282,3 +283,14 @@ export const funcionesOcho: RetoCompleto = {
 };
 
 export const retosDeFunciones: RetoCompleto[] = [funcionesDos, funcionesCinco, funcionesOcho];
+
+export const moduloRetosFunciones = {
+  manifiesto: {
+    id: "retos-funciones",
+    tipo: "reto",
+    aporta: ["familia:funciones"],
+    versionContrato: contratosDeModulo.reto.version,
+    necesita: ["contrato:4.5"],
+  },
+  contenido: retosDeFunciones,
+} as const satisfies Modulo<RetoCompleto[]>;

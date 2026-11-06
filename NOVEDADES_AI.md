@@ -1,5 +1,17 @@
 # Cifra — Novedades y hoja de ruta
 
+Este documento sigue siendo la referencia histórica del proyecto, pero la navegación operativa y la
+arquitectura actual se centralizan en:
+
+- [`CIFRA_AI.md`](CIFRA_AI.md)
+- [`CIFRA_ARCHITECTURE.md`](CIFRA_ARCHITECTURE.md)
+- [`CIFRA_ROADMAP.md`](CIFRA_ROADMAP.md)
+- [`docs/modules/README.md`](docs/modules/README.md)
+- [`docs/history/README.md`](docs/history/README.md)
+
+La documentación histórica sigue siendo útil para trazabilidad, pero no es la entrada primaria para
+agentes ni para la navegación diaria del proyecto.
+
 Este documento es la fuente de verdad del proyecto. Dice qué es Cifra, adónde va, qué trae cada
 versión, qué decisiones ya están tomadas y cómo se sabe que una versión está terminada.
 
@@ -160,7 +172,7 @@ escribe una IA, y leer la arquitectura de un sistema.** Va desde cero hasta nive
 | 0.3 | Ejecutar con seguridad | hecha en la rama; pendiente de revisión y fusión |
 | 0.4 | Dos caminos y retos de fundamentos | en la rama `version/0.4` |
 | 0.5 | Retos profesionales: leer qué pasó | en la rama `version/0.5` |
-| 0.6 | Plataforma modular | pendiente |
+| 0.6 | Plataforma modular | hecha en la rama; pendiente de revisión y fusión |
 | 0.7 | La red de conocimiento, completa | pendiente |
 | 0.8 | Un compilador que comprueba | pendiente |
 | 0.9 | Pulido y endurecimiento | pendiente |
@@ -249,18 +261,41 @@ type FailureReport = {
 ### 4.3 Adaptador de modelo (0.2)
 
 ```ts
+// 0.6: QUÉ se quiere responder; el adaptador solo lo traduce a su proveedor.
+type PlanDeRespuesta = {
+  superficie: "explicar" | "depurar" | "veredicto" | "defensa" | "comparacion";
+  proposito: string[];        // quién habla y qué trabajo tiene
+  nivel?: string;             // nivel de lectura, cuando la superficie lo pide
+  skills: SkillId[];          // instrucciones activas del registro de skills
+  formato: string[];          // esquema de salida y qué significa cada campo
+  reglas: string[];           // límites que no se negocian
+  material: string[];         // código, mensaje, pruebas, material: el contenido
+};
+// sistemaDelPlan → proposito + formato + reglas + composeSkills; usuarioDelPlan → nivel + material.
+
 interface ModelAdapter {
   id: string;                       // "openai", "anthropic", "google", "xai", ...
+  label: string;                    // 0.6: nombre del proveedor, para Ajustes
+  defaultModel: string;             // 0.6: modelo por defecto del proveedor
+  nota: string;                     // 0.6: línea de ayuda que muestra Ajustes
+  clave?: (clave: string) => boolean; // 0.6: reglas propias del proveedor para validar la clave
   modelosSoportados: string[];
   construirPeticion(plan: PlanDeRespuesta, opciones: { modelo: string; clave?: string }): PeticionProveedor;
   leerRespuesta(cruda: unknown): { texto: string; tokensEntrada?: number; tokensSalida?: number };
   traducirError(cruda: unknown): ErrorDeProveedor; // 401, 429, 5xx, tiempo agotado, contenido bloqueado
 }
+// 0.6: lo que el adaptador pide a la red. La clave viaja en headers: nunca en la URL ni en el cuerpo.
+type PeticionProveedor = { url: string; headers: Record<string, string>; cuerpo: unknown };
 ```
 
 `PlanDeRespuesta` describe QUÉ se quiere responder (skills activas, nivel de lectura, formato de
 salida). Cada adaptador solo sabe traducirlo a su proveedor. Ninguna skill menciona a un
 proveedor.
+
+0.6: cada proveedor es un módulo en `src/lib/ai/adaptadores/` (un fichero por proveedor y un
+índice con la lista, en el orden de Ajustes). `callModel(plan, opciones)` elige el adaptador por
+id y conserva el reintento, la traducción de errores y el tope de tokens de siempre; añadir un
+modelo es añadir un módulo y no toca ninguna skill.
 
 ### 4.4 Ejecución (0.3)
 
@@ -268,13 +303,20 @@ proveedor.
 type Limites = { tiempoMs: number; memoriaMB: number; salidaKB: number; pasosTraza: number };
 
 type RunRequest = {
-  lenguaje: "javascript" | "python" | "rust"; // los demás llegan por módulos (0.6)
+  lenguaje: string;             // 0.6: qué ids se pueden ejecutar lo dice el registro de módulos
   codigo: string;
   entrada?: string;           // stdin
   limites: Limites;
   pruebas?: TestSpec[];
   trazar?: boolean;
 };
+
+// 0.6: el motor de un lenguaje vive en su módulo, con las notas para quien lo usa.
+type MotorLenguaje = {
+  notas: string;
+  ejecutar: (solicitud: RunRequest) => Promise<RunResult>;
+};
+// Un lenguaje sin motor no aparece en el selector y, si se pide, vuelve `no-soportado`.
 
 type RunResult = {
   estado: "ok" | "error" | "tiempo" | "memoria" | "salida-excedida" | "no-soportado";
@@ -1341,3 +1383,110 @@ falta de `cargo`, igual que en la 0.3 y la 0.4). Auditoría de lo que quedó:
 - **Queda para después de esta versión**: la petición de fusión a `main` (esta rama se queda
   en el remoto con este commit; la revisión de la 0.3/0.4 sigue pendiente).
 
+## Plan de commits 0.6
+
+La 0.6 (Plataforma modular) se divide en estos commits, en este orden, en la rama
+`version/0.6` creada desde `version/0.5` (la 0.5 sigue sin fusionar; al fusionar,
+`version/0.6` se ajusta sobre `main`). Cada commit deja typecheck, pruebas y, cuando toca,
+build en verde, y lleva la prueba de lo que añade:
+
+| # | Commit | Tarea de §0.6 |
+|---|---|---|
+| 1 | `docs(novedades): registra el plan de commits de la 0.6` | — (este commit) |
+| 2 | `feat(modulos): manifiesto de modulo y registro comun que no carga lo que no cumple` | Manifiesto |
+| 3 | `feat(modulos): los lenguajes entran como modulos con analizador, notas y ensayos` | Registro común |
+| 4 | `feat(ejecucion): el motor de cada lenguaje vive en su modulo y la interfaz lo lee` | Registro común |
+| 5 | `feat(ai): el estudio construye el pedido desde el PlanDeRespuesta` | Multi-modelo |
+| 6 | `feat(ai): adaptador de modelo por modulo; anadir un modelo no toca ninguna skill` | Multi-modelo |
+| 7 | `feat(modulos): retos y paquetes de incidente entran por el registro` | Registro común |
+| 8 | `test(porton): pruebas de seguridad y de coste con el mismo criterio de paso` | Portón |
+| 9 | `fix(porton): endurece deteccion y falla ante directorios ausentes` | Corrección detectada al cerrar el portón |
+| 10 | `fix(test): ejecuta suite mjs y aisla pruebas de PWA` | Portabilidad y fixtures deterministas |
+| 11 | `docs(novedades): refleja el estado real de la 0.6` | — (hasta un commit propio) |
+
+Notas de la 0.6 tomadas al empezar (decisiones que el texto de §0.6 no fijaba):
+
+- **El manifiesto** vive en `src/lib/modulos/tipos.ts`: `{ id, tipo, aporta, versionContrato,
+  necesita }`, con `tipo: "lenguaje" | "modelo" | "reto" | "incidente"`. La versión vigente del
+  contrato de cada tipo es 1, y su sección es: lenguaje → «módulo de lenguaje (0.6)», modelo →
+  4.3, reto → 4.5, incidente → 4.6. `necesita` solo admite `contrato:4.1`…`contrato:4.6` (las
+  secciones de este apartado) o el id de otro módulo cargado antes en el mismo lote.
+  `cargarModulos` devuelve `cargados` y `rechazados` con su motivo; un módulo que no cumple el
+  manifiesto **no se carga**: id vacío o repetido, tipo desconocido, `aporta` vacío, versión de
+  contrato distinta de la vigente, `necesita` sin resolver, contenido ausente, y por tipo —
+  lenguaje sin `label`/`familia` o con `id` distinto del manifiesto, modelo sin
+  `modelosSoportados` ni las tres funciones del contrato 4.3, reto o incidente sin al menos un
+  elemento.
+- **Los módulos de lenguaje** viven en `src/lib/modulos/lenguajes/`: un fichero por lenguaje y
+  un `index.ts` con la lista. Cada módulo lleva `id`, `label`, `familia`, y opcionalmente
+  señales de detección (0.2.B), reglas de tipo de error, notas, ensayos y motor web. De ahí
+  salen `languageIds`, `languageLabels`, `familiaDe`, las señales de `detection.ts`, las reglas
+  de `failure.ts`, las notas y ensayos, y el motor de cada lenguaje. `structure.ts` y
+  `content/languages.ts` pasan a reexportar del registro: ningún componente de interfaz cambia
+  al añadir un lenguaje. `LanguageId` queda como unión literal derivada de la lista de módulos
+  (`as const`), y una prueba de fuego registra un lenguaje falso y comprueba que aparece en
+  todas las agregaciones.
+- **El ensayo se registra en el módulo del lenguaje del que habla**: «De Python a Rust» →
+  rust, «De JavaScript a Go» → go, «C, C++ y cuánto vive un objeto» → c.
+- **Motor y contrato 4.4**: `RunRequest.lenguaje` pasa de unión literal a `string` (la propia
+  4.4 ya lo preveía: «los demás llegan por módulos (0.6)»). El registro dice qué lenguajes
+  tienen motor web (JavaScript y Python); el selector y el disparo del estudio salen de ahí
+  (`motorDe(id)`), un id sin motor no aparece en el selector y un id desconocido da
+  `estado: "no-soportado"`. Rust sigue fuera del selector: su modo es local de desarrollo
+  (decisión de la 0.3).
+- **PlanDeRespuesta** (se define junto al contrato 4.3): `{ superficie, proposito, nivel?,
+  skills, formato, reglas, material }`. `sistemaDelPlan` arma proposito + formato + reglas +
+  `composeSkills`; `usuarioDelPlan` arma nivel + material. Las cuatro superficies (explicar,
+  depurar, veredicto y defensa) y la comparación de incidentes construyen su pedido con esto.
+  Ninguna skill nombra a un proveedor.
+- **Adaptadores**: un fichero por proveedor en `src/lib/ai/adaptadores/` más un índice con la
+  lista. `ModelAdapter` (4.3) se amplía con `label`, `defaultModel`, `nota` y `clave` (reglas
+  del proveedor para validar la clave) para que el catálogo de Ajustes salga del módulo; el
+  cambio se anota en 4.3 en el mismo commit. `callModel(plan, opciones)` elige el adaptador por
+  id y conserva reintento, traducción de errores y tope de tokens de siempre. Un adaptador falso
+  registrado responde sin tocar nada de las skills, y una prueba comprueba que
+  `src/lib/skills/registry.ts` no nombra a ningún proveedor.
+- **Retos y paquetes**: cada fichero de `contenido/` exporta además su `Modulo` (tipo `reto`
+  con `necesita: ["contrato:4.5"]`, o tipo `incidente` con `["contrato:4.6"]`) y `retos.ts` /
+  `paquetes.ts` agregan lo que el registro carga; los rechazados quedan expuestos y sus pruebas
+  afirman que no hay ninguno (siguen contando 15 retos y 8 paquetes).
+- **Portón**: `scripts/porton-seguridad.test.mjs` (búsqueda de credenciales por patrón en
+  `src/`, `server/`, `public/` y `scripts/`, y ninguna clave en la URL ni en el cuerpo de la
+  petición de ningún adaptador registrado) y `src/lib/ai/porton-coste.test.ts` (tope de 1400
+  tokens de §8, límites de entrada 20 000 / 8 000 / 600 de §8, y la petición de cada adaptador
+  pidiendo como mucho ese tope). Los dos entran en `npm test`: **mismo criterio de paso**,
+  todas sus pruebas en verde; un fallo detiene la versión (§6 se actualiza en el commit 11).
+- **Fuera de alcance**: añadir lenguajes, proveedores, retos o paquetes nuevos (esta versión
+  construye la puerta, no la llena); Rust en el selector de ejecución; comparación de
+  mediciones solo en JavaScript; retos entregados solo en JavaScript; cuentas o base de datos.
+- **QA al cerrar**: typecheck, pruebas y build en verde, humo del navegador en escritorio y
+  móvil con capturas en `screenshots/`, y el criterio de terminación de §0.6 comprobado en el
+  código (ningún componente de interfaz lista lenguajes ni motores a mano).
+
+La revisión del cierre encontró que el escáner podía pasar por alto una carpeta vigilada si no
+existía: `archivosDe()` devolvía una lista vacía. El commit 9 amplía la detección a credenciales
+comunes en variables y hace fallar el portón de forma explícita ante carpetas ausentes, con pruebas
+de regresión. El commit 10 corrige el descubrimiento de pruebas `.mjs` en Windows y aísla los
+fixtures de PWA del `site.json` y los assets reales del proyecto; el commit 11 registra los
+resultados y el estado real.
+
+### El estado real de la 0.6
+
+La 0.6 queda terminada en `version/0.6`: las ocho tareas del plan están implementadas y probadas,
+más el cierre del escáner de seguridad cuando falta una carpeta vigilada y la verificación
+reproducible de todos los grupos de pruebas en Windows.
+
+- **Criterio modular:** los selectores derivan los lenguajes y los motores del registro; el
+  disparo de ejecución usa `ejecutarLenguaje`. El registro de skills no nombra proveedores.
+- **Portones:** `npm run test` pasa con 599 pruebas: las 206 pruebas `.mjs` aprobadas y 393
+  pruebas TypeScript (391 aprobadas, 2 omitidas por falta de `cargo`), sin fallos. La prueba de
+  seguridad verifica formatos de credenciales, que existan las carpetas vigiladas y que las claves
+  no aparezcan en URL ni cuerpo; typecheck y `npm run build` también pasan.
+- **Navegador:** el humo de desarrollo y producción pasa en escritorio (1280×800) y móvil
+  (390×844): contenido visible, sin errores de consola ni página y sin desbordamiento horizontal.
+  Los veredictos de ambos entornos coinciden. En el estudio se comprobó además la ejecución real
+  de JavaScript en el Worker, con salida y traza. Capturas y veredictos: `screenshots/cifra-v0.6-dev*`
+  y `screenshots/cifra-v0.6-built*`.
+- **Previsualización de producción:** `preview:restart` no funciona en Windows porque depende de
+  `/proc`; se usó `npm run preview` en un puerto libre para servir el build y completar el humo.
+- **Queda para después:** revisión y fusión a `main`; esta rama no se fusiona como parte de la 0.6.

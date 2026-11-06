@@ -1,4 +1,4 @@
-import type { LanguageId } from "./structure.ts";
+import { reglasDeError } from "../modulos/lenguajes/index.ts";
 
 /**
  * Análisis local del mensaje de error, sin modelo: contrato 4.2 de NOVEDADES_AI.md.
@@ -45,34 +45,6 @@ export type FailureReport = {
   };
 };
 
-type ReglaTipo = { tipo: TipoError; encaja: RegExp };
-
-const reglasPorLenguaje: Partial<Record<LanguageId, ReglaTipo[]>> = {
-  javascript: [
-    { tipo: "valor-nulo", encaja: /cannot read propert(y|ies) of (undefined|null)/i },
-    { tipo: "nombre-inexistente", encaja: /\bis not defined\b/i },
-    { tipo: "metodo-inexistente", encaja: /\bis not a function\b/i },
-    { tipo: "sintaxis", encaja: /\bunexpected token\b|\bsyntaxerror\b/i },
-  ],
-  python: [
-    { tipo: "valor-nulo", encaja: /attributeerror:\s*'?nonetype'?/i },
-    { tipo: "nombre-inexistente", encaja: /\bnameerror\b/i },
-    { tipo: "limite-coleccion", encaja: /\bindexerror\b|\bkeyerror\b/i },
-    { tipo: "tipo", encaja: /\btypeerror\b/i },
-    { tipo: "aritmetica", encaja: /\bzerodivisionerror\b/i },
-    { tipo: "sintaxis", encaja: /\bindentationerror\b|\bsyntaxerror\b/i },
-    { tipo: "importacion", encaja: /\bmodulenotfounderror\b|\bimporterror\b/i },
-  ],
-  rust: [
-    { tipo: "nombre-inexistente", encaja: /\bE0425\b/ },
-    { tipo: "tipo", encaja: /\bE0308\b/ },
-    { tipo: "prestamo-propiedad", encaja: /\bE0382\b|\bE0499\b|\bE0502\b/ },
-    { tipo: "metodo-inexistente", encaja: /\bE0599\b/ },
-    { tipo: "limite-coleccion", encaja: /index out of bounds/i },
-    { tipo: "valor-nulo", encaja: /called `?Option::unwrap\(\)` on a `?None`? value/i },
-  ],
-};
-
 const LINEA_LIBRE = /(?:l[ií]nea|line)\s+(\d{1,5})/gi;
 const LINEA_EN_TRACEBACK = /, line (\d{1,5})/g;
 const LINEA_Y_COLUMNA = /:(\d{1,5}):\d{1,5}/g;
@@ -98,7 +70,7 @@ export function analyzeFailure(
 }
 
 function tipoDeError(mensaje: string, lenguaje: string): TipoError {
-  const reglas = reglasPorLenguaje[lenguaje as LanguageId] ?? [];
+  const reglas = reglasDeError(lenguaje);
   for (const regla of reglas) {
     if (regla.encaja.test(mensaje)) return regla.tipo;
   }
