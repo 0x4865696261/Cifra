@@ -9,7 +9,7 @@ import {
   keyLooksValid,
   type ProviderId,
 } from "@/lib/ai/providers";
-import { sistemaDelPlan, usuarioDelPlan, type PlanDeRespuesta } from "@/lib/ai/plan";
+import { type PlanDeRespuesta } from "@/lib/ai/plan";
 import {
   isSkillId,
   lockedSkills,
@@ -158,17 +158,12 @@ export const askCifra = createServerFn({ method: "POST" })
       ],
     };
 
-    const system = sistemaDelPlan(plan);
-    const user = usuarioDelPlan(plan);
-
     try {
-      const content = await callModel(
-        userKey?.provider ?? "xai",
-        apiKey,
-        userKey?.model ?? "",
-        system,
-        user,
-      );
+      const content = await callModel(plan, {
+        proveedor: userKey?.provider ?? "xai",
+        clave: apiKey,
+        modelo: userKey?.model ?? "",
+      });
       const explanation = parseExplanation(content);
       if (!explanation) {
         return {

@@ -7,7 +7,7 @@ import {
   keyLooksValid,
   type ProviderId,
 } from "@/lib/ai/providers";
-import { sistemaDelPlan, usuarioDelPlan, type PlanDeRespuesta } from "@/lib/ai/plan";
+import { type PlanDeRespuesta } from "@/lib/ai/plan";
 import { limitesEntrada } from "@/lib/ai/limits";
 import {
   lineasDeComparacion,
@@ -174,17 +174,12 @@ export const redactarComparacion = createServerFn({ method: "POST" })
       ],
     };
 
-    const system = sistemaDelPlan(plan);
-    const user = usuarioDelPlan(plan);
-
     try {
-      const content = await callModel(
-        userKey?.provider ?? "xai",
-        apiKey,
-        userKey?.model ?? "",
-        system,
-        user,
-      );
+      const content = await callModel(plan, {
+        proveedor: userKey?.provider ?? "xai",
+        clave: apiKey,
+        modelo: userKey?.model ?? "",
+      });
       const redactado = redactarComparacionLocal(content);
       if (!redactado.ok) {
         return { ok: false, error: redactado.error, raw: redactado.raw };

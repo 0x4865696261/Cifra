@@ -208,16 +208,27 @@ type PlanDeRespuesta = {
 
 interface ModelAdapter {
   id: string;                       // "openai", "anthropic", "google", "xai", ...
+  label: string;                    // 0.6: nombre del proveedor, para Ajustes
+  defaultModel: string;             // 0.6: modelo por defecto del proveedor
+  nota: string;                     // 0.6: línea de ayuda que muestra Ajustes
+  clave?: (clave: string) => boolean; // 0.6: reglas propias del proveedor para validar la clave
   modelosSoportados: string[];
   construirPeticion(plan: PlanDeRespuesta, opciones: { modelo: string; clave?: string }): PeticionProveedor;
   leerRespuesta(cruda: unknown): { texto: string; tokensEntrada?: number; tokensSalida?: number };
   traducirError(cruda: unknown): ErrorDeProveedor; // 401, 429, 5xx, tiempo agotado, contenido bloqueado
 }
+// 0.6: lo que el adaptador pide a la red. La clave viaja en headers: nunca en la URL ni en el cuerpo.
+type PeticionProveedor = { url: string; headers: Record<string, string>; cuerpo: unknown };
 ```
 
 `PlanDeRespuesta` describe QUÉ se quiere responder (skills activas, nivel de lectura, formato de
 salida). Cada adaptador solo sabe traducirlo a su proveedor. Ninguna skill menciona a un
 proveedor.
+
+0.6: cada proveedor es un módulo en `src/lib/ai/adaptadores/` (un fichero por proveedor y un
+índice con la lista, en el orden de Ajustes). `callModel(plan, opciones)` elige el adaptador por
+id y conserva el reintento, la traducción de errores y el tope de tokens de siempre; añadir un
+modelo es añadir un módulo y no toca ninguna skill.
 
 ### 4.4 Ejecución (0.3)
 

@@ -51,19 +51,14 @@ describe("PlanDeRespuesta: el pedido se arma desde el plan (0.6)", () => {
   it("las cinco superficies construyen su pedido con el plan, no a mano", () => {
     for (const fichero of ["explain.ts", "debug.ts", "retos.ts", "incidentes.ts"]) {
       const texto = readFileSync(new URL(`./${fichero}`, import.meta.url), "utf8");
-      assert.ok(
-        texto.includes("sistemaDelPlan(plan)"),
-        `${fichero}: no arma el sistema con el plan`,
-      );
-      assert.ok(
-        texto.includes("usuarioDelPlan(plan)"),
-        `${fichero}: no arma el usuario con el plan`,
-      );
+      assert.ok(texto.includes("callModel(plan"), `${fichero}: no pasa el plan a callModel`);
       assert.ok(!texto.includes("composeSkills("), `${fichero}: compone skills a mano`);
       assert.ok(
         !texto.includes('join("\\n\\n")'),
         `${fichero}: ensambla el pedido con un join suelto`,
       );
+      assert.ok(!texto.includes("sistemaDelPlan("), `${fichero}: arma el sistema a mano`);
+      assert.ok(!texto.includes("usuarioDelPlan("), `${fichero}: arma el usuario a mano`);
     }
   });
 

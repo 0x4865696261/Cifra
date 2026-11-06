@@ -7,7 +7,7 @@ import {
   keyLooksValid,
   type ProviderId,
 } from "@/lib/ai/providers";
-import { sistemaDelPlan, usuarioDelPlan, type PlanDeRespuesta } from "@/lib/ai/plan";
+import { type PlanDeRespuesta } from "@/lib/ai/plan";
 import { limitesEntrada } from "@/lib/ai/limits";
 import {
   explicarVeredictoLocal,
@@ -185,17 +185,12 @@ const GLOBAL_LIMIT = 30;
       ],
     };
 
-    const system = sistemaDelPlan(plan);
-    const user = usuarioDelPlan(plan);
-
     try {
-      const content = await callModel(
-        userKey?.provider ?? "xai",
-        apiKey,
-        userKey?.model ?? "",
-        system,
-        user,
-      );
+      const content = await callModel(plan, {
+        proveedor: userKey?.provider ?? "xai",
+        clave: apiKey,
+        modelo: userKey?.model ?? "",
+      });
       const explicado = explicarVeredictoLocal(input.paso, content);
       if (!explicado.ok) {
         return { ok: false, error: explicado.error, raw: explicado.raw };
@@ -297,17 +292,12 @@ export const defenderSolucion = createServerFn({ method: "POST" })
       ],
     };
 
-    const system = sistemaDelPlan(plan);
-    const user = usuarioDelPlan(plan);
-
     try {
-      const content = await callModel(
-        userKey?.provider ?? "xai",
-        apiKey,
-        userKey?.model ?? "",
-        system,
-        user,
-      );
+      const content = await callModel(plan, {
+        proveedor: userKey?.provider ?? "xai",
+        clave: apiKey,
+        modelo: userKey?.model ?? "",
+      });
       const juicios = parseDefensa(content, input.preguntas.length);
       if (!juicios) {
         return {
