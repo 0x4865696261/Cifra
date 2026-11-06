@@ -1,10 +1,12 @@
 import { datosDe } from "./semilla.ts";
 import type { ChallengeSpec, DatosReto, InstanciaReto } from "./tipos";
-import { retosDeBucles } from "./contenido/bucles.ts";
-import { retosDeCondicionales } from "./contenido/condicionales.ts";
-import { retosDeFunciones } from "./contenido/funciones.ts";
-import { retosDeColecciones } from "./contenido/colecciones.ts";
-import { retosDeCadenas } from "./contenido/cadenas.ts";
+import { cargarModulos } from "../modulos/registro.ts";
+import type { RechazoModulo } from "../modulos/tipos.ts";
+import { moduloRetosBucles } from "./contenido/bucles.ts";
+import { moduloRetosCondicionales } from "./contenido/condicionales.ts";
+import { moduloRetosFunciones } from "./contenido/funciones.ts";
+import { moduloRetosColecciones } from "./contenido/colecciones.ts";
+import { moduloRetosCadenas } from "./contenido/cadenas.ts";
 import type { RetoCompleto } from "./contenido/utiles.ts";
 
 /**
@@ -14,13 +16,16 @@ import type { RetoCompleto } from "./contenido/utiles.ts";
 
 export type { RetoCompleto } from "./contenido/utiles";
 
-export const definiciones: RetoCompleto[] = [
-  ...retosDeBucles,
-  ...retosDeCondicionales,
-  ...retosDeFunciones,
-  ...retosDeColecciones,
-  ...retosDeCadenas,
-];
+const cargaRetos = cargarModulos<RetoCompleto[]>([
+  moduloRetosBucles,
+  moduloRetosCondicionales,
+  moduloRetosFunciones,
+  moduloRetosColecciones,
+  moduloRetosCadenas,
+]);
+
+export const retosRechazados: readonly RechazoModulo[] = cargaRetos.rechazados;
+export const definiciones: RetoCompleto[] = cargaRetos.cargados.flatMap(({ contenido }) => contenido);
 
 /** Las familias tal como se pide el map en la página de retos: en el orden escrito. */
 export const familias: string[] = [...new Set(definiciones.map((reto) => reto.familia))];

@@ -10,7 +10,7 @@ import { test } from "node:test";
 import { getConcept } from "../../content/concepts.ts";
 import { creaSistema } from "../sistema.ts";
 import { evaluar } from "../evaluar.ts";
-import { definicionesIncidentes } from "../paquetes.ts";
+import { definicionesIncidentes, incidentesRechazados } from "../paquetes.ts";
 import { familiasIncidente } from "../tipos.ts";
 
 const FAMILIAS_MINIMO = new Set([
@@ -26,6 +26,7 @@ const FAMILIAS_MINIMO = new Set([
 
 test("los paquetes son 8, uno por familia del mínimo acordado, con niveles variados", () => {
   assert.equal(definicionesIncidentes.length, 8);
+  assert.deepEqual(incidentesRechazados, [], "el registro rechazó algún módulo de incidentes");
   const familias = new Set(definicionesIncidentes.map((p) => p.familia));
   assert.deepEqual(familias, FAMILIAS_MINIMO);
   for (const paquete of definicionesIncidentes) {

@@ -1,4 +1,5 @@
 import type { DefinicionIncidente } from "../tipos.ts";
+import { contratosDeModulo, type Modulo } from "../../modulos/tipos.ts";
 
 /**
  * Paquetes de incidente con fallo de recursos y de servicio (0.5.A): el secreto expuesto, la
@@ -355,3 +356,19 @@ export const paquetesDeRecursos = [
   bloqueoEspera,
   desbordeRecursos,
 ];
+
+export const moduloIncidentesRecursos = {
+  manifiesto: {
+    id: "incidentes-recursos",
+    tipo: "incidente",
+    aporta: [
+      "familia:secreto-expuesto",
+      "familia:consulta-lenta",
+      "familia:bloqueo-espera",
+      "familia:desborde-recursos",
+    ],
+    versionContrato: contratosDeModulo.incidente.version,
+    necesita: ["contrato:4.6"],
+  },
+  contenido: paquetesDeRecursos,
+} as const satisfies Modulo<DefinicionIncidente[]>;
