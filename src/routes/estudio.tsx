@@ -1,14 +1,17 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Studio } from "@/components/studio/studio";
 import { DebugStudio } from "@/components/studio/debug";
 import { RunStudio } from "@/components/studio/run";
 import { CompararStudio } from "@/components/studio/comparar";
+import { ComprobarStudio } from "@/components/studio/comprobar";
 import type { LanguageId } from "@/lib/analyze/structure";
 import { cn } from "@/lib/cn";
 
 export const Route = createFileRoute("/estudio")({
-  head: () => ({ meta: [{ title: "Estudio â€” Cifra" }] }),
+  head: () => ({ meta: [{ title: "Estudio — Cifra" }] }),
+  validateSearch: (search): { modo?: "comprobar" } =>
+    search.modo === "comprobar" ? { modo: "comprobar" } : {},
   component: EstudioPage,
 });
 
@@ -17,11 +20,12 @@ const modes = [
   { id: "fallo", label: "Estudia el fallo" },
   { id: "ejecuta", label: "Ejecuta" },
   { id: "compara", label: "Compara" },
+  { id: "comprueba", label: "Comprueba" },
 ] as const;
 
 type PendienteFallo = { code: string; errorMessage: string; language: LanguageId };
 
-/** La llave con la que un fallo viaja aquÃ­ desde los retos (0.4.C): la escribe `/retos/$id`. */
+/** La llave con la que un fallo viaja aquí desde los retos (0.4.C): la escribe `/retos/$id`. */
 const CLAVE_FALLO_ESTUDIO = "cifra.fallo-estudio";
 
 function falloDeLaSesion(): PendienteFallo | null {
@@ -53,17 +57,20 @@ function falloDeLaSesion(): PendienteFallo | null {
 }
 
 function EstudioPage() {
-  const [mode, setMode] = useState<(typeof modes)[number]["id"]>("lee");
+  const { modo } = Route.useSearch();
+  const [mode, setMode] = useState<(typeof modes)[number]["id"]>(modo ? "comprueba" : "lee");
   const [pendienteFallo, setPendienteFallo] = useState<PendienteFallo | null>(null);
 
-  // Un fallo que llega de los retos (0.4.C) aterriza directamente en Â«Estudia el falloÂ».
+  // Un fallo que llega de los retos (0.4.C) aterriza directamente en «Estudia el fallo».
   useEffect(() => {
     const vendido = falloDeLaSesion();
     if (vendido) {
       setPendienteFallo(vendido);
       setMode("fallo");
+    } else if (modo === "comprobar") {
+      setMode("comprueba");
     }
-  }, []);
+  }, [modo]);
 
   const llevarAlFallo = (codigo: string, mensaje: string, lenguaje: string) => {
     if (lenguaje === "javascript" || lenguaje === "python" || lenguaje === "rust") {
@@ -77,11 +84,11 @@ function EstudioPage() {
       <p className="font-mono text-sm text-copper">Estudio</p>
       <h1 className="mt-3 max-w-2xl font-serif text-4xl">Lee un programa antes de reescribirlo. Y cuando falla, entiende el fallo antes de taparlo.</h1>
       <p className="mt-4 max-w-2xl text-pretty">
-        El anÃ¡lisis y la guÃ­a leen el texto y el mensaje del error, y usan el modelo solo cuando
-        pulsas. La pestaÃ±a Ejecuta corre el cÃ³digo en tu propio navegador, aislado y con lÃ­mites,
-        y si falla lleva el mensaje a Â«Estudia el falloÂ».
+        El análisis y la guía leen el texto y el mensaje del error, y usan el modelo solo cuando
+        pulsas. La pestaña Ejecuta corre el código en tu propio navegador, aislado y con límites,
+        y si falla lleva el mensaje a «Estudia el fallo».
       </p>
-      <div className="mt-6 grid grid-cols-2 max-w-xl border border-line sm:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 max-w-xl border border-line sm:grid-cols-5">
         {modes.map((option) => (
           <button
             key={option.id}
@@ -104,6 +111,12 @@ function EstudioPage() {
           <RunStudio onEstudiarFallo={(codigo, mensaje, lenguaje) => llevarAlFallo(codigo, mensaje, lenguaje)} />
         )}
         {mode === "compara" && <CompararStudio />}
+        <div hidden={mode !== "comprueba"}>
+          <ComprobarStudio onEstudiarFallo={(code, errorMessage) => {
+            setPendienteFallo({ code, errorMessage, language: "typescript" });
+            setMode("fallo");
+          }} />
+        </div>
       </div>
     </main>
   );

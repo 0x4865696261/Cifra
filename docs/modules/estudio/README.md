@@ -18,6 +18,10 @@ El módulo de estudio es la capa de explicación y comprensión del código: tom
 - Funcional como eje principal del producto.
 - La evolución central es la mejora de trazabilidad y de separación entre comprobado/inferido/opinión.
 
+## Comprueba (0.8)
+
+La pestaña Comprueba analiza programas del lenguaje Cifra en el navegador. Usa la sintaxis de TypeScript con un conjunto acotado de tipos básicos, listas, funciones con firmas explícitas y condiciones. Devuelve regla, mensaje, línea, columna y concepto de biblioteca. Los diagnósticos se pueden abrir en Estudia el fallo. La práctica de tipos se enlaza desde Retos, donde cada reto ejecutable conserva su veredicto basado en pruebas.
+
 ## Limitaciones conocidas
 - El análisis sigue siendo dependiente del formato del código y del contexto que se aporta.
 - La claridad pedagógica requiere que cada respuesta explique su origen.

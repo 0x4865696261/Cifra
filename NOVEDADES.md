@@ -219,6 +219,10 @@ compilador real aplicaría antes de dejarlo pasar.
 **Criterio de terminación:** un programa inválido es rechazado con un mensaje que enseña la regla y
 su ubicación; un programa válido es aceptado sin promesas de más.
 
+## 0.8.1 — Editor de código para ejercicios y retos reales
+
+Planificada. El alcance y el criterio de finalización están en [CIFRA Roadmap](CIFRA_ROADMAP.md#081--editor-de-código-para-ejercicios-y-retos-reales).
+
 ## 0.9 — Pulido y endurecimiento
 
 **Objetivo:** dejar Cifra lista para exponerse. Lo que antes funcionaba en una sola máquina ahora
