@@ -889,6 +889,10 @@ El reto `pedidos-de-tienda` usa dos módulos JavaScript con `require` relativo y
 
 ---
 
+### 0.8.2 — Portal de tutoriales
+
+La portada reúne accesos, itinerarios y temas con la navegación editorial de la referencia visual. Biblioteca sirve el artículo y el ejemplo desde el servidor. El editor avanzado se carga por separado y el ejemplo se puede seguir leyendo y editando con el editor básico si falla esa carga. El progreso local es opcional para la lectura.
+
 ### 0.9 — Pulido y endurecimiento
 
 **Objetivo:** dejar Cifra lista para exponerse. Lo que funcionaba en una sola máquina debe aguantar a

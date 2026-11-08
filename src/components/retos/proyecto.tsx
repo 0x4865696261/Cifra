@@ -19,7 +19,7 @@ type Borrador = {
   tamano: number;
 };
 const original = Object.fromEntries(proyecto.archivos.map(({ ruta, codigo }) => [ruta, codigo]));
-const inicial: Borrador = { archivos: original, ruta: proyecto.entrada, tema: "Claro", tamano: 14 };
+const inicial: Borrador = { archivos: original, ruta: proyecto.entrada, tema: "Oscuro", tamano: 14 };
 
 function recuperar(): Borrador {
   try {

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
@@ -16,7 +17,7 @@ export const Route = createRootRoute({
         content:
           "Cifra enseña a entender programas: leer código, pasar de una fórmula a una implementación y ver por qué se tomó cada decisión.",
       },
-      { name: "theme-color", content: "#f3f6fc" },
+      { name: "theme-color", content: "#100f13" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
@@ -35,7 +36,15 @@ export const Route = createRootRoute({
         <AuthProvider>
           <LevelProvider>
             <Shell>
-              <Outlet />
+              <Suspense
+                fallback={
+                  <main id="contenido" className="curso-contenedor" role="status">
+                    Cargando el contenido…
+                  </main>
+                }
+              >
+                <Outlet />
+              </Suspense>
             </Shell>
           </LevelProvider>
         </AuthProvider>

@@ -1,9 +1,17 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { LearningPlan } from "@/lib/content/concepts";
 
 const KEY = "cifra.leidos";
 const DIFFICULT_KEY = "cifra.dificiles";
 const PLAN_KEY = "cifra.plan-lectura";
+
+function guardarLectura(clave: string, valor: string) {
+  try {
+    localStorage.setItem(clave, valor);
+  } catch {
+    // La lectura sigue disponible cuando el navegador impide guardar el progreso.
+  }
+}
 
 export function useReading() {
   const [read, setRead] = useState<string[]>([]);
@@ -35,17 +43,17 @@ export function useReading() {
     }
   }, []);
 
-  const mark = (slug: string) => {
+  const mark = useCallback((slug: string) => {
     setRead((prev) => {
       if (prev.includes(slug)) return prev;
       const next = [...prev, slug];
-      localStorage.setItem(KEY, JSON.stringify(next));
+      guardarLectura(KEY, JSON.stringify(next));
       return next;
     });
-  };
+  }, []);
 
   const setPlan = (next: LearningPlan) => {
-    localStorage.setItem(PLAN_KEY, next);
+    guardarLectura(PLAN_KEY, next);
     setPlanState(next);
   };
 
@@ -54,7 +62,7 @@ export function useReading() {
       const next = previous.includes(slug)
         ? previous.filter((item) => item !== slug)
         : [...previous, slug];
-      localStorage.setItem(DIFFICULT_KEY, JSON.stringify(next));
+      guardarLectura(DIFFICULT_KEY, JSON.stringify(next));
       return next;
     });
   };

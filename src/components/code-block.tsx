@@ -1,13 +1,27 @@
 import { useEffect, useState } from "react";
-import { EditorCodigo } from "@/components/editor-codigo";
 import { Button } from "@/components/ui/button";
 import { limitesDefecto } from "@/lib/ejecucion/limites";
 import { limitesEntrada } from "@/lib/ai/limits";
-import { ejecutarLenguaje } from "@/lib/modulos/lenguajes";
 import type { RunResult } from "@/lib/ejecucion/tipos";
 
 export function CodeBlock({ source, label }: { source: string; label: string }) {
+  const [Editor, setEditor] = useState<typeof import("@/components/editor-codigo").EditorCodigo>();
   const [codigo, setCodigo] = useState(source);
+
+  useEffect(() => {
+    let activo = true;
+    void import("@/components/editor-codigo").then(
+      ({ EditorCodigo }) => {
+        if (activo) setEditor(() => EditorCodigo);
+      },
+      () => {
+        /* El editor básico conserva el ejemplo si falla la carga del editor avanzado. */
+      },
+    );
+    return () => {
+      activo = false;
+    };
+  }, []);
   const [nota, setNota] = useState("");
   const [corriendo, setCorriendo] = useState(false);
   const [resultado, setResultado] = useState<RunResult | null>(null);
@@ -30,6 +44,7 @@ export function CodeBlock({ source, label }: { source: string; label: string }) 
     setResultado(null);
     setCorriendo(true);
     try {
+      const { ejecutarLenguaje } = await import("@/lib/modulos/lenguajes");
       setResultado(await ejecutarLenguaje({ lenguaje, codigo, limites: limitesDefecto() }));
     } catch {
       setNota("No se pudo ejecutar el ejemplo.");
@@ -40,30 +55,59 @@ export function CodeBlock({ source, label }: { source: string; label: string }) 
 
   return (
     <div>
-      <EditorCodigo
-        value={codigo}
-        label={`Ejemplo de ${label}`}
-        language={lenguaje}
-        readOnly={corriendo}
-        runDisabled={!codigo.trim()}
-        output={
-          corriendo
-            ? "Ejecutando…"
-            : nota ||
-              (resultado && (
-                <pre className="whitespace-pre-wrap">
-                  {[resultado.stdout, resultado.stderr].filter(Boolean).join("\n") ||
-                    resultado.estado}
-                </pre>
-              ))
-        }
-        onRun={local ? () => void ejecutar() : undefined}
-        runLabel={corriendo ? "Ejecutando…" : "Ejecutar"}
-        onChange={(valor) => {
-          setCodigo(valor);
-          setResultado(null);
-        }}
-      />
+      {Editor ? (
+        <Editor
+          value={codigo}
+          label={`Ejemplo de ${label}`}
+          language={lenguaje}
+          readOnly={corriendo}
+          runDisabled={!codigo.trim()}
+          output={
+            corriendo
+              ? "Ejecutando…"
+              : nota ||
+                (resultado && (
+                  <pre className="whitespace-pre-wrap">
+                    {[resultado.stdout, resultado.stderr].filter(Boolean).join("\n") ||
+                      resultado.estado}
+                  </pre>
+                ))
+          }
+          onRun={local ? () => void ejecutar() : undefined}
+          runLabel={corriendo ? "Ejecutando…" : "Ejecutar"}
+          onChange={(valor) => {
+            setCodigo(valor);
+            setResultado(null);
+          }}
+        />
+      ) : (
+        <div className="cifra-editor" data-theme="Oscuro">
+          <div className="cifra-editor__barra">
+            <span>Ejemplo de {label}</span>
+            {local && (
+              <button
+                type="button"
+                className="cifra-ejecutar"
+                disabled={corriendo || !codigo.trim()}
+                onClick={() => void ejecutar()}
+              >
+                {corriendo ? "Ejecutando…" : "Ejecutar"}
+              </button>
+            )}
+          </div>
+          <textarea
+            aria-label={`Ejemplo de ${label}`}
+            className="curso-editor-reserva"
+            value={codigo}
+            spellCheck={false}
+            readOnly={corriendo}
+            onChange={(event) => {
+              setCodigo(event.target.value);
+              setResultado(null);
+            }}
+          />
+        </div>
+      )}
       <div className="mt-3 flex flex-wrap gap-2">
         <Button
           onClick={() => {

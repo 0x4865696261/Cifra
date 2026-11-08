@@ -80,7 +80,7 @@ export function EditorCodigo({
   onChange,
   label,
   language,
-  theme = "Claro",
+  theme = "Oscuro",
   fontSize = 15,
   maxLength,
   readOnly = false,

@@ -5,13 +5,13 @@
   --font-serif: system-ui, "Segoe UI", Arial, sans-serif;
   --font-mono: "Cascadia Code", Consolas, "SFMono-Regular", ui-monospace, monospace;
 
-  --color-paper: #f3f6fc;
-  --color-ink: #172033;
-  --color-muted: #4b5c73;
-  --color-line: #d8e1ef;
-  --color-copper: #145bce;
+  --color-paper: #100f13;
+  --color-ink: #f4f2fa;
+  --color-muted: #c1bdce;
+  --color-line: #302d3a;
+  --color-copper: #a5b9ff;
 
-  --color-panel: #fff;
+  --color-panel: #18171e;
   --radius-sm: 0.4rem;
 }
 
@@ -256,4 +256,284 @@
   padding: 0.8rem 1rem;
   background: var(--editor-gutter);
   overflow-wrap: anywhere;
+}
+
+/* Portada y navegación editorial de los cursos. */
+.curso-contenedor {
+  width: min(100% - 2rem, 70rem);
+  margin-inline: auto;
+  padding-block: clamp(1.25rem, 4vw, 3rem);
+}
+.curso-hero__texto > p:last-of-type {
+  max-width: 38rem;
+  color: #e0ebff;
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+}
+.curso-etiqueta {
+  color: var(--color-copper);
+  font-weight: 750;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+}
+.curso-hero__icono svg {
+  width: 57%;
+  height: 57%;
+}
+.curso-seccion {
+  margin-top: clamp(2rem, 5vw, 4rem);
+}
+.curso-seccion h2 {
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+.curso-seccion > p {
+  margin-top: 0.25rem;
+  color: var(--color-muted);
+}
+.curso-itinerarios,
+.curso-temas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+.curso-tarjeta {
+  min-width: 0;
+  display: block;
+  border: 1px solid var(--color-line);
+  border-radius: 1rem;
+  background: var(--color-panel);
+  padding: 1.15rem;
+  box-shadow: 0 4px 12px #17203308;
+}
+.curso-tarjeta h3 {
+  margin: 0.65rem 0 0.25rem;
+  font-size: 1.15rem;
+  font-weight: 750;
+}
+.curso-tarjeta p {
+  font-size: 0.95rem;
+  color: var(--color-muted);
+}
+.curso-tarjeta__accion {
+  display: inline-block;
+  margin-top: 0.65rem;
+  color: var(--color-copper);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.curso-icono {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 0.7rem;
+  color: #2152a4;
+  background: #e5efff;
+}
+.curso-icono--verde {
+  color: #17614f;
+  background: #dbf5ed;
+}
+.curso-icono--violeta {
+  color: #6743a2;
+  background: #f1e7fc;
+}
+.curso-icono--naranja {
+  color: #91480f;
+  background: #fff0df;
+}
+.curso-migas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+.curso-migas a {
+  color: var(--color-copper);
+}
+.curso-lectura {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+}
+.curso-articulo,
+.curso-indice {
+  min-width: 0;
+  border-radius: 1rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-panel);
+  padding: clamp(1rem, 3vw, 2.5rem);
+}
+.curso-indice {
+  padding: 1rem;
+}
+.curso-indice h2 {
+  font-weight: 750;
+}
+.curso-indice p {
+  margin: 0.3rem 0 0.7rem;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+.curso-indice nav {
+  display: grid;
+  gap: 0.2rem;
+}
+.curso-indice nav a {
+  min-height: 2.3rem;
+  display: flex;
+  align-items: center;
+  border-radius: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.9rem;
+}
+.curso-indice nav a:hover,
+.curso-indice nav a[aria-current="page"] {
+  color: var(--color-copper);
+  background: #e7efff;
+}
+.curso-articulo h1 {
+  font-weight: 850;
+  letter-spacing: -0.04em;
+}
+.curso-editor-reserva {
+  width: 100%;
+  height: 100%;
+  resize: none;
+  padding: 1rem;
+  color: var(--editor-text);
+  background: var(--editor-bg);
+  font: 0.93rem/1.65 var(--font-mono);
+}
+@media (min-width: 52rem) {
+  .curso-lectura {
+    grid-template-columns: minmax(12rem, 15rem) minmax(0, 1fr);
+  }
+  .curso-indice {
+    position: sticky;
+    top: 1rem;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .curso-tarjeta {
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      border-color 180ms ease;
+  }
+  .curso-tarjeta:hover {
+    transform: translateY(-3px);
+    border-color: #a1b9e4;
+    box-shadow: 0 9px 21px #17203313;
+  }
+}
+
+/* La portada editorial centra el título y separa accesos, cursos y temas. */
+.curso-hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: clamp(12rem, 18vw, 14rem);
+  padding: 1.25rem 0;
+  text-align: center;
+  background: transparent;
+}
+.curso-hero h1 {
+  display: inline-block;
+  margin: 0;
+  padding: 0.28em 0.55em;
+  border-radius: 0.45rem;
+  background: linear-gradient(105deg, #2e459c, #6c2b8e);
+  color: #fff;
+  font-size: clamp(1.85rem, 5vw, 3.1rem);
+  font-weight: 850;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 3px #0008;
+}
+.curso-hero p:first-child {
+  font-size: clamp(1rem, 2.25vw, 1.6rem);
+  text-transform: uppercase;
+}
+.curso-hero p:last-child {
+  font-size: 0.95rem;
+  color: var(--color-muted);
+}
+.curso-intro {
+  margin-block: 0.5rem 2rem;
+  color: var(--color-muted);
+  font-size: clamp(1rem, 2vw, 1.15rem);
+}
+.curso-atajos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  gap: 0.85rem;
+}
+.curso-atajos .curso-tarjeta,
+.curso-itinerarios .curso-tarjeta {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  min-height: 8rem;
+  text-align: center;
+}
+.curso-atajos .curso-tarjeta {
+  gap: 0.85rem;
+  font-weight: 700;
+}
+.curso-atajos svg {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--color-copper);
+}
+.curso-itinerarios {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+}
+.curso-icono {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+.curso-indice nav a:hover,
+.curso-indice nav a[aria-current="page"],
+.cifra-nav-link:hover,
+.cifra-nav-link[aria-current="page"] {
+  background: #232644;
+  color: #b6c7ff;
+}
+.curso-indice,
+.curso-articulo,
+.curso-tarjeta {
+  box-shadow: none;
+}
+.curso-tarjeta:hover {
+  border-color: #505078;
+}
+.curso-buscador {
+  width: min(100%, 24rem);
+  flex: 1 1 11rem;
+}
+.curso-buscador input {
+  width: 100%;
+  min-height: 2.25rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0.45rem;
+  background: #1d1d2b;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.9rem;
+}
+.curso-buscador input::placeholder {
+  color: var(--color-muted);
+}
+.cifra-fondo {
+  background:
+    radial-gradient(ellipse 55rem 24rem at top left, #211b47 0%, transparent 74%),
+    var(--color-paper);
 }
