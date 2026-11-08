@@ -1,3 +1,4 @@
+import { admitirLlamadaIa } from "./cuota.ts";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import {
@@ -71,10 +72,6 @@ const payloadRedaccion = z.object({
 });
 
 const cache = new Map<string, unknown>();
-const hits = new Map<string, number[]>();
-const WINDOW_MS = 10 * 60 * 1000;
-const IP_LIMIT = 8;
-const GLOBAL_LIMIT = 30;
 
 export const redactarComparacion = createServerFn({ method: "POST" })
   .validator((input: unknown) => input)
@@ -123,7 +120,7 @@ export const redactarComparacion = createServerFn({ method: "POST" })
     } catch {
       ip = "desconocida";
     }
-    if (!allow(`incidentes-ip:${ip}`, IP_LIMIT) || !allow("incidentes-global", GLOBAL_LIMIT)) {
+    if (!admitirLlamadaIa(ip)) {
       return {
         ok: false,
         error:
@@ -221,17 +218,6 @@ function evaluacionDe(input: {
   };
 }
 
-function allow(key: string, limit: number): boolean {
-  const now = Date.now();
-  const recientes = (hits.get(key) ?? []).filter((time) => now - time < WINDOW_MS);
-  if (recientes.length >= limit) {
-    hits.set(key, recientes);
-    return false;
-  }
-  recientes.push(now);
-  hits.set(key, recientes);
-  return true;
-}
 
 function remember(key: string, redaccion: RedaccionComparacion) {
   cache.set(key, redaccion);

@@ -1,3 +1,4 @@
+import { admitirLlamadaIa } from "./cuota.ts";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import {
@@ -70,10 +71,6 @@ const payloadDefensa = z.object({
 });
 
 const cache = new Map<string, unknown>();
-const hits = new Map<string, number[]>();
-const WINDOW_MS = 10 * 60 * 1000;
-const IP_LIMIT = 8;
-const GLOBAL_LIMIT = 30;
 
 /**
  * El paso 4 de 0.4.C: la IA lee el código, el `RunResult` y el enunciado, y explica qué
@@ -127,7 +124,7 @@ const GLOBAL_LIMIT = 30;
     } catch {
       ip = "desconocida";
     }
-    if (!allow(`ip:${ip}`, IP_LIMIT) || !allow("global", GLOBAL_LIMIT)) {
+    if (!admitirLlamadaIa(ip)) {
       return {
         ok: false,
         error:
@@ -255,7 +252,7 @@ export const defenderSolucion = createServerFn({ method: "POST" })
     } catch {
       ip = "desconocida";
     }
-    if (!allow(`defensa-ip:${ip}`, IP_LIMIT) || !allow("defensa-global", GLOBAL_LIMIT)) {
+    if (!admitirLlamadaIa(ip)) {
       return {
         ok: false,
         error:
@@ -315,17 +312,6 @@ export const defenderSolucion = createServerFn({ method: "POST" })
     }
   });
 
-function allow(key: string, limit: number): boolean {
-  const now = Date.now();
-  const recent = (hits.get(key) ?? []).filter((time) => now - time < WINDOW_MS);
-  if (recent.length >= limit) {
-    hits.set(key, recent);
-    return false;
-  }
-  recent.push(now);
-  hits.set(key, recent);
-  return true;
-}
 
 function remember(key: string, guia: GuiaVeredicto) {
   cache.set(key, guia);

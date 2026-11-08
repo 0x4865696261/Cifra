@@ -41,20 +41,26 @@ function bloquearRed(contexto) {
   // ámbito global; en los hilos de prueba se bloquea también globalThis, donde esos
   // identificadores son propiedades separadas. Un intento de red falla dentro del programa,
   // no fuera: nada sale a la red aunque el código lo pida.
-  var nombres = ["fetch", "XMLHttpRequest", "WebSocket", "EventSource", "importScripts"];
+  var nombres = ["fetch", "XMLHttpRequest", "WebSocket", "EventSource", "importScripts", "Worker", "SharedWorker", "WebTransport", "indexedDB", "caches"];
   var sinRed = function () {
     throw new Error("La ejecución de Cifra corre sin acceso a red.");
   };
+  function bloqueo(nombre) {
+    if (nombre === "indexedDB") return Object.freeze({ open: sinRed, deleteDatabase: sinRed, databases: sinRed, cmp: sinRed });
+    if (nombre === "caches") return Object.freeze({ open: sinRed, match: sinRed, has: sinRed, delete: sinRed, keys: sinRed });
+    return sinRed;
+  }
   var escenarios = [contexto, ambitoGlobal()];
   for (var e = 0; e < escenarios.length; e++) {
     var ambito = escenarios[e];
     if (!ambito) continue;
     for (var i = 0; i < nombres.length; i++) {
-      try { ambito[nombres[i]] = sinRed; } catch (err) { /* alguno se lee solo: no es fatal */ }
+      try { Object.defineProperty(ambito, nombres[i], { value: bloqueo(nombres[i]), writable: false, configurable: false }); } catch (err) { /* algunos entornos restringen propiedades del ámbito */ }
     }
     try {
       var navegador = ambito.navigator;
       if (navegador) navegador.sendBeacon = sinRed;
+      if (navegador && navegador.storage) Object.defineProperty(navegador.storage, "getDirectory", { value: sinRed });
     } catch (err) { /* idem */ }
   }
 }
@@ -82,10 +88,15 @@ function motorActual() {
   return { nombre: "javascript", version: version };
 }
 
+(function () {
+var responder = self.postMessage.bind(self);
 self.onmessage = function (evento) {
+  "use strict";
   var mensaje = evento && evento.data ? evento.data : evento;
   if (!mensaje || mensaje.tipo !== "cifra-ejecutar") return;
 
+  var idEjecucion = mensaje.idEjecucion;
+  self.onmessage = null;
   var solicitud = mensaje.solicitud;
   var limites = solicitud.limites || {};
   var topeValor = mensaje.topeValorTraza || 200;
@@ -189,8 +200,9 @@ self.onmessage = function (evento) {
 
   try {
     if (capturarValor) {
-      var console = consolaLocal;
-      var resultadoDeEval = eval(solicitud.codigo);
+      // El programa no comparte ámbito con el mensaje privado del motor.
+      var evaluar = new Function("console", "codigo", "return eval(codigo);");
+      var resultadoDeEval = evaluar(consolaLocal, solicitud.codigo);
       tipoValor = typeof resultadoDeEval;
       valorDevuelto = aTexto(resultadoDeEval, 4000);
     } else {
@@ -253,7 +265,8 @@ self.onmessage = function (evento) {
     tipoValor: capturarValor ? tipoValor : undefined,
     motor: motorActual()
   };
-  self.postMessage({ tipo: "cifra-resultado", resultado: resultado });
+  responder({ tipo: "cifra-resultado", idEjecucion: idEjecucion, resultado: resultado });
 };
+})();
 `;
 }

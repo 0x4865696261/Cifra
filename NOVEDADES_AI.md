@@ -918,6 +918,14 @@ acotado y medido.
 
 ---
 
+#### Verificación local de 0.9
+
+El transporte acepta solo la respuesta con el identificador aleatorio de la ejecución. El código JavaScript se evalúa en un ámbito separado del mensaje del motor. Las pruebas intentan falsificar un resultado, crear Workers secundarios y abrir almacenamiento. Se conservan los cortes por tiempo y salida.
+
+Las cinco superficies de IA comparten una cuota deslizante de 8 solicitudes por IP y 30 en total cada diez minutos por proceso. Cada solicitud admitida tiene un máximo de 1400 tokens de salida por intento y el transporte puede reintentar una vez. Son límites técnicos; el coste real depende del proveedor y el modelo.
+
+Para despliegue, las claves de plataforma y la URL de base de datos pertenecen al entorno del servidor. Los límites en memoria no se comparten entre instancias. Quedan por validar la cuota entre instancias, el coste real y la batería adversarial con proveedores reales, así como los mecanismos de aislamiento que el Worker y sus bloqueos parciales no cubren.
+
 ### 1.0 — Lanzamiento público
 
 **Objetivo:** abrir Cifra al público con lo que hay en la 0.9, **sin añadir funciones nuevas**.
