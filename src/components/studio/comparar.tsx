@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { EditorCodigo } from "@/components/editor-codigo";
+import { useEffect, useState } from "react";
 import { ejecutarJavaScript } from "@/lib/ejecucion/motor-javascript";
 import { limitesDefecto } from "@/lib/ejecucion/limites";
 import { compararMediciones, type Comparacion } from "@/lib/ejecucion/mediciones";
@@ -60,8 +61,10 @@ export function CompararStudio() {
 
   const originalExcedido = excedeLimite(original, limitesEntrada.codigo);
   const optimizadaExcedida = excedeLimite(optimizada, limitesEntrada.codigo);
-  const workerDisponible =
-    typeof Worker !== "undefined" && typeof URL?.createObjectURL === "function";
+  const [workerDisponible, setWorkerDisponible] = useState<boolean | null>(null);
+  useEffect(() => {
+    setWorkerDisponible(typeof Worker !== "undefined" && typeof URL?.createObjectURL === "function");
+  }, []);
 
   const comparar = async () => {
     setComparando(true);
@@ -116,7 +119,7 @@ export function CompararStudio() {
           cuando la diferencia es tan pequeña como el propio vaivén de las corridas. Las cifras
           están medidas en este equipo con estos límites: no generalices.
         </p>
-        {!workerDisponible && (
+        {workerDisponible === false && (
           <p className="mt-3 text-pretty text-copper">
             Este navegador no da Workers: la comparación necesita ejecución real.
           </p>
@@ -124,43 +127,39 @@ export function CompararStudio() {
       </section>
 
       <div className="grid gap-8 lg:grid-cols-2">
-        <label className="flex flex-col gap-2 font-mono text-sm">
+        <div className="flex flex-col gap-2 font-mono text-sm">
           Versión original
-          <textarea
+          <EditorCodigo
             value={original}
-            onChange={(event) => {
-              setOriginal(event.target.value);
+            label="Código de la versión original"
+            language="javascript"
+            onChange={(nuevo) => {
+              setOriginal(nuevo);
               setResultado(null);
             }}
-            rows={9}
-            spellCheck={false}
-            aria-label="Código de la versión original"
-            className="min-h-44 w-full border border-line bg-paper p-3 font-mono text-sm leading-6 text-ink"
           />
           <span className={cn("font-mono text-sm", originalExcedido ? "text-copper" : "text-muted")}>
             {original.length} de {limitesEntrada.codigo} caracteres
             {originalExcedido && ": no cabe, acótalo."}
           </span>
-        </label>
+        </div>
 
-        <label className="flex flex-col gap-2 font-mono text-sm">
+        <div className="flex flex-col gap-2 font-mono text-sm">
           Versión optimizada
-          <textarea
+          <EditorCodigo
             value={optimizada}
-            onChange={(event) => {
-              setOptimizada(event.target.value);
+            label="Código de la versión optimizada"
+            language="javascript"
+            onChange={(nuevo) => {
+              setOptimizada(nuevo);
               setResultado(null);
             }}
-            rows={9}
-            spellCheck={false}
-            aria-label="Código de la versión optimizada"
-            className="min-h-44 w-full border border-line bg-paper p-3 font-mono text-sm leading-6 text-ink"
           />
           <span className={cn("font-mono text-sm", optimizadaExcedida ? "text-copper" : "text-muted")}>
             {optimizada.length} de {limitesEntrada.codigo} caracteres
             {optimizadaExcedida && ": no cabe, acótalo."}
           </span>
-        </label>
+        </div>
       </div>
 
       <div>

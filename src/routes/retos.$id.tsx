@@ -126,8 +126,10 @@ function RetoViva({
   };
 
   return (
-    <main id="contenido" className="mx-auto max-w-6xl px-5 py-10">
-      <p className="font-mono text-sm text-copper">
+    <main id="contenido" className="cifra-workspace">
+      <div className="cifra-split">
+        <section className="cifra-brief" aria-label="Enunciado del reto">
+      <p className="font-mono text-sm text-copper" >
         <Link to="/retos" className="underline">
           Retos
         </Link>{" "}
@@ -136,9 +138,8 @@ function RetoViva({
       </p>
       <h1 className="mt-3 max-w-2xl font-serif text-4xl">{instancia.titulo}</h1>
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <section className="min-w-0">
-          <h2 className="font-serif text-2xl">El enunciado</h2>
+          <a href="#editor-reto" className="mt-4 inline-block font-semibold text-copper underline lg:hidden">Saltar al editor</a>
+          <h2 className="mt-6 font-serif text-2xl">El enunciado</h2>
           <ol className="mt-3 grid gap-2">
             {instancia.enunciado
               .split("\n")
@@ -150,11 +151,14 @@ function RetoViva({
               ))}
           </ol>
           <h3 className="mt-6 font-mono text-sm">Tu variante</h3>
-          <pre className="mt-2 overflow-auto border border-line bg-paper p-3 font-mono text-sm leading-6 text-ink">
-            {Object.entries(instancia.datos)
-              .map(([nombre, valor]) => `${nombre} = ${valor}`)
-              .join("\n")}
-          </pre>
+          <dl className="mt-2 grid gap-2 rounded-lg border border-line p-3 text-sm">
+            {Object.entries(instancia.datos).map(([nombre, valor]) => (
+              <div key={nombre} className="grid gap-1 sm:grid-cols-[minmax(7rem,auto)_1fr]">
+                <dt className="font-semibold">{nombre}</dt>
+                <dd className="min-w-0 break-words">{valor}</dd>
+              </div>
+            ))}
+          </dl>
           <p className="mt-2 font-mono text-sm text-muted">
             Los datos salen de la semilla de este navegador: otra persona tiene otros y una solución
             copiada de fuera con su salida incluida no vale tal cual.
@@ -177,17 +181,7 @@ function RetoViva({
           </div>
         </section>
 
-        <section className="min-w-0">
-          {fase === "defensa" && entrega && (
-            <Defensa
-              instancia={instancia}
-              codigo={entrega.codigo}
-              señales={entrega.señales}
-              onCerrada={cerrarDefensa}
-              onPlana={() => cerrarDefensa(false)}
-            />
-          )}
-
+        <section id="editor-reto" className="min-w-0 scroll-mt-4" aria-label="Editor del reto">
           <EntregaEditor
             key={instancia.id}
             codigoInicial={instancia.codigoDePartida}
@@ -198,6 +192,16 @@ function RetoViva({
               setEntrega(dada);
             }}
           />
+
+          {fase === "defensa" && entrega && (
+            <Defensa
+              instancia={instancia}
+              codigo={entrega.codigo}
+              señales={entrega.señales}
+              onCerrada={cerrarDefensa}
+              onPlana={() => cerrarDefensa(false)}
+            />
+          )}
 
           {entrega && !entrega.superado && (
             <div className="mt-8 border-t border-line pt-6">

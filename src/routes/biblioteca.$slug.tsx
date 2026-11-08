@@ -45,7 +45,7 @@ function ConceptPage() {
       ))}
       {concept.code && (
         <div className="mt-6">
-          <CodeBlock source={concept.code.source} label={concept.code.language} />
+          <CodeBlock key={concept.slug} source={concept.code.source} label={concept.code.language} />
           <p className="mt-2 text-pretty text-muted">{concept.code.caption}</p>
         </div>
       )}

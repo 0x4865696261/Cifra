@@ -106,9 +106,7 @@ function MathPage() {
 
       <section className="mt-8">
         <h2 className="font-serif text-2xl">Pseudocódigo</h2>
-        <pre className="mt-3 overflow-x-auto border border-line p-4 font-mono text-sm leading-relaxed whitespace-pre">
-          {topic.pseudocode}
-        </pre>
+        <div className="mt-3"><CodeBlock source={topic.pseudocode} label="Pseudocódigo" /></div>
       </section>
 
       <section className="mt-8">
@@ -139,6 +137,7 @@ function MathPage() {
         </div>
         <div className="mt-3">
           <CodeBlock
+            key={tab}
             source={tab === "python" ? topic.python : topic.javascript}
             label={tab === "python" ? "Python" : "JavaScript"}
           />

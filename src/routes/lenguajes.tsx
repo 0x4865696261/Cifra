@@ -44,7 +44,7 @@ function LanguagesPage() {
         </div>
 
         <div className="mt-4">
-          <CodeBlock source={note.code} label={note.label} />
+          <CodeBlock key={note.id} source={note.code} label={note.label} />
         </div>
         <div className="mt-4 flex flex-col gap-3">
           {note.changed.map((paragraph) => (

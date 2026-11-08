@@ -10,8 +10,8 @@ import { cn } from "@/lib/cn";
 
 export const Route = createFileRoute("/estudio")({
   head: () => ({ meta: [{ title: "Estudio — Cifra" }] }),
-  validateSearch: (search): { modo?: "comprobar" } =>
-    search.modo === "comprobar" ? { modo: "comprobar" } : {},
+  validateSearch: (search): { modo?: "comprobar" | "ejecutar" } =>
+    search.modo === "comprobar" || search.modo === "ejecutar" ? { modo: search.modo } : {},
   component: EstudioPage,
 });
 
@@ -58,7 +58,7 @@ function falloDeLaSesion(): PendienteFallo | null {
 
 function EstudioPage() {
   const { modo } = Route.useSearch();
-  const [mode, setMode] = useState<(typeof modes)[number]["id"]>(modo ? "comprueba" : "lee");
+  const [mode, setMode] = useState<(typeof modes)[number]["id"]>(modo === "ejecutar" ? "ejecuta" : modo === "comprobar" ? "comprueba" : "lee");
   const [pendienteFallo, setPendienteFallo] = useState<PendienteFallo | null>(null);
 
   // Un fallo que llega de los retos (0.4.C) aterriza directamente en «Estudia el fallo».
@@ -67,6 +67,8 @@ function EstudioPage() {
     if (vendido) {
       setPendienteFallo(vendido);
       setMode("fallo");
+    } else if (modo === "ejecutar") {
+      setMode("ejecuta");
     } else if (modo === "comprobar") {
       setMode("comprueba");
     }
@@ -80,7 +82,7 @@ function EstudioPage() {
   };
 
   return (
-    <main id="contenido" className="mx-auto max-w-6xl px-5 py-10">
+    <main id="contenido" className="cifra-workspace">
       <p className="font-mono text-sm text-copper">Estudio</p>
       <h1 className="mt-3 max-w-2xl font-serif text-4xl">Lee un programa antes de reescribirlo. Y cuando falla, entiende el fallo antes de taparlo.</h1>
       <p className="mt-4 max-w-2xl text-pretty">

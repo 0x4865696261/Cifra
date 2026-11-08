@@ -26,25 +26,27 @@ function Home() {
 
   return (
     <main id="contenido" className="mx-auto max-w-6xl px-5 py-12 sm:py-16">
-      <p className="font-mono text-sm text-copper">Versión 0.8.1 · Editor multiarchivo</p>
-      <p className="mt-4 font-mono text-xs uppercase tracking-[0.24em] text-muted">
-        Una plataforma para leer software
-      </p>
-      <h1 className="mt-4 max-w-3xl font-serif text-4xl leading-tight sm:text-5xl">
-        Entender el código es tan importante como escribirlo.
-      </h1>
-      <p className="mt-6 max-w-2xl border-l border-copper pl-5 text-lg leading-relaxed text-pretty">
-        Generar un programa ya es rápido. Cifra existe para la otra mitad: leerlo, saber qué se está
-        suponiendo y poder ir de una ecuación a los pasos que la calculan. En esta versión, la
-        biblioteca funciona como red: cada concepto enlaza con el que lo sostiene y con el siguiente
-        paso.
-      </p>
-      <Link to="/estudio" search={{ modo: "comprobar" }} className="mt-4 inline-block underline">
-        Probar el comprobador de Cifra
-      </Link>
+      <section className="overflow-hidden rounded-3xl border border-line bg-panel p-6 sm:p-10 lg:p-14">
+        <p className="text-sm font-semibold text-copper">Cifra · Taller de programación</p>
+        <h1 className="mt-4 max-w-3xl text-4xl leading-tight font-extrabold tracking-tight sm:text-6xl">
+          Aprende programando, un reto a la vez.
+        </h1>
+        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-pretty text-muted">
+          Lee el enunciado, escribe tu solución y ejecútala en el mismo espacio. Cada prueba
+          te muestra qué ocurrió para que puedas corregir el programa y volver a probar.
+        </p>
+        <div className="mt-7 flex flex-wrap gap-3">
+          <Link to="/retos" className="tap inline-flex min-h-12 items-center rounded-lg bg-copper px-5 font-semibold text-white">
+            Explorar retos
+          </Link>
+          <Link to="/estudio" search={{ modo: "ejecutar" }} className="tap inline-flex min-h-12 items-center rounded-lg border border-line px-5 font-semibold text-copper">
+            Ejecutar código
+          </Link>
+        </div>
+      </section>
 
-      <div className="mt-12 grid gap-10 border-t border-line pt-8 md:grid-cols-3">
-        <Link to="/retos" className="group block min-h-11">
+      <div className="mt-6 grid gap-4 md:grid-cols-3">
+        <Link to="/retos" className="group tap block min-h-11 rounded-2xl border border-line bg-panel p-5 hover:border-copper">
           <p className="font-mono text-sm text-muted">01</p>
           <h2 className="mt-2 font-serif text-3xl group-hover:text-copper">Retos</h2>
           <p className="mt-3 max-w-md text-pretty">
@@ -52,7 +54,7 @@ function Home() {
             comprueba que entiendes lo que escribiste.
           </p>
         </Link>
-        <Link to="/estudio" className="group block min-h-11">
+        <Link to="/estudio" className="group tap block min-h-11 rounded-2xl border border-line bg-panel p-5 hover:border-copper">
           <p className="font-mono text-sm text-muted">02</p>
           <h2 className="mt-2 font-serif text-3xl group-hover:text-copper">Un programa</h2>
           <p className="mt-3 max-w-md text-pretty">
@@ -60,7 +62,7 @@ function Home() {
             lo explica al nivel que elijas.
           </p>
         </Link>
-        <Link to="/matematicas" className="group block min-h-11">
+        <Link to="/matematicas" className="group tap block min-h-11 rounded-2xl border border-line bg-panel p-5 hover:border-copper">
           <p className="font-mono text-sm text-muted">03</p>
           <h2 className="mt-2 font-serif text-3xl group-hover:text-copper">Una ecuación</h2>
           <p className="mt-3 max-w-md text-pretty">

@@ -22,9 +22,9 @@ export function Shell({ children }: { children: ReactNode }) {
       >
         Saltar al contenido
       </a>
-      <header className="border-b border-line">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 px-5">
-          <Link to="/" className="inline-flex min-h-11 items-center font-serif text-2xl tracking-tight">
+      <header className="border-b border-line bg-panel">
+        <div className="mx-auto flex max-w-[104rem] flex-wrap items-center justify-between gap-2 px-5 py-2">
+          <Link to="/" className="inline-flex min-h-11 items-center font-sans text-2xl font-bold tracking-tight text-copper">
             Cifra
           </Link>
           <nav className="flex flex-wrap" aria-label="Secciones">
@@ -33,9 +33,10 @@ export function Shell({ children }: { children: ReactNode }) {
               return (
                 <Link
                   key={link.to}
+                  aria-current={active ? "page" : undefined}
                   to={link.to}
                   className={cn(
-                    "inline-flex min-h-11 items-center px-3 font-mono text-sm",
+                    "cifra-nav-link inline-flex min-h-11 items-center px-3 text-sm font-semibold",
                     active ? "text-ink" : "text-muted",
                   )}
                 >
@@ -43,6 +44,9 @@ export function Shell({ children }: { children: ReactNode }) {
                 </Link>
               );
             })}
+            <Link to="/estudio" search={{ modo: "ejecutar" }} className="cifra-nav-link inline-flex min-h-11 items-center px-3 text-sm font-semibold text-copper">
+              Ejecutar código
+            </Link>
           </nav>
         </div>
       </header>

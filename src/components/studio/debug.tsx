@@ -1,3 +1,4 @@
+import { EditorCodigo } from "@/components/editor-codigo";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import type { DebugResult } from "@/lib/ai/debug";
@@ -169,26 +170,23 @@ export function DebugStudio({
           tocar el código.
         </p>
 
-        <label className="mt-6 flex flex-col gap-2 font-mono text-sm">
+        <div className="mt-6 flex flex-col gap-2 font-mono text-sm">
           Código
-          <textarea
+          <EditorCodigo
             value={code}
-            onChange={(event) => {
-              setCode(event.target.value);
+            label="Código del fallo"
+            language={language}
+            onChange={(nuevo) => {
+              setCode(nuevo);
               setSampleId("");
               setResult(null);
             }}
-            rows={8}
-            spellCheck={false}
-            aria-label="Código"
-            placeholder="Pega el fragmento. Mejor con líneas numerables tal como las muestran tu editor y tu error."
-            className="min-h-40 w-full border border-line bg-paper p-3 font-mono text-sm leading-6 text-ink"
           />
           <p className={cn("font-mono text-sm", codigoExcedido ? "text-copper" : "text-muted")}>
             {code.length} de {limitesEntrada.codigo} caracteres
             {codigoExcedido && ": te pasas. Acorta o parte el fragmento: no se envía hasta que quepa."}
           </p>
-        </label>
+        </div>
         <label className="mt-4 flex flex-col gap-2 font-mono text-sm">
           Mensaje del error
           <textarea

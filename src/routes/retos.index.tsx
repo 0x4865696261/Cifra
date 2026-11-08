@@ -54,8 +54,8 @@ function RetosPage() {
         Practicar tipos con el comprobador de Cifra
       </Link>
 
-      <p className="mt-2">
-        <Link to="/retos/$id" params={{ id: proyectoPedidos.id }} className="underline">
+      <p className="mt-4">
+        <Link to="/retos/$id" params={{ id: proyectoPedidos.id }} className="tap inline-flex min-h-12 items-center rounded-lg bg-copper px-4 font-semibold text-white">
           Proyecto multiarchivo: pedidos de una tienda
         </Link>
       </p>

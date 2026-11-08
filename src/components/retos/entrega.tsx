@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { correrPruebasJavaScript, todasPasadas } from "@/lib/ejecucion/pruebas";
 import { limitesDefecto } from "@/lib/ejecucion/limites";
 import type { RunRequest, RunResult, TestSpec } from "@/lib/ejecucion/tipos";
-import { Button } from "@/components/ui/button";
+import { EditorCodigo } from "@/components/editor-codigo";
 import { cn } from "@/lib/cn";
 import { usarSenales } from "@/lib/retos/use-senales";
 import type { SenalIntegridad } from "@/lib/retos/tipos";
@@ -27,7 +27,7 @@ export function EntregaEditor({
   codigoInicial,
   borradorId,
   pruebas,
-  boton = "Entregar",
+  boton = "Ejecutar pruebas",
   onVeredicto,
 }: {
   codigoInicial: string;
@@ -105,18 +105,21 @@ export function EntregaEditor({
 
   return (
     <div className="grid gap-6">
-      <label className="flex flex-col gap-2 font-mono text-sm">
-        Tu código
-        <textarea
+      <div className="grid gap-3 text-sm">
+        <EditorCodigo
           value={codigo}
-          onChange={(evento) => editar(evento.target.value)}
+          onChange={editar}
+          label="Código del reto"
+          language="javascript"
+          readOnly={corriendo}
+          runDisabled={!codigo.trim()}
+          output={corriendo ? "Ejecutando las pruebas…" : resultado && <Corrida corrida={resultado} pruebas={pruebas} />}
+          onRun={() => { if (!corriendo && codigo.trim()) void entregar(); }}
+          onSave={() => editar(codigo)}
+          runLabel={corriendo ? "Ejecutando…" : boton}
           onPaste={eventos.onPaste}
           onKeyDown={eventos.onKeyDown}
           onBlur={eventos.onBlur}
-          rows={12}
-          spellCheck={false}
-          aria-label="Código del reto"
-          className="min-h-64 w-full border border-line bg-paper p-3 font-mono text-sm leading-6 text-ink"
         />
         <span className="flex flex-wrap justify-between gap-2">
           <span>
@@ -125,6 +128,7 @@ export function EntregaEditor({
           </span>
           <button
             type="button"
+            disabled={corriendo}
             onClick={() => editar(codigoInicial)}
             className="text-muted underline"
           >
@@ -132,13 +136,9 @@ export function EntregaEditor({
           </button>
         </span>
         <span role="status" className="text-muted">{avisoBorrador}</span>
-      </label>
+      </div>
 
-      <Button tone="primary" disabled={corriendo || !codigo.trim()} onClick={() => void entregar()}>
-        {corriendo ? "Ejecutando las pruebas…" : boton}
-      </Button>
-
-      {resultado && <Corrida corrida={resultado} pruebas={pruebas} />}
+      {resultado && <div className="cifra-salida" aria-live="polite"><Corrida corrida={resultado} pruebas={pruebas} /></div>}
     </div>
   );
 }
