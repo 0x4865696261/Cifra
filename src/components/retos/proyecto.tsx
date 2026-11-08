@@ -223,6 +223,7 @@ export function RetoProyecto() {
             }}
             onRun={() => void entregar()}
             onSave={() => guardar(borrador)}
+            busy={pendiente}
             runLabel={pendiente ? "Ejecutando…" : "Ejecutar pruebas"}
           />
           <p className="mt-2 text-sm text-muted">

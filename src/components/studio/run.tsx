@@ -158,6 +158,7 @@ export function RunStudio({
             runDisabled={workerDisponible === false || codigoExcedido || !code.trim()}
             output={corriendo ? "Ejecutando…" : aviso || (resultado && <pre className="whitespace-pre-wrap">{[resultado.stdout, resultado.stderr].filter(Boolean).join("\n") || resultado.estado}</pre>)}
             onRun={() => { if (workerDisponible && !corriendo && !codigoExcedido && code.trim()) void ejecutar(); }}
+            busy={corriendo}
             runLabel={corriendo ? "Ejecutando…" : "Ejecutar"}
             onChange={(nuevo) => {
               setCode(nuevo);

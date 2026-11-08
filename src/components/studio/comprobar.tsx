@@ -79,6 +79,7 @@ export function ComprobarStudio({
           runDisabled={!codigo.trim()}
           output={ocupado ? "Comprobando…" : aviso || (resultado && (resultado.diagnosticos.length === 0 ? "Programa aceptado." : <ul>{resultado.diagnosticos.map((diagnostico, indice) => <li key={indice}>Línea {diagnostico.linea}. {diagnostico.mensaje}</li>)}</ul>))}
           onRun={() => { if (!ocupado && codigo.trim()) void comprobar(); }}
+          busy={ocupado}
           runLabel={ocupado ? "Comprobando…" : "Comprobar código"}
             onChange={(nuevo) => cambiarCodigo(nuevo)}
           />

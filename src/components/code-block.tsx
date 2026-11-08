@@ -74,6 +74,7 @@ export function CodeBlock({ source, label }: { source: string; label: string }) 
                 ))
           }
           onRun={local ? () => void ejecutar() : undefined}
+          busy={corriendo}
           runLabel={corriendo ? "Ejecutando…" : "Ejecutar"}
           onChange={(valor) => {
             setCodigo(valor);

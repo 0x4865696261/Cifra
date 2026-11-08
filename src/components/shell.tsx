@@ -99,7 +99,7 @@ export function Shell({ children }: { children: ReactNode }) {
             El código corre en tu navegador: aislado, con límites y sin salir a la red. Los
             veredictos de los retos salen de ahí, no de un modelo.
           </p>
-          <p>Cifra 0.8.2 · Progreso de lectura local</p>
+          <p>Cifra 0.8.3 · Progreso de lectura local</p>
         </div>
       </footer>
     </div>

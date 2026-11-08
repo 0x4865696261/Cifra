@@ -116,6 +116,7 @@ export function EntregaEditor({
           output={corriendo ? "Ejecutando las pruebas…" : resultado && <Corrida corrida={resultado} pruebas={pruebas} />}
           onRun={() => { if (!corriendo && codigo.trim()) void entregar(); }}
           onSave={() => editar(codigo)}
+          busy={corriendo}
           runLabel={corriendo ? "Ejecutando…" : boton}
           onPaste={eventos.onPaste}
           onKeyDown={eventos.onKeyDown}

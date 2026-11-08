@@ -38,8 +38,8 @@ export const Route = createRootRoute({
             <Shell>
               <Suspense
                 fallback={
-                  <main id="contenido" className="curso-contenedor" role="status">
-                    Cargando el contenido…
+                  <main id="contenido" className="curso-contenedor cifra-cargando" role="status">
+                    <span className="cifra-espera" aria-hidden="true" /> Cargando el contenido…
                   </main>
                 }
               >
