@@ -26,7 +26,7 @@ function Home() {
 
   return (
     <main id="contenido" className="mx-auto max-w-6xl px-5 py-12 sm:py-16">
-      <p className="font-mono text-sm text-copper">Versión 0.8 · Un compilador que comprueba</p>
+      <p className="font-mono text-sm text-copper">Versión 0.8.1 · Editor multiarchivo</p>
       <p className="mt-4 font-mono text-xs uppercase tracking-[0.24em] text-muted">
         Una plataforma para leer software
       </p>

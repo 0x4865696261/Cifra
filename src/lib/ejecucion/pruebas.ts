@@ -48,7 +48,9 @@ export function sonIguales(obtenido: string, esperado: string, tolerancia?: numb
 
 const noPasoMotor: RunResult["motor"] = { nombre: "javascript", version: "n/d" };
 
-export async function correrPruebasJavaScript(solicitud: RunRequest): Promise<RunResult> {
+type CodigoPorPrueba = (prueba: TestSpec) => string;
+
+export async function correrPruebasJavaScript(solicitud: RunRequest, codigoPorPrueba?: CodigoPorPrueba): Promise<RunResult> {
   const navegadorSinWorker =
     typeof Worker === "undefined" || typeof URL?.createObjectURL !== "function";
   if (navegadorSinWorker) {
@@ -58,7 +60,7 @@ export async function correrPruebasJavaScript(solicitud: RunRequest): Promise<Ru
   }
   const url = URL.createObjectURL(new Blob([codigoWorker()], { type: "text/javascript" }));
   try {
-    return await correrPruebasPorTransporte(transporteWorker(url), solicitud);
+    return await correrPruebasPorTransporte(transporteWorker(url), solicitud, codigoPorPrueba);
   } finally {
     URL.revokeObjectURL(url);
   }
@@ -67,6 +69,7 @@ export async function correrPruebasJavaScript(solicitud: RunRequest): Promise<Ru
 export async function correrPruebasPorTransporte(
   crearTransporte: () => Transporte,
   solicitud: RunRequest,
+  codigoPorPrueba?: CodigoPorPrueba,
 ): Promise<RunResult> {
   const inicio = performance.now();
   const pruebas = solicitud.pruebas ?? [];
@@ -86,11 +89,12 @@ export async function correrPruebasPorTransporte(
     // no hace falta instrumento cuando no hay traza y menos choques con un programa que usa
     // el prefijo).
     const capturaValor = prueba.tipo !== "salida";
+    const codigo = codigoPorPrueba?.(prueba);
     const intento = (await correrPorTransporte(
       crearTransporte,
       solicitud,
-      capturaValor ? solicitud.codigo : codigoEnviado,
-      !capturaValor && sinInstrumento,
+      codigo ?? (capturaValor ? solicitud.codigo : codigoEnviado),
+      !capturaValor && (codigo !== undefined || sinInstrumento),
       capturaValor,
     )) as ResultadoConValor;
 

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { RetoProyecto } from "@/components/retos/proyecto";
+import { proyectoPedidos } from "@/lib/retos/proyecto-pedidos";
 import { EntregaEditor, Corrida, type EntregaResultado } from "@/components/retos/entrega";
 import { explicarVeredicto, defenderSolucion } from "@/lib/ai/retos";
 import type { GuiaVeredicto, JuicioDefensa } from "@/lib/ai/retos-parse";
@@ -32,6 +34,10 @@ const CLAVE_FALLO_ESTUDIO = "cifra.fallo-estudio";
 
 function RetoPage() {
   const { id } = Route.useParams();
+  return id === proyectoPedidos.id ? <RetoProyecto /> : <RetoClasico key={id} id={id} />;
+}
+
+function RetoClasico({ id }: { id: string }) {
   const definicion = definicionPorId(id);
   const navigate = useNavigate();
 

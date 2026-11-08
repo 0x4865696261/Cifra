@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { proyectoPedidos } from "@/lib/retos/proyecto-pedidos";
 import { cn } from "@/lib/cn";
 import { EntregaEditor, type EntregaResultado } from "@/components/retos/entrega";
 import { nivelEstimadoDePrueba, siguienteTramo, tramosDePrueba } from "@/lib/retos/prueba-nivel";
@@ -52,6 +53,12 @@ function RetosPage() {
       <Link to="/estudio" search={{ modo: "comprobar" }} className="mt-4 inline-block underline">
         Practicar tipos con el comprobador de Cifra
       </Link>
+
+      <p className="mt-2">
+        <Link to="/retos/$id" params={{ id: proyectoPedidos.id }} className="underline">
+          Proyecto multiarchivo: pedidos de una tienda
+        </Link>
+      </p>
 
       {vista.tipo === "cargar" && (
         <p className="mt-10 font-mono text-sm text-muted">Leyendo tu progreso de este navegador…</p>

@@ -1,6 +1,6 @@
 # CIFRA Roadmap
 
-## Estado actual (0.8)
+## Estado actual (0.8.1)
 - Estado: funcional y consolidado en la parte de navegación documental y red de conocimiento.
 - Base consolidada en estudio, retos, incidentes, matemática, biblioteca, módulos y ejecución segura.
 - La prioridad actual es cerrar validación, endurecimiento y preparación para la 1.0.
@@ -22,7 +22,7 @@
 
 ## 0.8.1 — Editor de código para ejercicios y retos reales
 
-- Estado: en desarrollo. El editor actual ya guarda y recupera borradores por reto y permite restaurar la plantilla.
+- Estado: implementada. El reto Pedidos de una tienda estrena el editor multiarchivo y las entregas con pruebas locales.
 - Editor integrado con árbol de carpetas, pestañas y búsqueda de archivos.
 - Borradores locales por reto. Cambiar de archivo o recargar conserva los cambios.
 - Resaltado por lenguaje, números de línea, atajos y acceso al archivo y línea de un diagnóstico.
