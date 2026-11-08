@@ -185,6 +185,7 @@ function RetoViva({
           <EntregaEditor
             key={instancia.id}
             codigoInicial={instancia.codigoDePartida}
+            borradorId={instancia.id}
             pruebas={instancia.pruebas}
             onVeredicto={(dada) => {
               setJuiciosDefensa(null);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { correrPruebasJavaScript, todasPasadas } from "@/lib/ejecucion/pruebas";
 import { limitesDefecto } from "@/lib/ejecucion/limites";
 import type { RunRequest, RunResult, TestSpec } from "@/lib/ejecucion/tipos";
@@ -25,11 +25,13 @@ export type EntregaResultado = {
 
 export function EntregaEditor({
   codigoInicial,
+  borradorId,
   pruebas,
   boton = "Entregar",
   onVeredicto,
 }: {
   codigoInicial: string;
+  borradorId?: string;
   pruebas: TestSpec[];
   boton?: string;
   /** Se avisa en cada entrega que corrió: `superado` sale de `todasPasadas`, nunca se consulta. */
@@ -39,6 +41,43 @@ export function EntregaEditor({
   const [corriendo, setCorriendo] = useState(false);
   const [resultado, setResultado] = useState<RunResult | null>(null);
   const { señales, eventos, reiniciar } = usarSenales();
+  const [avisoBorrador, setAvisoBorrador] = useState("");
+  const claveBorrador = borradorId ? `cifra.reto.borrador.v1.${borradorId}` : undefined;
+
+  useEffect(() => {
+    if (!claveBorrador) return;
+    try {
+      const guardado = localStorage.getItem(claveBorrador);
+      if (guardado === null) return;
+      const borrador: unknown = JSON.parse(guardado);
+      if (
+        borrador && typeof borrador === "object" &&
+        "plantilla" in borrador && borrador.plantilla === codigoInicial &&
+        "codigo" in borrador && typeof borrador.codigo === "string"
+      ) {
+        setCodigo(borrador.codigo);
+        setAvisoBorrador("Borrador recuperado.");
+      }
+    } catch {
+      // El editor sigue disponible aunque el almacenamiento esté bloqueado o el dato esté dañado.
+    }
+  }, [claveBorrador, codigoInicial]);
+
+  const editar = (nuevo: string) => {
+    setCodigo(nuevo);
+    if (!claveBorrador) return;
+    try {
+      if (nuevo === codigoInicial) {
+        localStorage.removeItem(claveBorrador);
+        setAvisoBorrador("");
+      } else {
+        localStorage.setItem(claveBorrador, JSON.stringify({ plantilla: codigoInicial, codigo: nuevo }));
+        setAvisoBorrador("Borrador guardado en este navegador.");
+      }
+    } catch {
+      setAvisoBorrador("No se pudo guardar el borrador en este navegador.");
+    }
+  };
 
   const entregar = async () => {
     setCorriendo(true);
@@ -70,7 +109,7 @@ export function EntregaEditor({
         Tu código
         <textarea
           value={codigo}
-          onChange={(evento) => setCodigo(evento.target.value)}
+          onChange={(evento) => editar(evento.target.value)}
           onPaste={eventos.onPaste}
           onKeyDown={eventos.onKeyDown}
           onBlur={eventos.onBlur}
@@ -86,12 +125,13 @@ export function EntregaEditor({
           </span>
           <button
             type="button"
-            onClick={() => setCodigo(codigoInicial)}
+            onClick={() => editar(codigoInicial)}
             className="text-muted underline"
           >
             volver al código de partida
           </button>
         </span>
+        <span role="status" className="text-muted">{avisoBorrador}</span>
       </label>
 
       <Button tone="primary" disabled={corriendo || !codigo.trim()} onClick={() => void entregar()}>

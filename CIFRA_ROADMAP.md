@@ -22,7 +22,7 @@
 
 ## 0.8.1 — Editor de código para ejercicios y retos reales
 
-- Estado: planificada después de la 0.8.
+- Estado: en desarrollo. El editor actual ya guarda y recupera borradores por reto y permite restaurar la plantilla.
 - Editor integrado con árbol de carpetas, pestañas y búsqueda de archivos.
 - Borradores locales por reto. Cambiar de archivo o recargar conserva los cambios.
 - Resaltado por lenguaje, números de línea, atajos y acceso al archivo y línea de un diagnóstico.
