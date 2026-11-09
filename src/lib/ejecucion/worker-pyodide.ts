@@ -67,6 +67,7 @@ self.onmessage = function (evento) {
   correr(mensaje).catch(function (causa) {
     self.postMessage({
       tipo: "cifra-resultado",
+      idEjecucion: mensaje.idEjecucion,
       resultado: {
         estado: "error",
         stdout: "",
@@ -196,7 +197,7 @@ async function correr(mensaje) {
     memoriaMBUsada: undefined, // Pyodide no expone el heap del usuario: ausente y honesto
     motor: motorActual()
   };
-  self.postMessage({ tipo: "cifra-resultado", resultado: resultado });
+  self.postMessage({ tipo: "cifra-resultado", idEjecucion: mensaje.idEjecucion, resultado: resultado });
 }
 `;
 }

@@ -56,6 +56,7 @@ export function correrPorTransporte(
   return new Promise((resolver) => {
     const limite = solicitud.limites;
     const transporte = crearTransporte();
+    const idEjecucion = Array.from(crypto.getRandomValues(new Uint32Array(4))).join("-");
     const inicio = performance.now();
     let acabado = false;
 
@@ -63,16 +64,16 @@ export function correrPorTransporte(
       if (acabado) return;
       acabado = true;
       clearTimeout(temporizador);
+      transporte.terminar();
       resolver(resultado);
     };
 
     const temporizador = setTimeout(() => {
-      transporte.terminar();
       acabar(cortePorTiempo(Math.round(performance.now() - inicio), limite));
     }, limite.tiempoMs + margenCorteMs);
 
     transporte.alResultado((mensaje) => {
-      if (!esResultado(mensaje)) return;
+      if (!esResultado(mensaje) || mensaje.idEjecucion !== idEjecucion) return;
       const delWorker = mensaje.resultado;
       acabar({
         ...delWorker,
@@ -88,6 +89,7 @@ export function correrPorTransporte(
 
     transporte.enviar({
       tipo: "cifra-ejecutar",
+      idEjecucion,
       topeValorTraza,
       sinInstrumento,
       capturarValor,
@@ -158,6 +160,7 @@ function motorLocal(): { nombre: string; version: string } {
 
 type MensajeResultado = {
   tipo: "cifra-resultado";
+  idEjecucion: string;
   resultado: Omit<RunResult, "origen"> & { origen?: string };
 };
 

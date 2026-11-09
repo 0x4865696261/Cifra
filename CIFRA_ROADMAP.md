@@ -1,6 +1,6 @@
 # CIFRA Roadmap
 
-## Estado actual (0.8.3)
+## Estado actual (0.9 en validación)
 - Estado: funcional y consolidado en la parte de navegación documental y red de conocimiento.
 - Base consolidada en estudio, retos, incidentes, matemática, biblioteca, módulos y ejecución segura.
 - La prioridad actual es cerrar validación, endurecimiento y preparación para la 1.0.
@@ -41,7 +41,7 @@ La portada incorpora entradas escalonadas y realce de tarjetas con ratón y tecl
 ## 0.9 — Pulido y robustez
 - Descripción: mejorar UX, rendimiento, claridad y consistencia visual antes del primer lanzamiento público.
 - Prioridad: media-alta
-- Estado: planificado
+- Estado: implementada en parte. Pendientes la validación con proveedores reales y la auditoría de aislamiento y despliegue.
 - Dependencias: UI, bibliotecas, contenido y modelos
 - Módulos afectados: rutas, estilos, documentación y módulos de aprendizaje
 - Criterio de finalización: experiencia coherente en escritorio y móvil, sin errores de render y con narrativa clara
