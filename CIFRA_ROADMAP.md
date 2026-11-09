@@ -1,6 +1,6 @@
 # CIFRA Roadmap
 
-## Estado actual (0.8.2)
+## Estado actual (0.8.3)
 - Estado: funcional y consolidado en la parte de navegación documental y red de conocimiento.
 - Base consolidada en estudio, retos, incidentes, matemática, biblioteca, módulos y ejecución segura.
 - La prioridad actual es cerrar validación, endurecimiento y preparación para la 1.0.
@@ -33,6 +33,10 @@
 ## 0.8.2 — Portal de tutoriales
 
 La portada reúne accesos, itinerarios y temas con la navegación editorial de la referencia visual. Biblioteca sirve el artículo y el ejemplo desde el servidor. El editor avanzado se carga por separado y el ejemplo se puede seguir leyendo y editando con el editor básico si falla esa carga. El progreso local es opcional para la lectura.
+
+## 0.8.3 — Animaciones y detalles de interacción
+
+La portada incorpora entradas escalonadas y realce de tarjetas con ratón y teclado. Biblioteca muestra el avance de lectura y el editor distingue la ejecución en curso. Las animaciones respetan la preferencia de movimiento reducido.
 
 ## 0.9 — Pulido y robustez
 - Descripción: mejorar UX, rendimiento, claridad y consistencia visual antes del primer lanzamiento público.

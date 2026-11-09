@@ -537,3 +537,152 @@
     radial-gradient(ellipse 55rem 24rem at top left, #211b47 0%, transparent 74%),
     var(--color-paper);
 }
+
+/* Las señales estáticas también funcionan con movimiento reducido. */
+.cifra-ejecutar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.cifra-espera {
+  display: inline-block;
+  flex: none;
+  width: 0.9em;
+  height: 0.9em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+}
+.cifra-cargando {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.curso-tarjeta:focus-within {
+  border-color: var(--color-copper);
+}
+.curso-buscador input:focus {
+  border-color: var(--color-copper);
+  box-shadow: 0 0 0 0.18rem #a5b9ff26;
+}
+.curso-progreso {
+  display: none;
+}
+
+@keyframes cifra-revelar {
+  from {
+    opacity: 0.45;
+    translate: 0 0.65rem;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes cifra-destello {
+  from {
+    translate: -115% 0;
+  }
+  to {
+    translate: 115% 0;
+  }
+}
+@keyframes cifra-girar {
+  to {
+    rotate: 360deg;
+  }
+}
+@keyframes cifra-progreso-lectura {
+  from {
+    scale: 0 1;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .curso-hero > *,
+  .curso-intro,
+  .curso-atajos > *,
+  .curso-itinerarios > * {
+    animation: cifra-revelar 390ms cubic-bezier(0.2, 0.75, 0.3, 1) backwards;
+  }
+  .curso-hero h1 {
+    animation-delay: 55ms;
+  }
+  .curso-hero p:last-child,
+  .curso-intro {
+    animation-delay: 100ms;
+  }
+  .curso-atajos > :nth-child(2),
+  .curso-itinerarios > :nth-child(2) {
+    animation-delay: 45ms;
+  }
+  .curso-atajos > :nth-child(3),
+  .curso-itinerarios > :nth-child(3) {
+    animation-delay: 90ms;
+  }
+  .curso-atajos > :nth-child(4),
+  .curso-itinerarios > :nth-child(4) {
+    animation-delay: 135ms;
+  }
+  .curso-atajos > :nth-child(5) {
+    animation-delay: 180ms;
+  }
+
+  .curso-atajos > a,
+  .curso-itinerarios > a {
+    position: relative;
+    overflow: hidden;
+  }
+  .curso-atajos > a::after,
+  .curso-itinerarios > a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 36%, #c5cfff20 50%, transparent 64%);
+    translate: -115% 0;
+  }
+  .curso-atajos > a:is(:hover, :focus-visible)::after,
+  .curso-itinerarios > a:is(:hover, :focus-visible)::after {
+    animation: cifra-destello 560ms ease-out;
+  }
+  .curso-atajos svg,
+  .curso-icono {
+    transition: transform 220ms cubic-bezier(0.2, 0.75, 0.3, 1);
+  }
+  .curso-atajos a:is(:hover, :focus-visible) svg,
+  .curso-itinerarios a:is(:hover, :focus-visible) .curso-icono {
+    transform: translateY(-3px) scale(1.08);
+  }
+  .curso-buscador input {
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease;
+  }
+  .cifra-editor--ampliado,
+  .cifra-editor__consola {
+    animation: cifra-revelar 180ms ease-out;
+  }
+  .cifra-espera {
+    animation: cifra-girar 780ms linear infinite;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .curso-progreso {
+      display: block;
+      position: fixed;
+      z-index: 55;
+      inset: 0 0 auto;
+      height: 3px;
+      pointer-events: none;
+      background: linear-gradient(90deg, #a5b9ff, #bd80fa);
+      transform-origin: left;
+      animation: cifra-progreso-lectura auto linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+}

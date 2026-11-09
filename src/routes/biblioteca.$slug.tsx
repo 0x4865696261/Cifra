@@ -29,6 +29,7 @@ function ConceptPage() {
 
   return (
     <main id="contenido" className="curso-contenedor">
+      <span className="curso-progreso" aria-hidden="true" />
       <nav className="curso-migas" aria-label="Ruta de navegación">
         <Link to="/">Inicio</Link>
         <span aria-hidden="true">›</span>

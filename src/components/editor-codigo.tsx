@@ -30,6 +30,7 @@ type Props = {
   onSave?: () => void;
   runLabel?: string;
   runDisabled?: boolean;
+  busy?: boolean;
   output?: ReactNode;
   className?: string;
   onPaste?: ClipboardEventHandler<HTMLDivElement>;
@@ -89,6 +90,7 @@ export function EditorCodigo({
   onSave,
   runLabel = "Ejecutar",
   runDisabled = false,
+  busy = false,
   output,
   className = "",
   onPaste,
@@ -267,11 +269,15 @@ export function EditorCodigo({
             {onRun && (
               <button
                 type="button"
-                disabled={readOnly || runDisabled}
+                disabled={readOnly || runDisabled || busy}
+                aria-busy={busy}
                 onClick={onRun}
                 className="cifra-ejecutar"
               >
-                ▶ {runLabel}
+                <span aria-hidden="true" className={busy ? "cifra-espera" : undefined}>
+                  {busy ? "" : "▶"}
+                </span>
+                {runLabel}
               </button>
             )}
             <button
