@@ -6,6 +6,7 @@ import { PanelesCodigo } from "@/components/codigo/paneles";
 import { VistaWeb } from "@/components/codigo/vista-web";
 import { etiquetasJuez, type LenguajeJuez } from "@/lib/ejecucion/catalogo";
 import { juzgarCodigo, verEjemplos, type PeticionJuez } from "@/lib/ejecucion/juez";
+import { publicarLogros, type ResultadoPortafolio } from "@/lib/retos/logros";
 import type { RunResult } from "@/lib/ejecucion/tipos";
 import { usarSenales } from "@/lib/retos/use-senales";
 import { Corrida, type EntregaResultado } from "./entrega";
@@ -41,6 +42,7 @@ export function TallerReto({
   const [panel, setPanel] = useState<"problema" | "codigo" | "resultado">("problema");
   const [archivo, setArchivo] = useState<"html" | "css">("html");
   const [ocupado, setOcupado] = useState(false);
+  const [portafolio, setPortafolio] = useState<ResultadoPortafolio>();
   const [estado, setEstado] = useState<{
     resultado?: RunResult;
     aviso?: string;
@@ -75,6 +77,7 @@ export function TallerReto({
   const correr = async (modo: "ejecutar" | "enviar" | "nivel") => {
     setOcupado(true);
     setEstado(undefined);
+    setPortafolio(undefined);
     setPanel("resultado");
     try {
       const respuesta = await juzgarCodigo({
@@ -92,6 +95,20 @@ export function TallerReto({
         return;
       }
       setEstado({ modo, resultado: respuesta.resultado, codigo, css });
+      if (modo === "enviar" && respuesta.superado) {
+        if (respuesta.registroPendiente) {
+          setPortafolio({
+            estado: "error",
+            mensaje: "Reto aprobado. Vuelve a enviar para registrar el logro.",
+          });
+        } else {
+          void publicarLogros({ data: "automatico" })
+            .then((estado) => {
+              if (estado.estado !== "inactivo") setPortafolio(estado);
+            })
+            .catch(() => undefined);
+        }
+      }
       if (modo !== "ejecutar") {
         onVeredicto({
           codigo,
@@ -246,6 +263,17 @@ export function TallerReto({
             <p className="text-sm text-muted">Ejecuta o envía tu código para ver el resultado.</p>
           )}
           {estado?.resultado && <Corrida corrida={estado.resultado} />}
+          {portafolio && portafolio.estado !== "inactivo" && (
+            <p role="status" className="text-sm">
+              {portafolio.estado === "publicado" ? (
+                <a href={portafolio.url} target="_blank" rel="noreferrer" className="underline">
+                  Ver logro publicado en GitHub
+                </a>
+              ) : (
+                portafolio.mensaje
+              )}
+            </p>
+          )}
           {estado?.modo === "ejecutar" &&
             estado.codigo &&
             estado.resultado?.stderr.trim() &&

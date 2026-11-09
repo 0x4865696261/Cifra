@@ -30,6 +30,7 @@
  * a verified id via `@/lib/auth/middleware`.
  */
 import { betterAuth } from "better-auth";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { bearer, genericOAuth } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { getCookie } from "@tanstack/react-start/server";
@@ -179,6 +180,21 @@ const grokOAuthPlugin = authConfigured && !cifraPublica
   : null;
 
 export const auth = betterAuth({
+  ...(cifraPublica ? {
+    disabledPaths: ["/get-access-token", "/refresh-token", "/link-social"],
+    hooks: {
+      before: createAuthMiddleware(async (ctx) => {
+        if (ctx.path !== "/sign-in/social" || ctx.body?.provider !== "github") return;
+        const scopes = ctx.body.scopes;
+        if (Array.isArray(scopes) && scopes.some((scope) => scope !== "public_repo")) {
+          throw new APIError("BAD_REQUEST", { message: "Permiso de GitHub no admitido." });
+        }
+        if (ctx.body.additionalParams) {
+          throw new APIError("BAD_REQUEST", { message: "Parámetros de GitHub no admitidos." });
+        }
+      }),
+    },
+  } : {}),
   baseURL,
   // Deployed apps inject BETTER_AUTH_SECRET. Preview: process-stable secret on
   // globalThis so HMR doesn't invalidate PGLite-backed sessions (see above).

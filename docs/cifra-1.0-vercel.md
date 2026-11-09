@@ -37,6 +37,14 @@ El servidor crea una microVM efímera por ejecución admitida. El proceso de la 
 
 [Cuotas de Vercel Sandbox](https://vercel.com/docs/sandbox/pricing) · [Snapshots](https://vercel.com/docs/sandbox/concepts/snapshots)
 
+## Portafolio público de logros
+
+Al iniciar sesión con GitHub, los envíos aprobados se registran en la cuenta de Cifra. Abre **Portafolio en GitHub**, pulsa **Publicar logros** y autoriza el permiso de repositorios públicos cuando GitHub lo pida. De vuelta en Cifra, pulsa **Publicar logros** para activar la sincronización y crear el repositorio público **cifra-logros**.
+
+El README muestra el reto, el lenguaje y la fecha. Cifra actualiza su sección de logros al aprobar nuevos envíos. Puedes pausar la sincronización desde el mismo panel y fijar el repositorio en tu perfil para mostrarlo a quien lo visite.
+
+[Cómo fijar repositorios en GitHub](https://docs.github.com/en/account-and-profile/how-tos/profile-customization/pinning-items-to-your-profile)
+
 ## Validar y publicar
 
 - Ejecuta `npm test`, `npm run typecheck`, `npm run check:auth` con el servidor local activo y `npm run build:dev`. El build de Vercel ejecuta las migraciones de la base configurada. Las migraciones de autenticación y cuota se registran en `_migrations`.

@@ -11,3 +11,5 @@ El flujo de reto se orienta a una evaluación real y no a la opinión del modelo
 En la 1.0 el editor ofrece once lenguajes de algoritmos. Ejecutar comprueba los ejemplos de la variante. Enviar genera casos adicionales en servidor y es la única acción que puede aprobar el reto. SQL y HTML/CSS tienen retos propios. Los borradores se guardan localmente por reto y lenguaje. Las solicitudes autenticadas se evalúan en Vercel Sandbox. Consulta [el despliegue de Cifra 1.0](../../cifra-1.0-vercel.md).
 
 Esta separación es esencial: el modelo no decide la validación del reto.
+
+Los envíos aprobados se registran por cuenta, reto y lenguaje. La publicación opcional en GitHub actualiza una sección delimitada del README de un repositorio público dedicado. Los borradores y el código de la solución quedan fuera del portafolio.

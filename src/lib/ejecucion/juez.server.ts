@@ -82,19 +82,26 @@ function preparar(pedido: PeticionJuez) {
 
 export async function ejecutarJuez(pedido: PeticionJuez): Promise<RespuestaJuez> {
   assertSameSiteRequest();
-  if (!githubLoginConfigured) return {
-    ok: false, causa: "servicio",
-    mensaje: "El acceso con GitHub necesita configuración en este entorno.",
-  };
+  if (!githubLoginConfigured)
+    return {
+      ok: false,
+      causa: "servicio",
+      mensaje: "El acceso con GitHub necesita configuración en este entorno.",
+    };
   const snapshotId = process.env.CIFRA_SANDBOX_SNAPSHOT?.trim();
   try {
     const cuenta = await getSessionUser();
     const contexto = await auth.$context;
     const cuentas = cuenta ? await contexto.internalAdapter.findAccounts(cuenta.id) : [];
     if (!cuenta || !cuentas.some((vinculada) => vinculada.providerId === "github")) {
-      return { ok: false, causa: "sesion", mensaje: "Inicia sesión con GitHub para ejecutar código." };
+      return {
+        ok: false,
+        causa: "sesion",
+        mensaje: "Inicia sesión con GitHub para ejecutar código.",
+      };
     }
-    if (!snapshotId || dbSource !== "neon" || process.env.CIFRA_EJECUCION_PAUSADA === "1") return avisoServicio;
+    if (!snapshotId || dbSource !== "neon" || process.env.CIFRA_EJECUCION_PAUSADA === "1")
+      return avisoServicio;
     const { plan, casos, privado } = preparar(pedido);
     const sql = await getSql();
     const id = randomUUID();
@@ -129,13 +136,22 @@ export async function ejecutarJuez(pedido: PeticionJuez): Promise<RespuestaJuez>
     await sql`update cifra_ejecuciones set finalizada = clock_timestamp() where id = ${id}::uuid`.catch(
       () => console.error("[cifra] no se pudo cerrar una reserva"),
     );
-    return interpretarCorridas(
+    const veredicto = interpretarCorridas(
       pedido,
       salida,
       casos,
       privado,
       Math.round(performance.now() - inicio),
     );
+    if (veredicto.ok && veredicto.superado && pedido.modo === "enviar" && pedido.reto) {
+      try {
+        await sql`insert into cifra_logros (cuenta, reto, lenguaje) values (${cuenta.id}, ${pedido.reto}, ${pedido.lenguaje})
+          on conflict (cuenta, reto, lenguaje) do nothing`;
+      } catch {
+        return { ...veredicto, registroPendiente: true };
+      }
+    }
+    return veredicto;
   } catch {
     console.error("[cifra] fallo del ejecutor");
     return avisoServicio;

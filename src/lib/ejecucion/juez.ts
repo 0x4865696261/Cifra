@@ -20,7 +20,7 @@ export type PeticionJuez = {
 };
 
 export type RespuestaJuez =
-  | { ok: true; resultado: ResultadoJuez; superado: boolean }
+  | { ok: true; resultado: ResultadoJuez; superado: boolean; registroPendiente?: true }
   | { ok: false; causa: "sesion" | "cuota" | "ocupado" | "servicio"; mensaje: string };
 
 function textoLimitado(value: unknown, max: number): value is string {

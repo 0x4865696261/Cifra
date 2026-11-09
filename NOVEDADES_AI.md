@@ -1446,3 +1446,10 @@ reproducible de todos los grupos de pruebas en Windows.
 - **Previsualización de producción:** `preview:restart` no funciona en Windows porque depende de
   `/proc`; se usó `npm run preview` en un puerto libre para servir el build y completar el humo.
 - **Queda para después:** revisión y fusión a `main`; esta rama no se fusiona como parte de la 0.6.
+
+
+## 1.0 — Publicación de la candidata
+
+1. Preparar la candidata con Retos y Estudio en dos paneles y el juez multilenguaje de Vercel.
+2. Corregir el acceso visible y conectar GitHub OAuth.
+3. Guardar logros confirmados por el juez y añadir la publicación optativa en GitHub.
