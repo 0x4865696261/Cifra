@@ -1,3 +1,4 @@
+import { EditorCodigo } from "@/components/editor-codigo";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -68,25 +69,19 @@ export function ComprobarStudio({
           Cargar reto de tipos
         </Button>
       </div>
-      <label className="grid gap-2 font-mono text-sm">
+      <div className="grid gap-2 font-mono text-sm">
         Código Cifra
-        <textarea
-          rows={12}
-          spellCheck={false}
-          disabled={ocupado}
-          value={codigo}
-          onChange={(event) => cambiarCodigo(event.target.value)}
-          className="w-full border border-line bg-paper p-3 text-ink"
-        />
-      </label>
-      <div>
-        <Button
-          tone="primary"
-          disabled={ocupado || !codigo.trim()}
-          onClick={() => void comprobar()}
-        >
-          {ocupado ? "Comprobando…" : "Comprobar código"}
-        </Button>
+        <EditorCodigo
+            value={codigo}
+            label="Código Cifra"
+            language="cifra"
+          readOnly={ocupado}
+          runDisabled={!codigo.trim()}
+          output={ocupado ? "Comprobando…" : aviso || (resultado && (resultado.diagnosticos.length === 0 ? "Programa aceptado." : <ul>{resultado.diagnosticos.map((diagnostico, indice) => <li key={indice}>Línea {diagnostico.linea}. {diagnostico.mensaje}</li>)}</ul>))}
+          onRun={() => { if (!ocupado && codigo.trim()) void comprobar(); }}
+          runLabel={ocupado ? "Comprobando…" : "Comprobar código"}
+            onChange={(nuevo) => cambiarCodigo(nuevo)}
+          />
       </div>
       <div aria-live="polite">
         {aviso && <p>{aviso}</p>}

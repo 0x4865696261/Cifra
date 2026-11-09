@@ -1,6 +1,6 @@
 # CIFRA Roadmap
 
-## Estado actual (0.8)
+## Estado actual (0.8.2)
 - Estado: funcional y consolidado en la parte de navegación documental y red de conocimiento.
 - Base consolidada en estudio, retos, incidentes, matemática, biblioteca, módulos y ejecución segura.
 - La prioridad actual es cerrar validación, endurecimiento y preparación para la 1.0.
@@ -22,13 +22,17 @@
 
 ## 0.8.1 — Editor de código para ejercicios y retos reales
 
-- Estado: planificada después de la 0.8.
+- Estado: implementada. El reto Pedidos de una tienda estrena el editor multiarchivo y las entregas con pruebas locales.
 - Editor integrado con árbol de carpetas, pestañas y búsqueda de archivos.
 - Borradores locales por reto. Cambiar de archivo o recargar conserva los cambios.
 - Resaltado por lenguaje, números de línea, atajos y acceso al archivo y línea de un diagnóstico.
 - Temas claro, oscuro y de alto contraste, con tamaño de letra configurable.
 - Primer reto realista con dos archivos que editar. Sus pruebas usarán el ejecutor aislado con límites y un contrato de entrega para proyectos multiarchivo.
 - Criterio de finalización: resolver el reto editando ambos archivos, recuperar el borrador tras recargar, cambiar de tema y obtener un veredicto de las pruebas.
+
+## 0.8.2 — Portal de tutoriales
+
+La portada reúne accesos, itinerarios y temas con la navegación editorial de la referencia visual. Biblioteca sirve el artículo y el ejemplo desde el servidor. El editor avanzado se carga por separado y el ejemplo se puede seguir leyendo y editando con el editor básico si falla esa carga. El progreso local es opcional para la lectura.
 
 ## 0.9 — Pulido y robustez
 - Descripción: mejorar UX, rendimiento, claridad y consistencia visual antes del primer lanzamiento público.

@@ -22,6 +22,10 @@ El módulo de estudio es la capa de explicación y comprensión del código: tom
 
 La pestaña Comprueba analiza programas del lenguaje Cifra en el navegador. Usa la sintaxis de TypeScript con un conjunto acotado de tipos básicos, listas, funciones con firmas explícitas y condiciones. Devuelve regla, mensaje, línea, columna y concepto de biblioteca. Los diagnósticos se pueden abrir en Estudia el fallo. La práctica de tipos se enlaza desde Retos, donde cada reto ejecutable conserva su veredicto basado en pruebas.
 
+## Editor y ejecución
+
+El acceso Ejecutar código abre directamente el editor de Estudio. Los ejemplos de JavaScript y Python pueden editarse y ejecutarse en el navegador desde la propia página. Los ejemplos de Rust se pueden editar y copiar, y enlazan a Rust Playground para la ejecución.
+
 ## Limitaciones conocidas
 - El análisis sigue siendo dependiente del formato del código y del contexto que se aporta.
 - La claridad pedagógica requiere que cada respuesta explique su origen.

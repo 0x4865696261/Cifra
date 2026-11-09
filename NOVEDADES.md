@@ -221,7 +221,11 @@ su ubicación; un programa válido es aceptado sin promesas de más.
 
 ## 0.8.1 — Editor de código para ejercicios y retos reales
 
-Planificada. El alcance y el criterio de finalización están en [CIFRA Roadmap](CIFRA_ROADMAP.md#081--editor-de-código-para-ejercicios-y-retos-reales).
+Disponible en Retos → Pedidos de una tienda. Edita `pedido.js` y `envio.js`, conserva el borrador al recargar, elige tema y tamaño de letra y entrega el proyecto para verificarlo con cuatro casos.
+
+## 0.8.2 — Portal de tutoriales
+
+La portada reúne accesos, itinerarios y temas con la navegación editorial de la referencia visual. Biblioteca sirve el artículo y el ejemplo desde el servidor. El editor avanzado se carga por separado y el ejemplo se puede seguir leyendo y editando con el editor básico si falla esa carga. El progreso local es opcional para la lectura.
 
 ## 0.9 — Pulido y endurecimiento
 

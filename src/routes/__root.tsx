@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
@@ -16,15 +17,11 @@ export const Route = createRootRoute({
         content:
           "Cifra enseña a entender programas: leer código, pasar de una fórmula a una implementación y ver por qué se tomó cada decisión.",
       },
-      { name: "theme-color", content: "#f3efe6" },
+      { name: "theme-color", content: "#100f13" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
       { rel: "stylesheet", href: appCss },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,460;9..144,560;9..144,640&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap",
-      },
       { rel: "manifest", href: "/__grok/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/__grok/icon-180.png" },
     ],
@@ -39,7 +36,15 @@ export const Route = createRootRoute({
         <AuthProvider>
           <LevelProvider>
             <Shell>
-              <Outlet />
+              <Suspense
+                fallback={
+                  <main id="contenido" className="curso-contenedor" role="status">
+                    Cargando el contenido…
+                  </main>
+                }
+              >
+                <Outlet />
+              </Suspense>
             </Shell>
           </LevelProvider>
         </AuthProvider>

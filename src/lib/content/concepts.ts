@@ -111,7 +111,7 @@ export const concepts: Concept[] = [
     ],
     code: {
       language: "Python",
-      source: "suma = 0\nsuma = suma + 4",
+      source: "suma = 0\nsuma = suma + 4\nprint(suma)",
       caption: "El mismo nombre, dos momentos. Primero vale 0. Después vale 4.",
     },
     relaciones: [

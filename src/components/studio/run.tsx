@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { EditorCodigo } from "@/components/editor-codigo";
+import { useEffect, useMemo, useState } from "react";
 import { limitesDefecto } from "@/lib/ejecucion/limites";
 import { excedeLimite, limitesEntrada } from "@/lib/ai/limits";
 import type { RunRequest, RunResult, TraceStep } from "@/lib/ejecucion/tipos";
@@ -75,8 +76,10 @@ export function RunStudio({
   const [aviso, setAviso] = useState<string | null>(null);
 
   const codigoExcedido = excedeLimite(code, limitesEntrada.codigo);
-  const workerDisponible =
-    typeof Worker !== "undefined" && typeof URL?.createObjectURL === "function";
+  const [workerDisponible, setWorkerDisponible] = useState<boolean | null>(null);
+  useEffect(() => {
+    setWorkerDisponible(typeof Worker !== "undefined" && typeof URL?.createObjectURL === "function");
+  }, []);
 
   const carga = (muestra: (typeof muestras)[number]) => {
     setMuestraId(muestra.id);
@@ -145,25 +148,28 @@ export function RunStudio({
           ))}
         </div>
 
-        <label className="mt-6 flex flex-col gap-2 font-mono text-sm">
+        <div className="mt-6 flex flex-col gap-2 font-mono text-sm">
           Código
-          <textarea
+          <EditorCodigo
             value={code}
-            onChange={(event) => {
-              setCode(event.target.value);
+            label="Código"
+            language={language}
+            readOnly={corriendo}
+            runDisabled={workerDisponible === false || codigoExcedido || !code.trim()}
+            output={corriendo ? "Ejecutando…" : aviso || (resultado && <pre className="whitespace-pre-wrap">{[resultado.stdout, resultado.stderr].filter(Boolean).join("\n") || resultado.estado}</pre>)}
+            onRun={() => { if (workerDisponible && !corriendo && !codigoExcedido && code.trim()) void ejecutar(); }}
+            runLabel={corriendo ? "Ejecutando…" : "Ejecutar"}
+            onChange={(nuevo) => {
+              setCode(nuevo);
               setMuestraId("");
               setResultado(null);
             }}
-            rows={10}
-            spellCheck={false}
-            aria-label="Código"
-            className="min-h-48 w-full border border-line bg-paper p-3 font-mono text-sm leading-6 text-ink"
           />
           <p className={cn("font-mono text-sm", codigoExcedido ? "text-copper" : "text-muted")}>
             {code.length} de {limitesEntrada.codigo} caracteres
             {codigoExcedido && ": te pasas. Acorta el programa: no se ejecuta hasta que quepa."}
           </p>
-        </label>
+        </div>
 
         <p className="mt-3 text-pretty text-muted">
           El código corre en tu propio navegador, dentro de un Worker sin red, con límites de
@@ -183,16 +189,8 @@ export function RunStudio({
           Trazar el paso a paso
         </label>
 
-        <Button
-          tone="primary"
-          className="mt-4 w-full"
-          disabled={corriendo || !code.trim() || codigoExcedido || !workerDisponible}
-          onClick={() => void ejecutar()}
-        >
-          {corriendo ? "Ejecutando…" : "Ejecutar"}
-        </Button>
         <p className="mt-2 font-mono text-sm text-muted">
-          {!workerDisponible
+          {workerDisponible === false
             ? "Este navegador no da Workers: no hay ejecución real aquí."
             : "Corte por tiempo a los 5 s, salida hasta 64 KB. Un programa sin fin acaba cortado, no colgado."}
         </p>

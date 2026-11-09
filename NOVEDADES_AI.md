@@ -175,7 +175,7 @@ escribe una IA, y leer la arquitectura de un sistema.** Va desde cero hasta nive
 | 0.6 | Plataforma modular | hecha en la rama; pendiente de revisión y fusión |
 | 0.7 | La red de conocimiento, completa | hecha |
 | 0.8 | Un compilador que comprueba | hecha, validada localmente |
-| 0.8.1 | Editor de código para ejercicios y retos reales | planificada |
+| 0.8.1 | Editor de código para ejercicios y retos reales | implementada |
 | 0.9 | Pulido y endurecimiento | pendiente |
 | 1.0 | Lanzamiento público | pendiente |
 
@@ -940,9 +940,13 @@ El comprobador usa el analizador de TypeScript con un subconjunto de sintaxis y 
 
 ### 0.8.1 — Editor de código para ejercicios y retos reales
 
-Planificada. El alcance y el criterio de finalización están en [CIFRA Roadmap](CIFRA_ROADMAP.md#081--editor-de-código-para-ejercicios-y-retos-reales).
+El reto `pedidos-de-tienda` usa dos módulos JavaScript con `require` relativo y una entrada `resolver(caso)`. El cargador solo lee los archivos de la plantilla, y el ejecutor da a cada caso un Worker y sus límites habituales. El editor conserva código, archivo activo, tema y tamaño de letra en el navegador.
 
 ---
+
+### 0.8.2 — Portal de tutoriales
+
+La portada reúne accesos, itinerarios y temas con la navegación editorial de la referencia visual. Biblioteca sirve el artículo y el ejemplo desde el servidor. El editor avanzado se carga por separado y el ejemplo se puede seguir leyendo y editando con el editor básico si falla esa carga. El progreso local es opcional para la lectura.
 
 ### 0.9 — Pulido y endurecimiento
 
