@@ -413,7 +413,7 @@ export const concepts: Concept[] = [
     body: [
       "El texto que escribes no es lo que el procesador ejecuta. Un compilador, o un intérprete, lo lee, comprueba reglas y produce otra forma: máquina, bytecode, o acciones directas. El mensaje de error es ese programa diciendo en qué regla se detuvo.",
       "Leer un mensaje empieza por la primera línea que señala un sitio de tu archivo, no por la última, que a menudo es una consecuencia. Si dice que un tipo no encaja, hay dos preguntas: qué tipo esperaba y qué tipo le llegó. El resto es pista.",
-      "El análisis de Cifra no es un compilador. No comprueba tipos, no ejecuta y no promete que el programa arranque. Mira la forma del texto. Confundir las dos cosas es justo el error que esta plataforma intenta no cometer.",
+      "En Estudio, «Lee el programa» describe la forma del texto. «Comprueba» aplica reglas de sintaxis y tipos a un programa del lenguaje Cifra. Pasar la comprobación confirma las reglas estáticas del lenguaje.",
     ],
     relaciones: [
       { slug: "lenguaje-programacion", tipo: "atras" },

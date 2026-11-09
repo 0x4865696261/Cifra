@@ -49,6 +49,10 @@ function RetosPage() {
         vive solo aquí y se puede exportar desde Ajustes.
       </p>
 
+      <Link to="/estudio" search={{ modo: "comprobar" }} className="mt-4 inline-block underline">
+        Practicar tipos con el comprobador de Cifra
+      </Link>
+
       {vista.tipo === "cargar" && (
         <p className="mt-10 font-mono text-sm text-muted">Leyendo tu progreso de este navegador…</p>
       )}

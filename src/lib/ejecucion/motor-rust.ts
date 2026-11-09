@@ -63,7 +63,8 @@ export async function ejecutarRustLocal(solicitud: RunRequest): Promise<RunResul
     }
 
     const limites = solicitud.limites ?? limitesDefecto();
-    const compilacion = spawnSync("cargo", ["build", "--quiet"], {
+    const destino = join(proyecto, "target");
+    const compilacion = spawnSync("cargo", ["build", "--quiet", "--target-dir", destino], {
       cwd: proyecto,
       encoding: "utf8",
       timeout: TOPE_COMPILACION_MS,
@@ -84,7 +85,8 @@ export async function ejecutarRustLocal(solicitud: RunRequest): Promise<RunResul
       };
     }
 
-    const binario = join(proyecto, "target", "release", "cifra-programa");
+    const ejecutable = process.platform === "win32" ? "cifra-programa.exe" : "cifra-programa";
+    const binario = join(destino, "debug", ejecutable);
     const corrida = spawnSync(binario, {
       cwd: proyecto,
       encoding: "utf8",
