@@ -1,12 +1,12 @@
 # Cifra 1.0 en Vercel
 
-La aplicación usa TanStack Start y Nitro. El contenido y los borradores están disponibles para visitantes. Para ejecutar código se necesita una sesión de Google. El progreso y los borradores se guardan en el navegador. Neon contiene las cuentas, sesiones y reservas del ejecutor.
+La aplicación usa TanStack Start y Nitro. El contenido y los borradores están disponibles para visitantes. Para ejecutar código se necesita una sesión de GitHub. El progreso y los borradores se guardan en el navegador. Neon contiene las cuentas, sesiones y reservas del ejecutor.
 
 ## Preparar Preview
 
 1. Importa el repositorio en un proyecto personal de Vercel Hobby. Selecciona Node.js 24 y conserva los comandos del repositorio.
 2. Crea una rama de Neon dedicada a Preview. Configura su cadena de conexión como `DATABASE_URL` únicamente en Preview.
-3. Crea un cliente OAuth de tipo aplicación web en Google Cloud. Usa una URL estable de Preview y añade `https://<preview>/api/auth/callback/google` a las redirecciones autorizadas. Durante la prueba, añade la cuenta de prueba a la pantalla de consentimiento si Google está en modo de pruebas.
+3. Crea una OAuth App en la configuración de desarrollador de GitHub. Usa una URL estable de Preview y añade `https://<preview>/api/auth/callback/github` a las redirecciones autorizadas.
 4. Añade las variables de Preview. Activa OIDC en el proyecto de Vercel para que el servidor pueda crear sandboxes sin almacenar un token permanente.
 
 | Variable | Valor |
@@ -16,12 +16,12 @@ La aplicación usa TanStack Start y Nitro. El contenido y los borradores están 
 | `DATABASE_URL` | Conexión de la rama de Neon para este entorno |
 | `BETTER_AUTH_URL` | Origen HTTPS exacto de este entorno, sin ruta |
 | `BETTER_AUTH_SECRET` | Secreto distinto por entorno, de al menos 32 bytes aleatorios |
-| `GOOGLE_CLIENT_ID` | ID OAuth del cliente web de Google |
-| `GOOGLE_CLIENT_SECRET` | Secreto OAuth del cliente web |
+| `GITHUB_CLIENT_ID` | ID OAuth del cliente web de GitHub |
+| `GITHUB_CLIENT_SECRET` | Secreto OAuth del cliente web |
 | `CIFRA_SANDBOX_SNAPSHOT` | ID devuelto por el aprovisionamiento |
 | `CIFRA_EJECUCION_PAUSADA` | Opcional. `1` pausa el ejecutor tras redesplegar |
 
-[Configurar Google](https://better-auth.com/docs/authentication/google) · [Autenticación de Vercel Sandbox](https://vercel.com/docs/sandbox/concepts/authentication)
+[Configurar GitHub](https://better-auth.com/docs/authentication/github) · [Autenticación de Vercel Sandbox](https://vercel.com/docs/sandbox/concepts/authentication)
 
 ## Aprovisionar el ejecutor
 
@@ -41,6 +41,6 @@ El servidor crea una microVM efímera por ejecución admitida. El proceso de la 
 
 - Ejecuta `npm test`, `npm run typecheck`, `npm run check:auth` con el servidor local activo y `npm run build:dev`. El build de Vercel ejecuta las migraciones de la base configurada. Las migraciones de autenticación y cuota se registran en `_migrations`.
 - Con el snapshot de Preview, ejecuta el control por runtime con `node --env-file=.env.local --experimental-strip-types scripts/cifra-sandbox/matriz.mjs --smoke`. Quita `--smoke` para los 165 pares de control. Para probar sin Vercel, usa `--local --lenguajes=javascript,typescript,python,rust,go,c,cpp` con los compiladores locales disponibles.
-- Abre Preview en un navegador. Comprueba que una visita sin sesión puede escribir, pero recibe un aviso al ejecutar. Entra con Google, comprueba que el borrador sigue disponible y ejecuta una muestra de cada lenguaje, incluidos Rust, SQLite y la tarjeta HTML/CSS. En el reto de suma, verifica que Ejecutar muestra los ejemplos y que Enviar añade casos ocultos. Prueba también la defensa, el puente a Estudio y el selector móvil.
-- Crea las variables de producción con otro secreto, otro cliente OAuth y otra rama de Neon. Autoriza la URL de producción en Google. Comprueba que la aplicación OAuth de Google admite las cuentas del público previsto. Publica el build verificado con `vercel --prod`.
+- Abre Preview en un navegador. Comprueba que una visita sin sesión puede escribir, pero recibe un aviso al ejecutar. Entra con GitHub, comprueba que el borrador sigue disponible y ejecuta una muestra de cada lenguaje, incluidos Rust, SQLite y la tarjeta HTML/CSS. En el reto de suma, verifica que Ejecutar muestra los ejemplos y que Enviar añade casos ocultos. Prueba también la defensa, el puente a Estudio y el selector móvil.
+- Crea las variables de producción con otro secreto, otro cliente OAuth y otra rama de Neon. Autoriza la URL de producción en GitHub. Publica el build verificado con `vercel --prod`.
 - Ante un fallo del ejecutor, activa `CIFRA_EJECUCION_PAUSADA=1` y redespliega. Si necesitas revertir la interfaz, recupera el despliegue anterior desde Vercel. Conserva las migraciones ya aplicadas y el snapshot anterior mientras verificas la recuperación.

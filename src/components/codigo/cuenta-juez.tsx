@@ -6,13 +6,6 @@ export function CuentaJuez() {
   const sesion = authClient.useSession();
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState("");
-  const publica = import.meta.env.VITE_CIFRA_PUBLIC === "1";
-  if (!publica)
-    return (
-      <p className="text-xs text-muted">
-        Configura el acceso público de Cifra para ejecutar en el servidor.
-      </p>
-    );
   if (sesion.isPending)
     return (
       <p className="text-xs text-muted" role="status">
@@ -57,19 +50,19 @@ export function CuentaJuez() {
           try {
             const destino = window.location.pathname + window.location.search;
             const respuesta = await authClient.signIn.social({
-              provider: "google",
+              provider: "github",
               callbackURL: destino,
               errorCallbackURL: destino,
             });
-            if (respuesta.error) setError("No se pudo abrir el acceso con Google.");
+            if (respuesta.error) setError("El acceso con GitHub no está disponible. Si administras Cifra, revisa las variables OAuth del entorno.");
           } catch {
-            setError("No se pudo abrir el acceso con Google.");
+            setError("No se pudo conectar con GitHub. Inténtalo de nuevo.");
           } finally {
             setOcupado(false);
           }
         }}
       >
-        Continuar con Google
+        Continuar con GitHub
       </Button>
       {error && (
         <span role="alert" className="text-xs">

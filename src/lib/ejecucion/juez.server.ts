@@ -3,6 +3,7 @@ import { enSandbox } from "./sandbox.server.ts";
 import { getSql, dbSource } from "../db.ts";
 import { assertSameSiteRequest } from "../auth/isolation.server.ts";
 import { getSessionUser } from "../auth/verify.server.ts";
+import { auth, githubLoginConfigured } from "../auth/server.ts";
 import { casosDeReto, type CasoJuez } from "../retos/casos-juez.server.ts";
 import { firmas } from "../retos/firmas.ts";
 import { tramosDePrueba } from "../retos/prueba-nivel.ts";
@@ -81,23 +82,19 @@ function preparar(pedido: PeticionJuez) {
 
 export async function ejecutarJuez(pedido: PeticionJuez): Promise<RespuestaJuez> {
   assertSameSiteRequest();
-  const cuenta = await getSessionUser();
-  if (!cuenta)
-    return {
-      ok: false,
-      causa: "sesion",
-      mensaje: "Inicia sesión con Google para ejecutar código.",
-    };
+  if (!githubLoginConfigured) return {
+    ok: false, causa: "servicio",
+    mensaje: "El acceso con GitHub necesita configuración en este entorno.",
+  };
   const snapshotId = process.env.CIFRA_SANDBOX_SNAPSHOT?.trim();
-  if (
-    process.env.VITE_CIFRA_PUBLIC !== "1" ||
-    !snapshotId ||
-    dbSource !== "neon" ||
-    process.env.CIFRA_EJECUCION_PAUSADA === "1"
-  )
-    return avisoServicio;
-
   try {
+    const cuenta = await getSessionUser();
+    const contexto = await auth.$context;
+    const cuentas = cuenta ? await contexto.internalAdapter.findAccounts(cuenta.id) : [];
+    if (!cuenta || !cuentas.some((vinculada) => vinculada.providerId === "github")) {
+      return { ok: false, causa: "sesion", mensaje: "Inicia sesión con GitHub para ejecutar código." };
+    }
+    if (!snapshotId || dbSource !== "neon" || process.env.CIFRA_EJECUCION_PAUSADA === "1") return avisoServicio;
     const { plan, casos, privado } = preparar(pedido);
     const sql = await getSql();
     const id = randomUUID();

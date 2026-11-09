@@ -42,7 +42,7 @@
 - Descripción: primer despliegue público con la promesa pedagógica establecida.
 - Prioridad: crítica
 - Estado: candidata preparada para validación en Preview de Vercel.
-- Dependencias: cuenta de Google, Neon, snapshot del juez y pruebas de Preview
+- Dependencias: cuenta de GitHub, Neon, snapshot del juez y pruebas de Preview
 - Módulos afectados: toda la app
 - Criterio de finalización: lanzamiento consistente, pruebas de flujo cubiertas y documentación final verificada
 

@@ -40,7 +40,7 @@ La documentación histórica sigue en [`NOVEDADES.md`](NOVEDADES.md) y [`NOVEDAD
 
 - Los retos y Estudio ejecutan código autenticado en máquinas aisladas con límites.
 - Cada llamada al modelo es explícita y limitada: cuota real, caché y respuestas con forma comprobada.
-- El progreso y los borradores se guardan en este navegador. La cuenta de Google habilita la ejecución.
+- El progreso y los borradores se guardan en este navegador. La cuenta de GitHub habilita la ejecución.
 - El código fuente sigue los mismos principios que enseña: simple, legible, con decisiones explicadas.
 
 ## Stack
