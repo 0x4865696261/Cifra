@@ -138,7 +138,10 @@ function MathPage() {
           </button>
         </div>
         <div className="mt-3">
-          <CodeBlock source={tab === "python" ? topic.python : topic.javascript} label={tab === "python" ? "Python" : "JavaScript"} />
+          <CodeBlock
+            source={tab === "python" ? topic.python : topic.javascript}
+            label={tab === "python" ? "Python" : "JavaScript"}
+          />
         </div>
       </section>
 
@@ -147,8 +150,8 @@ function MathPage() {
       <section className="mt-10 border-t border-line pt-6">
         <h2 className="font-serif text-2xl">Pedirlo a tu nivel</h2>
         <p className="mt-2 text-pretty text-muted">
-          El texto de arriba no cambia. Esto añade una explicación del modelo, con las skills de matemáticas y de
-          algoritmos. No sustituye al cálculo.
+          El texto de arriba no cambia. Esto añade una explicación del modelo, con las skills de
+          matemáticas y de algoritmos. No sustituye al cálculo.
         </p>
         <div className="mt-4 grid grid-cols-3 border border-line">
           {levelOptions.map((option) => (
@@ -157,13 +160,18 @@ function MathPage() {
               type="button"
               aria-pressed={level === option.id}
               onClick={() => setLevel(option.id)}
-              className={cn("tap min-h-11 font-mono text-sm", level === option.id ? "bg-ink text-paper" : "text-muted")}
+              className={cn(
+                "tap min-h-11 font-mono text-sm",
+                level === option.id ? "bg-ink text-paper" : "text-muted",
+              )}
             >
               {option.label}
             </button>
           ))}
         </div>
-        <p className="mt-2 text-pretty text-muted">{levelOptions.find((option) => option.id === level)?.hint}</p>
+        <p className="mt-2 text-pretty text-muted">
+          {levelOptions.find((option) => option.id === level)?.hint}
+        </p>
         <ul className="mt-4 flex flex-wrap gap-2">
           {active.map((id) => (
             <li key={id} className="border border-line px-3 py-2 font-mono text-sm">
@@ -175,7 +183,11 @@ function MathPage() {
           {(["lenguajes", "optimizacion", "depuracion"] as SkillId[])
             .filter((id) => !active.includes(id))
             .map((id) => (
-              <Button key={id} tone="ghost" onClick={() => setForcedOn((prev) => [...new Set([...prev, id])])}>
+              <Button
+                key={id}
+                tone="ghost"
+                onClick={() => setForcedOn((prev) => [...new Set([...prev, id])])}
+              >
                 Añadir {skills[id].name}
               </Button>
             ))}
@@ -193,7 +205,9 @@ function MathPage() {
         <Button tone="primary" className="mt-4" disabled={pending} onClick={() => void submit()}>
           {pending ? "Preparando la explicación…" : "Explicar a mi nivel"}
         </Button>
-        {result && !result.ok && <p className="mt-4 border-l border-copper pl-4 text-pretty">{result.error}</p>}
+        {result && !result.ok && (
+          <p className="mt-4 border-l border-copper pl-4 text-pretty">{result.error}</p>
+        )}
         {result?.ok && (
           <ExplanationView
             explanation={result.explanation}
@@ -207,19 +221,26 @@ function MathPage() {
       </section>
 
       <section className="mt-10">
-        <h2 className="font-serif text-2xl">Sigue</h2>
+        <h2 className="font-serif text-2xl">Conexiones</h2>
         <ul className="mt-3 flex flex-col">
-          {topic.see.map((slugSee) => {
-            const concept = getConcept(slugSee);
+          {topic.relaciones.map((relation) => {
+            const concept = getConcept(relation.slug);
             if (!concept) return null;
+            const label =
+              relation.tipo === "adelante"
+                ? "Adelante"
+                : relation.tipo === "atras"
+                  ? "Atrás"
+                  : "En paralelo";
             return (
-              <li key={slugSee} className="border-t border-line">
+              <li key={`${relation.slug}-${relation.tipo}`} className="border-t border-line">
                 <Link
                   to="/biblioteca/$slug"
-                  params={{ slug: slugSee }}
-                  className="flex min-h-11 items-center font-serif text-xl"
+                  params={{ slug: relation.slug }}
+                  className="flex min-h-11 items-center justify-between gap-4"
                 >
-                  {concept.title}
+                  <span className="font-serif text-xl">{concept.title}</span>
+                  <span className="shrink-0 font-mono text-xs text-muted">{label}</span>
                 </Link>
               </li>
             );
@@ -227,14 +248,22 @@ function MathPage() {
         </ul>
         <div className="mt-4 flex flex-col gap-2 font-mono text-sm sm:flex-row sm:justify-between">
           {previous ? (
-            <Link to="/matematicas/$slug" params={{ slug: previous.slug }} className="inline-flex min-h-11 items-center">
+            <Link
+              to="/matematicas/$slug"
+              params={{ slug: previous.slug }}
+              className="inline-flex min-h-11 items-center"
+            >
               {previous.title}
             </Link>
           ) : (
             <span />
           )}
           {next ? (
-            <Link to="/matematicas/$slug" params={{ slug: next.slug }} className="inline-flex min-h-11 items-center">
+            <Link
+              to="/matematicas/$slug"
+              params={{ slug: next.slug }}
+              className="inline-flex min-h-11 items-center"
+            >
               {next.title}
             </Link>
           ) : (

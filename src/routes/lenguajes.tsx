@@ -18,39 +18,46 @@ function LanguagesPage() {
   return (
     <main id="contenido" className="mx-auto max-w-3xl px-5 py-10">
       <p className="font-mono text-sm text-copper">Lenguajes</p>
-      <h1 className="mt-3 font-serif text-4xl">El mismo problema, no la misma frase.</h1>
+      <h1 className="mt-3 font-serif text-4xl">Comparador de lenguajes</h1>
       <p className="mt-4 text-pretty">
-        Contar palabras. En todos los casos el resultado es una clave y un número. La diferencia no está en traducir
-        el bucle línea a línea: está en quién crea la tabla, qué pasa si la clave no existe y cuánto vive el texto.
+        El mismo conteo de palabras, expresado en {wordCountNotes.length} lenguajes. Compara el
+        código y por qué una traducción línea a línea falla: cambian los tipos, las claves ausentes,
+        la propiedad, la memoria y la concurrencia.
       </p>
 
-      <div className="mt-8 flex flex-wrap gap-2">
-        {wordCountNotes.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            aria-pressed={item.id === note.id}
-            onClick={() => setCurrent(item.id)}
-            className={cn(
-              "tap min-h-11 px-4 font-mono text-sm",
-              item.id === note.id ? "bg-ink text-paper" : "border border-line",
-            )}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
+      <section className="mt-8" aria-label="Comparar el conteo de palabras">
+        <div className="flex flex-wrap gap-2">
+          {wordCountNotes.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              aria-pressed={item.id === note.id}
+              onClick={() => setCurrent(item.id)}
+              className={cn(
+                "tap min-h-11 px-4 font-mono text-sm",
+                item.id === note.id ? "bg-ink text-paper" : "border border-line",
+              )}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
 
-      <div className="mt-4">
-        <CodeBlock source={note.code} label={note.label} />
-      </div>
-      <div className="mt-4 flex flex-col gap-3">
-        {note.changed.map((paragraph) => (
-          <p key={paragraph} className="text-pretty">
-            {paragraph}
-          </p>
-        ))}
-      </div>
+        <div className="mt-4">
+          <CodeBlock source={note.code} label={note.label} />
+        </div>
+        <div className="mt-4 flex flex-col gap-3">
+          {note.changed.map((paragraph) => (
+            <p key={paragraph} className="text-pretty">
+              {paragraph}
+            </p>
+          ))}
+        </div>
+        <p className="mt-4 border-l border-copper pl-4 text-pretty text-muted">
+          HTML describe estructura y CSS presentación; no los incluyo como si fueran lenguajes que
+          implementan este algoritmo.
+        </p>
+      </section>
 
       <div className="mt-12 flex flex-col gap-10">
         {languageEssays.map((essay) => {
@@ -80,11 +87,15 @@ function LanguagesPage() {
       <section className="mt-12 border-t border-line pt-6">
         <h2 className="font-serif text-2xl">Qué se puede pegar en el estudio</h2>
         <p className="mt-3 text-pretty">
-          El estudio reconoce la forma de {languageIds.map((id) => languageLabels[id]).join(", ")}. Reconocer no es un
-          curso. Node es un entorno para JavaScript, no otro lenguaje, y no tiene página propia todavía. Los
-          frameworks tampoco: cuando entren, será con una diferencia que merezca leerse.
+          El estudio reconoce la forma de {languageIds.map((id) => languageLabels[id]).join(", ")}.
+          Reconocer no es un curso. Node es un entorno para JavaScript, no otro lenguaje, y no tiene
+          página propia todavía. Los frameworks tampoco: cuando entren, será con una diferencia que
+          merezca leerse.
         </p>
-        <Link to="/estudio" className="mt-3 inline-flex min-h-11 items-center font-mono text-sm text-copper">
+        <Link
+          to="/estudio"
+          className="mt-3 inline-flex min-h-11 items-center font-mono text-sm text-copper"
+        >
           Ir al estudio
         </Link>
       </section>

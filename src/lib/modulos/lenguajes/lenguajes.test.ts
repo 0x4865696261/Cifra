@@ -104,7 +104,20 @@ describe("los lenguajes entran como módulos (0.6)", () => {
   it("las notas salen del módulo que las trae, en orden de catálogo", () => {
     assert.deepEqual(
       notasDeLenguajes.map((nota) => nota.id),
-      ["python", "javascript", "rust", "go", "c"],
+      [
+        "python",
+        "javascript",
+        "typescript",
+        "rust",
+        "go",
+        "c",
+        "cpp",
+        "java",
+        "csharp",
+        "ruby",
+        "php",
+        "sql",
+      ],
     );
     for (const nota of notasDeLenguajes) {
       assert.equal(nota.label, etiquetas[nota.id]);
@@ -122,6 +135,7 @@ describe("los lenguajes entran como módulos (0.6)", () => {
     assert.deepEqual(
       ensayosDeLenguajes.map((ensayo) => [ensayo.title, porTitulo.get(ensayo.title)]),
       [
+        ["De JavaScript a TypeScript", "typescript"],
         ["De Python a Rust", "rust"],
         ["De JavaScript a Go", "go"],
         ["C, C++ y cuánto vive un objeto", "c"],

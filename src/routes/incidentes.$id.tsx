@@ -3,12 +3,17 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { limitesEntrada } from "@/lib/ai/limits";
 import { redactarComparacion } from "@/lib/ai/incidentes";
 import type { RedaccionComparacion } from "@/lib/ai/incidentes-parse";
+import { getConcept } from "@/lib/content/concepts";
 import { evaluar } from "@/lib/incidentes/evaluar";
 import { definicionIncidentePorId } from "@/lib/incidentes/paquetes";
 import { useIncidentesProgreso } from "@/lib/incidentes/use-progreso";
 import { useProgreso } from "@/lib/retos/use-progreso";
 import { umbralProfesional } from "@/lib/retos/progreso";
-import type { DefinicionIncidente, AnalizoIncidente, EvaluacionIncidente } from "@/lib/incidentes/tipos";
+import type {
+  DefinicionIncidente,
+  AnalizoIncidente,
+  EvaluacionIncidente,
+} from "@/lib/incidentes/tipos";
 import type { ResumenEvaluacion } from "@/lib/incidentes/progreso";
 import { TerminalViva } from "@/components/incidentes/terminal";
 
@@ -73,11 +78,7 @@ function IncidentePage() {
       </p>
       <h1 className="mt-3 max-w-2xl font-serif text-4xl">{paquete.titulo}</h1>
 
-      {!profesional ? (
-        <PuertaProfesional />
-      ) : (
-        <IncidenteVivo paquete={paquete} />
-      )}
+      {!profesional ? <PuertaProfesional /> : <IncidenteVivo paquete={paquete} />}
     </main>
   );
 }
@@ -88,10 +89,9 @@ function PuertaProfesional() {
     <div className="mt-8 max-w-2xl border border-copper p-4 text-pretty">
       <h2 className="font-serif text-xl">Este paquete pide el camino profesional</h2>
       <p className="mt-2">
-        Los incidentes son del plan profesional. Se abre con la prueba de nivel de Retos o
-        superando un reto de nivel {umbralProfesional}; con el camino alcanzado, actívalo en
-        Ajustes y vuelve: el paquete sigue donde lo dejaste (0.5.H) y tu progreso de retos no
-        cambia en nada.
+        Los incidentes son del plan profesional. Se abre con la prueba de nivel de Retos o superando
+        un reto de nivel {umbralProfesional}; con el camino alcanzado, actívalo en Ajustes y vuelve:
+        el paquete sigue donde lo dejaste (0.5.H) y tu progreso de retos no cambia en nada.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Link
@@ -122,7 +122,11 @@ function IncidenteVivo({ paquete }: { paquete: DefinicionIncidente }) {
     const comparado = evaluar(paquete, dado);
     setJuicio(comparado);
     setAnalizo(dado);
-    entregar(paquete.id, paquete.nivel, resumenDe(comparado, paquete.respuestaEsperada.evidencia.length));
+    entregar(
+      paquete.id,
+      paquete.nivel,
+      resumenDe(comparado, paquete.respuestaEsperada.evidencia.length),
+    );
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -130,7 +134,9 @@ function IncidenteVivo({ paquete }: { paquete: DefinicionIncidente }) {
     <>
       <section className="mt-8">
         <h2 className="font-serif text-2xl">El síntoma</h2>
-        <p className="mt-3 max-w-3xl border-l border-copper pl-5 text-lg text-pretty">{paquete.sintoma}</p>
+        <p className="mt-3 max-w-3xl border-l border-copper pl-5 text-lg text-pretty">
+          {paquete.sintoma}
+        </p>
         <p className="mt-3 max-w-3xl font-mono text-sm text-muted">
           Familia del fallo: {paquete.notaFamilia}
         </p>
@@ -143,7 +149,7 @@ function IncidenteVivo({ paquete }: { paquete: DefinicionIncidente }) {
                   params={{ slug: concepto }}
                   className="tap inline-flex min-h-9 border border-line px-3 py-1 font-mono text-xs"
                 >
-                  {concepto}
+                  {getConcept(concepto)?.title ?? concepto}
                 </Link>
               </li>
             ))}
@@ -154,8 +160,8 @@ function IncidenteVivo({ paquete }: { paquete: DefinicionIncidente }) {
       <section className="mt-10">
         <h2 className="font-serif text-2xl">La terminal simulada</h2>
         <p className="mt-2 max-w-3xl text-pretty">
-          De solo lectura: mira, filtra y compara. Nada se ejecuta fuera del paquete, y nada toca
-          un sistema real. Todo lo que corras queda en el historial de abajo.
+          De solo lectura: mira, filtra y compara. Nada se ejecuta fuera del paquete, y nada toca un
+          sistema real. Todo lo que corras queda en el historial de abajo.
         </p>
         <div className="mt-4">
           <TerminalViva ficheros={paquete.ficheros} />
@@ -191,7 +197,11 @@ function IncidenteVivo({ paquete }: { paquete: DefinicionIncidente }) {
             ).map(([campo, titulo]) => (
               <li key={campo} className="border border-line px-3 py-2">
                 <span className="font-mono text-sm">{titulo}: </span>
-                <span className={"inline-block border px-1 font-mono text-xs " + bordeCampo(juicio.campos[campo])}>
+                <span
+                  className={
+                    "inline-block border px-1 font-mono text-xs " + bordeCampo(juicio.campos[campo])
+                  }
+                >
                   {etiquetaCampo(juicio.campos[campo])}
                 </span>
               </li>
@@ -201,7 +211,11 @@ function IncidenteVivo({ paquete }: { paquete: DefinicionIncidente }) {
           <ul className="mt-2 grid gap-2">
             {juicio.evidencia.map((cuerpo, indice) => (
               <li key={indice} className="border border-line px-3 py-2 text-pretty">
-                <span className={"mr-2 inline-block border px-1 font-mono text-xs " + bordeCita(cuerpo.estado)}>
+                <span
+                  className={
+                    "mr-2 inline-block border px-1 font-mono text-xs " + bordeCita(cuerpo.estado)
+                  }
+                >
                   {etiquetaCita(cuerpo.estado)}
                 </span>
                 <span className="font-mono text-sm">
@@ -213,7 +227,8 @@ function IncidenteVivo({ paquete }: { paquete: DefinicionIncidente }) {
             ))}
             {juicio.evidencia.length === 0 && (
               <li className="font-mono text-sm text-muted">
-                Sin citas: nada queda marcado como sostenido, así que ningún campo puede quedar «acertado».
+                Sin citas: nada queda marcado como sostenido, así que ningún campo puede quedar
+                «acertado».
               </li>
             )}
           </ul>
@@ -242,7 +257,13 @@ function IncidenteVivo({ paquete }: { paquete: DefinicionIncidente }) {
 /* ------------------------------------------------------------------ */
 
 /** El análisis con campos fijos (0.5.C): textos y citas. La entrega llama a `evaluar`. */
-function AnalizoForm({ paquete, onEntregar }: { paquete: DefinicionIncidente; onEntregar: (analizo: AnalizoIncidente) => void }) {
+function AnalizoForm({
+  paquete,
+  onEntregar,
+}: {
+  paquete: DefinicionIncidente;
+  onEntregar: (analizo: AnalizoIncidente) => void;
+}) {
   const [quePaso, setQuePaso] = useState("");
   const [impacto, setImpacto] = useState("");
   const [correccion, setCorreccion] = useState("");
@@ -279,7 +300,8 @@ function AnalizoForm({ paquete, onEntregar }: { paquete: DefinicionIncidente; on
   };
 
   const textAria = "w-full min-h-11 border border-line bg-paper p-3 text-pretty text-sm leading-6";
-  const textMono = "w-full min-w-0 min-h-11 border border-line bg-paper px-3 font-mono text-sm leading-6";
+  const textMono =
+    "w-full min-w-0 min-h-11 border border-line bg-paper px-3 font-mono text-sm leading-6";
 
   return (
     <section className="border border-line bg-paper p-4 sm:p-5">
@@ -305,7 +327,11 @@ function AnalizoForm({ paquete, onEntregar }: { paquete: DefinicionIncidente; on
                   <input
                     value={cita.ruta}
                     onChange={(evento) =>
-                      setCitas(citas.map((cada, j) => (j === indice ? { ...cada, ruta: evento.target.value } : cada)))
+                      setCitas(
+                        citas.map((cada, j) =>
+                          j === indice ? { ...cada, ruta: evento.target.value } : cada,
+                        ),
+                      )
                     }
                     placeholder="logs/app.log"
                     spellCheck={false}
@@ -314,11 +340,17 @@ function AnalizoForm({ paquete, onEntregar }: { paquete: DefinicionIncidente; on
                   />
                 </span>
                 <span className="grid gap-1">
-                  <span className="font-mono text-xs text-muted">Línea (vacía: el fichero entero)</span>
+                  <span className="font-mono text-xs text-muted">
+                    Línea (vacía: el fichero entero)
+                  </span>
                   <input
                     value={cita.linea}
                     onChange={(evento) =>
-                      setCitas(citas.map((cada, j) => (j === indice ? { ...cada, linea: evento.target.value } : cada)))
+                      setCitas(
+                        citas.map((cada, j) =>
+                          j === indice ? { ...cada, linea: evento.target.value } : cada,
+                        ),
+                      )
                     }
                     inputMode="numeric"
                     autoComplete="off"
@@ -331,7 +363,11 @@ function AnalizoForm({ paquete, onEntregar }: { paquete: DefinicionIncidente; on
                 <textarea
                   value={cita.afirmacion}
                   onChange={(evento) =>
-                    setCitas(citas.map((cada, j) => (j === indice ? { ...cada, afirmacion: evento.target.value } : cada)))
+                    setCitas(
+                      citas.map((cada, j) =>
+                        j === indice ? { ...cada, afirmacion: evento.target.value } : cada,
+                      ),
+                    )
                   }
                   rows={2}
                   className={textAria}
@@ -441,7 +477,10 @@ function RedaccionIA({
           evaluacion: {
             campos: Object.fromEntries(
               Object.entries(evaluacion.campos).map(([nombre, estado]) => [nombre, { estado }]),
-            ) as Record<"causa" | "impacto" | "correccion" | "comoDetectarlo", { estado: EvaluacionIncidente["campos"]["causa"] }>,
+            ) as Record<
+              "causa" | "impacto" | "correccion" | "comoDetectarlo",
+              { estado: EvaluacionIncidente["campos"]["causa"] }
+            >,
             evidencia: evaluacion.evidencia.slice(0, 12).map((cuerpo) => ({
               cita: {
                 ruta: cuerpo.cita.ruta.slice(0, 300),
@@ -458,7 +497,9 @@ function RedaccionIA({
       if (respuesta.ok) setRedaccion(respuesta.redaccion);
       else setError(respuesta.error);
     } catch (errorRed) {
-      setError(errorRed instanceof Error ? errorRed.message : "No ha salido la petición al modelo.");
+      setError(
+        errorRed instanceof Error ? errorRed.message : "No ha salido la petición al modelo.",
+      );
     } finally {
       setCargando(false);
     }
@@ -479,7 +520,9 @@ function RedaccionIA({
       {error && <p className="mt-3 border-l border-copper pl-4 text-pretty">{error}</p>}
       {redaccion && (
         <div>
-          <h4 className="font-mono text-sm text-copper">La lectura de la IA, sobre la comparación</h4>
+          <h4 className="font-mono text-sm text-copper">
+            La lectura de la IA, sobre la comparación
+          </h4>
           {redaccion.parrafos.map((parrafo, indice) => (
             <p key={indice} className="mt-2 text-pretty">
               <span
@@ -495,8 +538,8 @@ function RedaccionIA({
             </p>
           ))}
           <p className="mt-3 font-mono text-sm text-muted">
-            La comparación quedó decidida antes de que existiera este texto; el modelo la cuenta,
-            no la cambia, y la respuesta esperada del paquete no sale de Cifra.
+            La comparación quedó decidida antes de que existiera este texto; el modelo la cuenta, no
+            la cambia, y la respuesta esperada del paquete no sale de Cifra.
           </p>
         </div>
       )}

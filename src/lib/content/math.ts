@@ -1,3 +1,5 @@
+import type { ConceptRelation } from "./concepts.ts";
+
 export type MathTopic = {
   slug: string;
   title: string;
@@ -10,7 +12,7 @@ export type MathTopic = {
   python: string;
   javascript: string;
   whyNotOnlySimple?: string[];
-  see: string[];
+  relaciones: ConceptRelation[];
 };
 
 export const mathTopics: MathTopic[] = [
@@ -45,14 +47,21 @@ const puntos = [];
 for (let x = -6; x <= 6; x += 1) {
   puntos.push([x, valor(x, 2, 1)]);
 }`,
-    see: ["funcion-matematica", "funcion", "variable"],
+    relaciones: [
+      { slug: "algoritmo", tipo: "adelante" },
+      { slug: "lenguaje-programacion", tipo: "paralelo" },
+      { slug: "funcion-matematica", tipo: "paralelo" },
+      { slug: "funcion", tipo: "paralelo" },
+      { slug: "variable", tipo: "paralelo" },
+    ],
   },
   {
     slug: "cuadratica",
     title: "La ecuación de segundo grado",
     kicker: "De una fórmula",
     formula: "ax² + bx + c = 0",
-    promise: "Buscamos los x que hacen cero una parábola. El discriminante dice cuántos hay antes de calcularlos.",
+    promise:
+      "Buscamos los x que hacen cero una parábola. El discriminante dice cuántos hay antes de calcularlos.",
     meaning: [
       "Una ecuación no es lo mismo que una función. La función y = ax² + bx + c da un valor para cada x. La ecuación pregunta por los x en los que ese valor es cero.",
       "El discriminante es b² − 4ac. Si es positivo hay dos raíces, si es cero hay una, si es negativo no hay ninguna raíz real. Ese número no es un adorno: es la decisión.",
@@ -86,14 +95,21 @@ def raices(a, b, c):
   const raiz = Math.sqrt(discriminante);
   return [(-b - raiz) / (2 * a), (-b + raiz) / (2 * a)];
 }`,
-    see: ["funcion-matematica", "condicion", "prueba"],
+    relaciones: [
+      { slug: "algoritmo", tipo: "adelante" },
+      { slug: "lenguaje-programacion", tipo: "paralelo" },
+      { slug: "funcion-matematica", tipo: "paralelo" },
+      { slug: "condicion", tipo: "paralelo" },
+      { slug: "prueba", tipo: "paralelo" },
+    ],
   },
   {
     slug: "binaria",
     title: "Partir un intervalo",
     kicker: "De una idea de búsqueda",
     formula: "ordenado, y cada paso se queda con una mitad",
-    promise: "Si los datos están ordenados, no hace falta mirarlos todos: se puede tirar la mitad que ya no puede contener el objetivo.",
+    promise:
+      "Si los datos están ordenados, no hace falta mirarlos todos: se puede tirar la mitad que ya no puede contener el objetivo.",
     meaning: [
       "La búsqueda binaria no es un truco de índices. Es esta promesa: si el valor está, está entre low y high, inclusive. Al empezar, low es el primer índice y high el último, así que la promesa es cierta.",
       "Se mira el centro. Si es menor que el objetivo, todo lo de la izquierda también lo es, porque el arreglo está ordenado. La promesa sigue siendo cierta en el trozo derecho. Al revés, igual.",
@@ -136,14 +152,22 @@ devolver "no está"`,
   }
   return -1;
 }`,
-    see: ["invariante", "bucle", "arreglo", "complejidad"],
+    relaciones: [
+      { slug: "algoritmo", tipo: "adelante" },
+      { slug: "lenguaje-programacion", tipo: "paralelo" },
+      { slug: "invariante", tipo: "paralelo" },
+      { slug: "bucle", tipo: "paralelo" },
+      { slug: "arreglo", tipo: "paralelo" },
+      { slug: "complejidad", tipo: "paralelo" },
+    ],
   },
   {
     slug: "fibonacci",
     title: "Una recurrencia, dos costes",
     kicker: "De una idea de búsqueda",
     formula: "F(0) = 0, F(1) = 1, F(n) = F(n−1) + F(n−2)",
-    promise: "La definición ya es un algoritmo. Es correcta, y también repite el mismo trabajo una y otra vez.",
+    promise:
+      "La definición ya es un algoritmo. Es correcta, y también repite el mismo trabajo una y otra vez.",
     meaning: [
       "Una recurrencia dice cómo se construye un término a partir de los anteriores. Pasarla a código es casi copiarla: si n es 0 o 1, devuelve n; si no, devuelve la suma de las dos llamadas.",
       "Esa traducción es la versión simple, y es la que hay que entender primero. El problema no es la recursión. El problema es que F(5) calcula F(3) por un lado y otra vez por el otro.",
@@ -197,14 +221,22 @@ function fibConMemoria(n, memoria = new Map()) {
       "La versión que copia la fórmula es la mejor explicación y, para un n pequeño, también el mejor programa: se lee igual que la definición.",
       "Deja de bastar cuando el mismo subproblema se calcula muchas veces. La memoria no está ahí para impresionar. Está porque el coste pasó de «se entiende» a «no termina a tiempo». El inconveniente es otro estado que hay que acertar: si la memoria se llena mal, el resultado también.",
     ],
-    see: ["recursion", "pila-de-llamadas", "complejidad", "diccionario"],
+    relaciones: [
+      { slug: "algoritmo", tipo: "adelante" },
+      { slug: "lenguaje-programacion", tipo: "paralelo" },
+      { slug: "recursion", tipo: "paralelo" },
+      { slug: "pila-de-llamadas", tipo: "paralelo" },
+      { slug: "complejidad", tipo: "paralelo" },
+      { slug: "diccionario", tipo: "paralelo" },
+    ],
   },
   {
     slug: "matrices",
     title: "Multiplicar matrices",
     kicker: "De una fórmula",
     formula: "cᵢⱼ = aᵢ₁b₁ⱼ + aᵢ₂b₂ⱼ",
-    promise: "Cada celda del resultado es una suma de productos. El triple bucle es esa frase, escrita sin símbolos.",
+    promise:
+      "Cada celda del resultado es una suma de productos. El triple bucle es esa frase, escrita sin símbolos.",
     meaning: [
       "Una matriz de 2×2 es una tabla. Multiplicar no es multiplicar celda a celda. La fila i de la primera se combina con la columna j de la segunda.",
       "En dos dimensiones, cᵢⱼ tiene dos productos. Con n, tiene n. Y hay n² celdas. Por eso esta forma de multiplicar hace del orden de n³ operaciones. Es una cuenta de la fórmula, no un cronómetro.",
@@ -245,14 +277,21 @@ function fibConMemoria(n, memoria = new Map()) {
       "Esta es la forma simple, y coincide con la definición. El coste cúbico está en la definición: tres índices.",
       "Cambiar a un algoritmo más elaborado solo compensa cuando n es grande de verdad y alguien ha medido. Mientras tanto, un triple bucle claro es mejor ingeniería que una técnica que el lector no puede comprobar.",
     ],
-    see: ["bucle", "arreglo", "complejidad"],
+    relaciones: [
+      { slug: "algoritmo", tipo: "adelante" },
+      { slug: "lenguaje-programacion", tipo: "paralelo" },
+      { slug: "bucle", tipo: "paralelo" },
+      { slug: "arreglo", tipo: "paralelo" },
+      { slug: "complejidad", tipo: "paralelo" },
+    ],
   },
   {
     slug: "distancia",
     title: "La distancia entre dos puntos",
     kicker: "De una fórmula",
     formula: "d = √((x₂−x₁)² + (y₂−y₁)²)",
-    promise: "Pitágoras, en el orden en que un programa lo puede calcular: resta, cuadrado, suma, raíz.",
+    promise:
+      "Pitágoras, en el orden en que un programa lo puede calcular: resta, cuadrado, suma, raíz.",
     meaning: [
       "Dos puntos del plano se separan en horizontal y en vertical. Esos dos tramos son los catetos. La distancia es la hipotenusa.",
       "El cuadrado está para que la dirección no importe: (−3)² y 3² valen lo mismo. Sin el cuadrado, un desplazamiento a la izquierda restaría distancia.",
@@ -275,14 +314,20 @@ def distancia(x1, y1, x2, y2):
   const dy = y2 - y1;
   return Math.hypot(dx, dy);
 }`,
-    see: ["funcion-matematica", "funcion"],
+    relaciones: [
+      { slug: "algoritmo", tipo: "adelante" },
+      { slug: "lenguaje-programacion", tipo: "paralelo" },
+      { slug: "funcion-matematica", tipo: "paralelo" },
+      { slug: "funcion", tipo: "paralelo" },
+    ],
   },
   {
     slug: "dispersion",
     title: "Media y varianza",
     kicker: "De contar",
     formula: "media = (x₁ + … + xₙ) / n",
-    promise: "La media es un centro. La varianza dice, con un solo número, cuánto se alejan los datos de ese centro.",
+    promise:
+      "La media es un centro. La varianza dice, con un solo número, cuánto se alejan los datos de ese centro.",
     meaning: [
       "Sumar y dividir entre cuántos hay. Eso es la media. No es «el valor típico» en todos los sentidos: un dato enorme la arrastra. Es el reparto equitativo de la suma.",
       "La varianza parte de las desviaciones, xᵢ − media. Unas son positivas y otras negativas, y si se suman tal cual se anulan. Por eso se elevan al cuadrado antes de promediarlas.",
@@ -319,14 +364,22 @@ varianza = varianza / n`,
       "Se puede calcular la varianza en un solo recorrido, sin guardar todas las desviaciones. Hace falta una fórmula algebraica equivalente y es más fácil equivocarse.",
       "Con una lista corta, dos recorridos se leen mejor y cuestan lo mismo a efectos prácticos. La versión de un solo paso se justifica cuando los datos no caben en memoria o el recorrido es caro. Aquí no es el caso.",
     ],
-    see: ["bucle", "variable", "prueba", "arreglo"],
+    relaciones: [
+      { slug: "algoritmo", tipo: "adelante" },
+      { slug: "lenguaje-programacion", tipo: "paralelo" },
+      { slug: "bucle", tipo: "paralelo" },
+      { slug: "variable", tipo: "paralelo" },
+      { slug: "prueba", tipo: "paralelo" },
+      { slug: "arreglo", tipo: "paralelo" },
+    ],
   },
   {
     slug: "logica",
     title: "Y, o, no",
     kicker: "De contar",
     formula: "verdadero y falso, sin término medio",
-    promise: "Una condición de un programa es una frase lógica. La tabla de verdad es el programa, escrito con todas las entradas.",
+    promise:
+      "Una condición de un programa es una frase lógica. La tabla de verdad es el programa, escrito con todas las entradas.",
     meaning: [
       "«Y» solo es verdadero cuando las dos partes lo son. «O», en programación, suele ser inclusivo: basta con que una lo sea, y también vale que lo sean las dos. «No» invierte un valor.",
       "La o exclusiva es otra operación: verdadero cuando los dos lados discrepan. No es la «o» del idioma cotidiano, y por eso conviene nombrarla.",
@@ -361,7 +414,12 @@ function alguno(a, b) {
 function contrario(a) {
   return !a;
 }`,
-    see: ["condicion", "funcion"],
+    relaciones: [
+      { slug: "algoritmo", tipo: "adelante" },
+      { slug: "lenguaje-programacion", tipo: "paralelo" },
+      { slug: "condicion", tipo: "paralelo" },
+      { slug: "funcion", tipo: "paralelo" },
+    ],
   },
 ];
 
