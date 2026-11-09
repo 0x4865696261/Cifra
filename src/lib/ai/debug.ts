@@ -1,3 +1,4 @@
+import { admitirLlamadaIa } from "./cuota.ts";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { parseDebugGuide, type GuiaDeDepuracion } from "@/lib/ai/debug-parse";
@@ -37,10 +38,6 @@ const payloadSchema = z.object({
   model: z.string().max(64).optional(),
 });
 
-const hits = new Map<string, number[]>();
-const WINDOW_MS = 10 * 60 * 1000;
-const IP_LIMIT = 8;
-const GLOBAL_LIMIT = 30;
 
 export const askDebug = createServerFn({ method: "POST" })
   .validator((input: unknown) => input)
@@ -90,7 +87,7 @@ export const askDebug = createServerFn({ method: "POST" })
     } catch {
       ip = "desconocida";
     }
-    if (!allow(`ip:${ip}`, IP_LIMIT) || !allow("global", GLOBAL_LIMIT)) {
+    if (!admitirLlamadaIa(ip)) {
       return {
         ok: false,
         error:
@@ -168,15 +165,3 @@ export const askDebug = createServerFn({ method: "POST" })
       return { ok: false, error: `No he podido preguntar al modelo. ${message}` };
     }
   });
-
-function allow(key: string, limit: number): boolean {
-  const now = Date.now();
-  const recent = (hits.get(key) ?? []).filter((time) => now - time < WINDOW_MS);
-  if (recent.length >= limit) {
-    hits.set(key, recent);
-    return false;
-  }
-  recent.push(now);
-  hits.set(key, recent);
-  return true;
-}

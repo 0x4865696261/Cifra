@@ -1,6 +1,6 @@
 # CIFRA Roadmap
 
-## Estado actual (0.8)
+
 - Estado: funcional y consolidado en la parte de navegación documental y red de conocimiento.
 - Base consolidada en estudio, retos, incidentes, matemática, biblioteca, módulos y ejecución segura.
 - La prioridad actual es cerrar validación, endurecimiento y preparación para la 1.0.
@@ -22,7 +22,7 @@
 
 ## 0.8.1 — Editor de código para ejercicios y retos reales
 
-- Estado: planificada después de la 0.8.
+
 - Editor integrado con árbol de carpetas, pestañas y búsqueda de archivos.
 - Borradores locales por reto. Cambiar de archivo o recargar conserva los cambios.
 - Resaltado por lenguaje, números de línea, atajos y acceso al archivo y línea de un diagnóstico.
@@ -30,10 +30,11 @@
 - Primer reto realista con dos archivos que editar. Sus pruebas usarán el ejecutor aislado con límites y un contrato de entrega para proyectos multiarchivo.
 - Criterio de finalización: resolver el reto editando ambos archivos, recuperar el borrador tras recargar, cambiar de tema y obtener un veredicto de las pruebas.
 
+
 ## 0.9 — Pulido y robustez
 - Descripción: mejorar UX, rendimiento, claridad y consistencia visual antes del primer lanzamiento público.
 - Prioridad: media-alta
-- Estado: planificado
+- Estado: implementada en parte. Pendientes la validación con proveedores reales y la auditoría de aislamiento y despliegue.
 - Dependencias: UI, bibliotecas, contenido y modelos
 - Módulos afectados: rutas, estilos, documentación y módulos de aprendizaje
 - Criterio de finalización: experiencia coherente en escritorio y móvil, sin errores de render y con narrativa clara

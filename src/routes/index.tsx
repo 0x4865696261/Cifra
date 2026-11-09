@@ -1,3 +1,4 @@
+import { PortadaCursos } from "@/components/portada-cursos";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { getConcept, recommendNextConcept, threads, concepts } from "@/lib/content/concepts";
 import { wordCountNotes } from "@/lib/content/languages";
@@ -25,6 +26,7 @@ function Home() {
     : null;
 
   return (
+
     <main id="contenido" className="mx-auto max-w-6xl px-5 py-12 sm:py-16">
       <p className="font-mono text-sm text-copper">Versión 0.8 · Un compilador que comprueba</p>
       <p className="mt-4 font-mono text-xs uppercase tracking-[0.24em] text-muted">
@@ -72,21 +74,28 @@ function Home() {
 
       <section className="mt-16">
         <h2 className="font-serif text-3xl">Hilos</h2>
+=======
+    <main id="contenido" className="curso-contenedor">
+      <PortadaCursos />
+
+      <section className="curso-seccion">
+        <h2>Por temática</h2>
+
         <p className="mt-3 max-w-2xl text-pretty text-muted">
           La biblioteca no es una lista suelta. Cada concepto empuja hacia el siguiente.
         </p>
-        <ol className="mt-6 border-t border-line">
+        <ol className="curso-temas">
           {threads.map((thread) => {
             const first = concepts.find((concept) => concept.slug === thread.slugs[0]);
             return (
-              <li key={thread.id} className="border-b border-line">
+              <li key={thread.id} className="curso-tarjeta">
                 <Link
                   to="/biblioteca/$slug"
                   params={{ slug: thread.slugs[0] }}
-                  className="flex min-h-16 flex-col justify-center gap-1 py-4 sm:flex-row sm:items-baseline sm:justify-between"
+                  className="flex min-h-16 flex-col justify-center gap-2"
                 >
                   <span className="font-serif text-2xl">{thread.title}</span>
-                  <span className="font-mono text-sm text-muted">{first?.title}</span>
+                  <span className="text-sm text-muted">Empieza por {first?.title} →</span>
                 </Link>
               </li>
             );

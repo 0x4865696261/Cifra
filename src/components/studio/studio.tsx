@@ -1,5 +1,9 @@
+ version/1.0
 import { EditorCodigo, useBorrador } from "@/components/codigo/editor";
 import { PanelesCodigo, type PanelCodigo } from "@/components/codigo/paneles";
+
+import { EditorCodigo } from "@/components/editor-codigo";
+ main
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { analyze, isLanguageId, languageIds, languageLabels, type LanguageId } from "@/lib/analyze/structure";
@@ -24,9 +28,13 @@ export function Studio() {
   const { level, setLevel } = useLevel();
   const [sampleId, setSampleId] = useState(samples[0].id);
   const [language, setLanguage] = useState<LanguageId>(samples[0].language);
+ version/1.0
   const [code, setCode] = useBorrador("cifra.estudio.lee", samples[0].code);
   const [panel, setPanel] = useState<PanelCodigo>("codigo");
   const [editing, setEditing] = useState(false);
+
+  const [code, setCode] = useState(samples[0].code);
+ main
   const [question, setQuestion] = useState("");
   const [fromLine, setFromLine] = useState(1);
   const [toLine, setToLine] = useState(1);
@@ -64,7 +72,6 @@ export function Studio() {
     setForcedOn([]);
     setForcedOff([]);
     setResult(null);
-    setEditing(false);
   };
 
   const pickLine = (line: number, shift: boolean) => {
@@ -149,12 +156,56 @@ export function Studio() {
               {sample.title}
             </Button>
           ))}
+ version/1.0
           <Button tone="ghost" onClick={() => { setEditing((value) => !value); setPanel("codigo"); }}>
             {editing ? "Cerrar editor" : "Editar el texto"}
           </Button>
         </div>
         <p className="mt-3 text-pretty text-muted">{samples.find((sample) => sample.id === sampleId)?.hint}</p>
 
+
+        </div>
+        <p className="mt-3 text-pretty text-muted">{samples.find((sample) => sample.id === sampleId)?.hint}</p>
+
+        <EditorCodigo
+            value={code}
+            label="Código"
+            language={language}
+            className="mt-4"
+            onChange={(nuevo) => {
+              setCode(nuevo);
+              setSampleId("");
+              setResult(null);
+            }}
+        />
+
+        <details className="mt-4">
+          <summary className="cursor-pointer font-semibold">Seleccionar líneas para el análisis</summary>
+          <div className="mt-4 max-h-[32rem] overflow-auto border border-line">
+          {lines.map((line, index) => {
+            const number = index + 1;
+            const selected = number >= low && number <= high;
+            return (
+              <button
+                key={number}
+                type="button"
+                aria-pressed={selected}
+                onClick={(event) => pickLine(number, event.shiftKey)}
+                className={cn(
+                  "grid min-h-11 w-max min-w-full grid-cols-[3rem_1fr] items-start gap-3 border-l-2 px-3 py-2 text-left font-mono text-sm leading-6",
+                  selected ? "border-copper bg-line text-ink" : "border-transparent text-ink",
+                )}
+              >
+                <span className="text-muted tabular-nums">{number}</span>
+                <span className="whitespace-pre">{line || " "}</span>
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-2 font-mono text-sm text-muted">
+          Pulsa una línea. Con la tecla de mayúsculas, alargas el tramo. Ahora: {selection}.
+        </p>
+ main
         <div className="mt-3 grid grid-cols-2 gap-3">
           <label className="flex flex-col gap-1 font-mono text-sm">
             Desde
@@ -179,6 +230,8 @@ export function Studio() {
             />
           </label>
         </div>
+
+        </details>
 
         <h2 className="mt-8 font-serif text-2xl">Lo que se ve en el texto</h2>
         <ul className="mt-3 flex flex-col gap-3">

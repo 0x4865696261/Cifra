@@ -3,7 +3,7 @@
 Cifra es una plataforma web para aprender a programar entendiendo el código, no solo generándolo. La idea central es separar lo comprobado de lo inferido, y usar la IA como apoyo pedagógico, no como sustituto del criterio técnico.
 
 ## Estado actual
-- Versión actual: 0.8
+
 - Estado: comprobador estático implementado y validado localmente.
 - Alcance principal: estudio de código, retos, biblioteca, matemáticas, lenguajes, incidentes, documentación modular y flujo de evaluación local.
 
@@ -53,7 +53,7 @@ Cifra es una plataforma web para aprender a programar entendiendo el código, no
 ## Roadmap principal
 - 0.7: red de conocimiento, navegación documental y módulos centralizados.
 - 0.8: comprobador estático del lenguaje Cifra en Estudio y Retos.
-- 0.8.1: editor multiarchivo para ejercicios y retos reales.
+
 - 0.9: endurecer la experiencia, limpieza y calidad.
 - 1.0: lanzamiento público.
 

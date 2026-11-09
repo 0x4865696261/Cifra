@@ -1,5 +1,9 @@
+ version/1.0
 import { EditorCodigo, useBorrador } from "@/components/codigo/editor";
 import { PanelesCodigo, type PanelCodigo } from "@/components/codigo/paneles";
+
+import { EditorCodigo } from "@/components/editor-codigo";
+ main
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import type { DebugResult } from "@/lib/ai/debug";
@@ -174,6 +178,26 @@ export function DebugStudio({
           tocar el código.
         </p>
 
+ version/1.0
+
+        <div className="mt-6 flex flex-col gap-2 font-mono text-sm">
+          Código
+          <EditorCodigo
+            value={code}
+            label="Código del fallo"
+            language={language}
+            onChange={(nuevo) => {
+              setCode(nuevo);
+              setSampleId("");
+              setResult(null);
+            }}
+          />
+          <p className={cn("font-mono text-sm", codigoExcedido ? "text-copper" : "text-muted")}>
+            {code.length} de {limitesEntrada.codigo} caracteres
+            {codigoExcedido && ": te pasas. Acorta o parte el fragmento: no se envía hasta que quepa."}
+          </p>
+        </div>
+ main
         <label className="mt-4 flex flex-col gap-2 font-mono text-sm">
           Mensaje del error
           <textarea

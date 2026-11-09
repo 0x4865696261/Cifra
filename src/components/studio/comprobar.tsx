@@ -1,5 +1,8 @@
+ version/1.0
 import { EditorCodigo, useBorrador } from "@/components/codigo/editor";
 import { PanelesCodigo, type PanelCodigo } from "@/components/codigo/paneles";
+import { EditorCodigo } from "@/components/editor-codigo";
+ main
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -26,8 +29,12 @@ export function ComprobarStudio({
 }: {
   onEstudiarFallo: (codigo: string, mensaje: string) => void;
 }) {
+
   const [codigo, setCodigo] = useBorrador("cifra.estudio.comprueba", ejemplo);
   const [panel, setPanel] = useState<PanelCodigo>("codigo");
+
+  const [codigo, setCodigo] = useState(ejemplo);
+
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const [ocupado, setOcupado] = useState(false);
   const [aviso, setAviso] = useState("");
@@ -53,7 +60,11 @@ export function ComprobarStudio({
   };
 
   return (
+
     <PanelesCodigo titulo="Contexto" panel={panel} onPanel={setPanel} contexto={<div className="grid gap-4">
+
+    <section className="grid max-w-3xl gap-4">
+
       <h2 className="font-serif text-2xl">Comprueba un programa Cifra</h2>
       <p>
         El comprobador revisa el código en tu navegador. Admite funciones con tipos, listas,
@@ -71,6 +82,7 @@ export function ComprobarStudio({
           Cargar reto de tipos
         </Button>
       </div>
+
       </div>} codigo={<div className="grid gap-3">
       <EditorCodigo etiqueta="Código Cifra" valor={codigo} onChange={cambiarCodigo} lenguaje="cifra" />
       <div>
@@ -84,6 +96,24 @@ export function ComprobarStudio({
       </div>
       </div>} resultado={<div aria-live="polite" className="grid gap-3">
         <h2 className="font-mono text-sm">Resultado</h2>
+
+      <div className="grid gap-2 font-mono text-sm">
+        Código Cifra
+        <EditorCodigo
+            value={codigo}
+            label="Código Cifra"
+            language="cifra"
+          readOnly={ocupado}
+          runDisabled={!codigo.trim()}
+          output={ocupado ? "Comprobando…" : aviso || (resultado && (resultado.diagnosticos.length === 0 ? "Programa aceptado." : <ul>{resultado.diagnosticos.map((diagnostico, indice) => <li key={indice}>Línea {diagnostico.linea}. {diagnostico.mensaje}</li>)}</ul>))}
+          onRun={() => { if (!ocupado && codigo.trim()) void comprobar(); }}
+          busy={ocupado}
+          runLabel={ocupado ? "Comprobando…" : "Comprobar código"}
+            onChange={(nuevo) => cambiarCodigo(nuevo)}
+          />
+      </div>
+      <div aria-live="polite">
+
         {aviso && <p>{aviso}</p>}
         {resultado &&
           (resultado.diagnosticos.length === 0 ? (
@@ -124,6 +154,10 @@ export function ComprobarStudio({
               })}
             </ul>
           ))}
+ version/1.0
+
+      </div>
+ main
       <p className="text-sm text-muted">
         Cifra exige firmas explícitas y comprueba la ausencia de valores. Puedes contrastar estas
         reglas con TypeScript y JavaScript en{" "}
@@ -132,7 +166,11 @@ export function ComprobarStudio({
         </Link>
         .
       </p>
+ version/1.0
       </div>}
     />
+
+    </section>
+ main
   );
 }

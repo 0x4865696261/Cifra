@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { proyectoPedidos } from "@/lib/retos/proyecto-pedidos";
 import { cn } from "@/lib/cn";
 import { TallerReto } from "@/components/retos/taller";
 import { retosEspeciales } from "@/lib/retos/especiales";
@@ -52,6 +53,15 @@ function RetosPage() {
         Practicar tipos con el comprobador de Cifra
       </Link>
 
+ version/1.0
+
+      <p className="mt-4">
+        <Link to="/retos/$id" params={{ id: proyectoPedidos.id }} className="tap inline-flex min-h-12 items-center rounded-lg bg-copper px-4 font-semibold text-white">
+          Proyecto multiarchivo: pedidos de una tienda
+        </Link>
+      </p>
+
+ main
       {vista.tipo === "cargar" && (
         <p className="mt-10 font-mono text-sm text-muted">Leyendo tu progreso de este navegador…</p>
       )}

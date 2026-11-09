@@ -1,4 +1,20 @@
+ version/1.0
 import { useEffect, useMemo, useState } from "react";
+
+import { EditorCodigo } from "@/components/editor-codigo";
+import { useEffect, useMemo, useState } from "react";
+import { limitesDefecto } from "@/lib/ejecucion/limites";
+import { excedeLimite, limitesEntrada } from "@/lib/ai/limits";
+import type { RunRequest, RunResult, TraceStep } from "@/lib/ejecucion/tipos";
+import {
+  ejecutarLenguaje,
+  isLanguageId,
+  lenguajesConMotor,
+  languageLabels,
+  motorDe,
+  type LanguageId,
+} from "@/lib/modulos/lenguajes";
+ main
 import { Button } from "@/components/ui/button";
 import { CuentaJuez } from "@/components/codigo/cuenta-juez";
 import { EditorCodigo, useBorrador } from "@/components/codigo/editor";
@@ -50,6 +66,7 @@ export function RunStudio({
 }: {
   onEstudiarFallo: (codigo: string, mensaje: string, lenguaje: string) => void;
 }) {
+ version/1.0
   const [lenguaje, setLenguaje] = useState<LenguajeJuez>("javascript");
   useEffect(() => {
     try {
@@ -77,6 +94,29 @@ export function RunStudio({
   }>();
   const [traza, setTraza] = useState<RunResult>();
   const trazable = lenguaje === "javascript" || lenguaje === "python";
+=======
+  const [muestraId, setMuestraId] = useState(muestras[0].id);
+  const [language, setLanguage] = useState<LanguageId>("javascript");
+  const [code, setCode] = useState(muestras[0].codigo);
+  const [trazar, setTrazar] = useState(true);
+  const [corriendo, setCorriendo] = useState(false);
+  const [resultado, setResultado] = useState<RunResult | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+
+  const codigoExcedido = excedeLimite(code, limitesEntrada.codigo);
+  const [workerDisponible, setWorkerDisponible] = useState<boolean | null>(null);
+  useEffect(() => {
+    setWorkerDisponible(typeof Worker !== "undefined" && typeof URL?.createObjectURL === "function");
+  }, []);
+
+  const carga = (muestra: (typeof muestras)[number]) => {
+    setMuestraId(muestra.id);
+    setLanguage(muestra.lenguaje);
+    setCode(muestra.codigo);
+    setResultado(null);
+    setAviso(null);
+  };
+ main
 
   const ejecutar = async () => {
     setOcupado(true);
@@ -249,6 +289,63 @@ export function RunStudio({
             >
               Ejecutar
             </Button>
+ version/1.0
+
+          ))}
+        </div>
+
+        <div className="mt-6 flex flex-col gap-2 font-mono text-sm">
+          Código
+          <EditorCodigo
+            value={code}
+            label="Código"
+            language={language}
+            readOnly={corriendo}
+            runDisabled={workerDisponible === false || codigoExcedido || !code.trim()}
+            output={corriendo ? "Ejecutando…" : aviso || (resultado && <pre className="whitespace-pre-wrap">{[resultado.stdout, resultado.stderr].filter(Boolean).join("\n") || resultado.estado}</pre>)}
+            onRun={() => { if (workerDisponible && !corriendo && !codigoExcedido && code.trim()) void ejecutar(); }}
+            busy={corriendo}
+            runLabel={corriendo ? "Ejecutando…" : "Ejecutar"}
+            onChange={(nuevo) => {
+              setCode(nuevo);
+              setMuestraId("");
+              setResultado(null);
+            }}
+          />
+          <p className={cn("font-mono text-sm", codigoExcedido ? "text-copper" : "text-muted")}>
+            {code.length} de {limitesEntrada.codigo} caracteres
+            {codigoExcedido && ": te pasas. Acorta el programa: no se ejecuta hasta que quepa."}
+          </p>
+        </div>
+
+        <p className="mt-3 text-pretty text-muted">
+          El código corre en tu propio navegador, dentro de un Worker sin red, con límites de
+          tiempo, memoria y salida. Nada sale de tu ordenador. Rust no está aquí: su modo local es
+          solo para desarrollo.
+        </p>
+      </section>
+
+      <section>
+        <label className="flex items-center gap-3 font-mono text-sm">
+          <input
+            type="checkbox"
+            checked={trazar}
+            onChange={(event) => setTrazar(event.target.checked)}
+            className="min-h-11 accent-current"
+          />
+          Trazar el paso a paso
+        </label>
+
+        <p className="mt-2 font-mono text-sm text-muted">
+          {workerDisponible === false
+            ? "Este navegador no da Workers: no hay ejecución real aquí."
+            : "Corte por tiempo a los 5 s, salida hasta 64 KB. Un programa sin fin acaba cortado, no colgado."}
+        </p>
+
+        {aviso && (
+          <div className="mt-6 border-l border-copper pl-4">
+            <p className="text-pretty">{aviso}</p>
+ main
           </div>
           <CuentaJuez />
         </div>

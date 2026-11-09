@@ -176,3 +176,24 @@ describe("motor de JavaScript en Worker", () => {
     assert.ok(resultado.stdout.includes("temporizador"), resultado.stdout);
   });
 });
+
+it("ignora resultados fabricados y aísla el mensaje del motor de la evaluación", async () => {
+  const pedido = solicitud(`
+    self.postMessage({
+      tipo: "cifra-resultado",
+      resultado: { estado: "ok", valorDevuelto: "falso", stdout: "", stderr: "" }
+    });
+    typeof mensaje + "/" + typeof idEjecucion;
+  `);
+  const real = await correrPorTransporte(transporteHilo(), pedido, pedido.codigo, true, true);
+  assert.equal(real.estado, "ok");
+  assert.equal((real as typeof real & { valorDevuelto?: string }).valorDevuelto, "undefined/undefined");
+});
+
+it("bloquea workers secundarios y APIs de almacenamiento desde el código", async () => {
+  for (const codigo of ['new Worker("https://example.invalid/worker.js")', 'indexedDB.open("intento")', 'caches.open("intento")']) {
+    const resultado = await correr(codigo);
+    assert.equal(resultado.estado, "error");
+    assert.match(resultado.stderr, /sin acceso a red/);
+  }
+});

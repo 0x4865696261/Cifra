@@ -1,8 +1,13 @@
+ version/1.0
 import { EditorCodigo, useBorrador } from "@/components/codigo/editor";
 import { PanelesCodigo, type PanelCodigo } from "@/components/codigo/paneles";
 import { authClient } from "@/lib/auth/client";
 import { CuentaJuez } from "@/components/codigo/cuenta-juez";
 import { useState } from "react";
+=======
+import { EditorCodigo } from "@/components/editor-codigo";
+import { useEffect, useState } from "react";
+ main
 import { ejecutarJavaScript } from "@/lib/ejecucion/motor-javascript";
 import { limitesDefecto } from "@/lib/ejecucion/limites";
 import { compararMediciones, type Comparacion } from "@/lib/ejecucion/mediciones";
@@ -66,8 +71,10 @@ export function CompararStudio() {
 
   const originalExcedido = excedeLimite(original, limitesEntrada.codigo);
   const optimizadaExcedida = excedeLimite(optimizada, limitesEntrada.codigo);
-  const workerDisponible =
-    typeof Worker !== "undefined" && typeof URL?.createObjectURL === "function";
+  const [workerDisponible, setWorkerDisponible] = useState<boolean | null>(null);
+  useEffect(() => {
+    setWorkerDisponible(typeof Worker !== "undefined" && typeof URL?.createObjectURL === "function");
+  }, []);
 
   const comparar = async () => {
     setComparando(true);
@@ -122,32 +129,61 @@ export function CompararStudio() {
           cuando la diferencia es tan pequeña como el propio vaivén de las corridas. Las cifras
           están medidas en este equipo con estos límites: no generalices.
         </p>
-        {!workerDisponible && (
+        {workerDisponible === false && (
           <p className="mt-3 text-pretty text-copper">
             Este navegador no da Workers: la comparación necesita ejecución real.
           </p>
         )}
+ version/1.0
       </>} codigo={<div className="grid gap-4">
       <div className="grid gap-4">
         <label className="flex flex-col gap-2 font-mono text-sm">
           Versión original
           <EditorCodigo valor={original} lenguaje="javascript" etiqueta="Código de la versión original"
             onChange={(valor) => { setOriginal(valor); setResultado(null); }} />
+
+      </section>
+
+      <div className="grid gap-8 lg:grid-cols-2">
+        <div className="flex flex-col gap-2 font-mono text-sm">
+          Versión original
+          <EditorCodigo
+            value={original}
+            label="Código de la versión original"
+            language="javascript"
+            onChange={(nuevo) => {
+              setOriginal(nuevo);
+              setResultado(null);
+            }}
+          />
+ main
           <span className={cn("font-mono text-sm", originalExcedido ? "text-copper" : "text-muted")}>
             {original.length} de {limitesEntrada.codigo} caracteres
             {originalExcedido && ": no cabe, acótalo."}
           </span>
-        </label>
+        </div>
 
-        <label className="flex flex-col gap-2 font-mono text-sm">
+        <div className="flex flex-col gap-2 font-mono text-sm">
           Versión optimizada
+ version/1.0
           <EditorCodigo valor={optimizada} lenguaje="javascript" etiqueta="Código de la versión optimizada"
             onChange={(valor) => { setOptimizada(valor); setResultado(null); }} />
+
+          <EditorCodigo
+            value={optimizada}
+            label="Código de la versión optimizada"
+            language="javascript"
+            onChange={(nuevo) => {
+              setOptimizada(nuevo);
+              setResultado(null);
+            }}
+          />
+ main
           <span className={cn("font-mono text-sm", optimizadaExcedida ? "text-copper" : "text-muted")}>
             {optimizada.length} de {limitesEntrada.codigo} caracteres
             {optimizadaExcedida && ": no cabe, acótalo."}
           </span>
-        </label>
+        </div>
       </div>
 
       <div>
