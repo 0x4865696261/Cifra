@@ -50,8 +50,8 @@ export function Shell({ children }: { children: ReactNode }) {
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-8 font-mono text-sm text-muted sm:flex-row sm:justify-between">
           <p>
-            El código corre en tu navegador: aislado, con límites y sin salir a la red. Los
-            veredictos de los retos salen de ahí, no de un modelo.
+            Los retos se comprueban con pruebas en un servidor aislado. El análisis local y
+            los borradores se quedan en tu navegador.
           </p>
           <p>La lectura recordada se queda en este navegador.</p>
         </div>

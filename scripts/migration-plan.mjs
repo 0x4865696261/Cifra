@@ -8,8 +8,8 @@
  * copy from `migrations/auth/` into `migrations/` when an app turns sign-in on:
  * a database that already has `0001_auth.sql` will not re-run it.
  *
- * Neither applier descends into subdirectories, so `migrations/auth/*.sql` is
- * out of scope for both until it is copied up.
+ * Cifra explicitly adds its auth schema to both appliers. The basename also
+ * preserves the marker for databases that already applied a copy from the root.
  */
 
 /**
@@ -42,5 +42,9 @@ export function pendingMigrations(paths, applied) {
     .filter(isMigrationFile)
     .map((path) => ({ name: migrationName(path), path }))
     .sort((a, b) => a.name.localeCompare(b.name))
-    .filter(({ name }) => !done.has(name));
+    .filter(({ name }) => {
+      if (done.has(name)) return false;
+      done.add(name);
+      return true;
+    });
 }

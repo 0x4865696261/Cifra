@@ -26,7 +26,7 @@ function Home() {
 
   return (
     <main id="contenido" className="mx-auto max-w-6xl px-5 py-12 sm:py-16">
-      <p className="font-mono text-sm text-copper">Versión 0.7 · Red de conocimiento</p>
+      <p className="font-mono text-sm text-copper">Versión 0.8 · Un compilador que comprueba</p>
       <p className="mt-4 font-mono text-xs uppercase tracking-[0.24em] text-muted">
         Una plataforma para leer software
       </p>
@@ -39,13 +39,16 @@ function Home() {
         biblioteca funciona como red: cada concepto enlaza con el que lo sostiene y con el siguiente
         paso.
       </p>
+      <Link to="/estudio" search={{ modo: "comprobar" }} className="mt-4 inline-block underline">
+        Probar el comprobador de Cifra
+      </Link>
 
       <div className="mt-12 grid gap-10 border-t border-line pt-8 md:grid-cols-3">
         <Link to="/retos" className="group block min-h-11">
           <p className="font-mono text-sm text-muted">01</p>
           <h2 className="mt-2 font-serif text-3xl group-hover:text-copper">Retos</h2>
           <p className="mt-3 max-w-md text-pretty">
-            Fundamentos con veredicto real: pruebas que corren en tu navegador y una defensa que
+            Fundamentos con veredicto real: pruebas que ejecuta el juez y una defensa que
             comprueba que entiendes lo que escribiste.
           </p>
         </Link>

@@ -1,6 +1,6 @@
 # CIFRA Roadmap
 
-## Estado actual (0.7)
+## Estado actual (0.8)
 - Estado: funcional y consolidado en la parte de navegación documental y red de conocimiento.
 - Base consolidada en estudio, retos, incidentes, matemática, biblioteca, módulos y ejecución segura.
 - La prioridad actual es cerrar validación, endurecimiento y preparación para la 1.0.
@@ -13,13 +13,22 @@
 - Módulos afectados: documentación, IA, módulos, biblioteca y navegación
 - Criterio de finalización: docs centralizadas, módulo index funcional, rutas de navegación consistentes y la biblioteca como red de conceptos con conexiones explícitas
 
-## 0.8 — Validación y endurecimiento
-- Descripción: cerrar más pruebas de integración, validación de ejecución y reglas de seguridad defensiva.
+## 0.8 — Un compilador que comprueba
+- Comprobación local del lenguaje Cifra con diagnósticos pedagógicos, desde Estudio y Retos.
 - Prioridad: alta
-- Estado: planificado
-- Dependencias: `src/lib/ejecucion`, `src/lib/ai`, `src/lib/retos`, `src/lib/incidentes`
-- Módulos afectados: ejecución, IA, material docente, retos y incidentes
-- Criterio de finalización: pruebas automáticas cubriendo decisiones clave y flujo de veredicto sin ambigüedad
+- Estado: completa y validada localmente.
+- Dependencias: Estudio, Retos y Biblioteca.
+- Criterio de finalización: acepta programas válidos, ubica y explica los errores de los inválidos, y lleva el diagnóstico a Estudia el fallo.
+
+## 0.8.1 — Editor de código para ejercicios y retos reales
+
+- Estado: planificada después de la 0.8.
+- Editor integrado con árbol de carpetas, pestañas y búsqueda de archivos.
+- Borradores locales por reto. Cambiar de archivo o recargar conserva los cambios.
+- Resaltado por lenguaje, números de línea, atajos y acceso al archivo y línea de un diagnóstico.
+- Temas claro, oscuro y de alto contraste, con tamaño de letra configurable.
+- Primer reto realista con dos archivos que editar. Sus pruebas usarán el ejecutor aislado con límites y un contrato de entrega para proyectos multiarchivo.
+- Criterio de finalización: resolver el reto editando ambos archivos, recuperar el borrador tras recargar, cambiar de tema y obtener un veredicto de las pruebas.
 
 ## 0.9 — Pulido y robustez
 - Descripción: mejorar UX, rendimiento, claridad y consistencia visual antes del primer lanzamiento público.
@@ -32,8 +41,8 @@
 ## 1.0 — Lanzamiento público
 - Descripción: primer despliegue público con la promesa pedagógica establecida.
 - Prioridad: crítica
-- Estado: no iniciada
-- Dependencias: 0.7–0.9, validación, seguridad y preparación operativa
+- Estado: candidata preparada para validación en Preview de Vercel.
+- Dependencias: cuenta de Google, Neon, snapshot del juez y pruebas de Preview
 - Módulos afectados: toda la app
 - Criterio de finalización: lanzamiento consistente, pruebas de flujo cubiertas y documentación final verificada
 

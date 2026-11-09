@@ -94,7 +94,7 @@ export const buclesDos: RetoCompleto = {
     return {
       enunciado:
         "Escribe `sumaLista(numeros)`: devuelve la suma de todos los números de la lista. " +
-        "La lista vacía suma 0. Los dos casos que la plantilla ejecuta son la lista del caso A " +
+        "La lista vacía suma 0. Los dos ejemplos usan la lista del caso A " +
         "y la vacía. El desliz clásico aquí es arrancar el índice en 1.",
       codigoDePartida: hecho.codigo,
       pruebas: hecho.pruebas,

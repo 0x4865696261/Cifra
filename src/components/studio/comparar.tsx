@@ -1,3 +1,7 @@
+import { EditorCodigo, useBorrador } from "@/components/codigo/editor";
+import { PanelesCodigo, type PanelCodigo } from "@/components/codigo/paneles";
+import { authClient } from "@/lib/auth/client";
+import { CuentaJuez } from "@/components/codigo/cuenta-juez";
 import { useState } from "react";
 import { ejecutarJavaScript } from "@/lib/ejecucion/motor-javascript";
 import { limitesDefecto } from "@/lib/ejecucion/limites";
@@ -52,8 +56,10 @@ function MedidaView({ titulo, medida }: { titulo: string; medida: Comparacion["o
 }
 
 export function CompararStudio() {
-  const [original, setOriginal] = useState("");
-  const [optimizada, setOptimizada] = useState("");
+  const [original, setOriginal] = useBorrador("cifra.estudio.compara.original", "");
+  const [optimizada, setOptimizada] = useBorrador("cifra.estudio.compara.optimizada", "");
+  const [panel, setPanel] = useState<PanelCodigo>("codigo");
+  const sesion = authClient.useSession();
   const [comparando, setComparando] = useState(false);
   const [resultado, setResultado] = useState<Comparacion | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
@@ -107,8 +113,8 @@ export function CompararStudio() {
   };
 
   return (
-    <div className="grid gap-10">
-      <section>
+    <PanelesCodigo titulo="Contexto" panel={panel} onPanel={setPanel} contexto={<>
+
         <h2 className="font-serif text-2xl">¿Tu cambio hizo el programa más rápido? Mídelo.</h2>
         <p className="mt-3 max-w-2xl text-pretty text-muted">
           Pega dos versiones del mismo programa. Cada una corre 12 veces de verdad (2 de
@@ -121,22 +127,12 @@ export function CompararStudio() {
             Este navegador no da Workers: la comparación necesita ejecución real.
           </p>
         )}
-      </section>
-
-      <div className="grid gap-8 lg:grid-cols-2">
+      </>} codigo={<div className="grid gap-4">
+      <div className="grid gap-4">
         <label className="flex flex-col gap-2 font-mono text-sm">
           Versión original
-          <textarea
-            value={original}
-            onChange={(event) => {
-              setOriginal(event.target.value);
-              setResultado(null);
-            }}
-            rows={9}
-            spellCheck={false}
-            aria-label="Código de la versión original"
-            className="min-h-44 w-full border border-line bg-paper p-3 font-mono text-sm leading-6 text-ink"
-          />
+          <EditorCodigo valor={original} lenguaje="javascript" etiqueta="Código de la versión original"
+            onChange={(valor) => { setOriginal(valor); setResultado(null); }} />
           <span className={cn("font-mono text-sm", originalExcedido ? "text-copper" : "text-muted")}>
             {original.length} de {limitesEntrada.codigo} caracteres
             {originalExcedido && ": no cabe, acótalo."}
@@ -145,17 +141,8 @@ export function CompararStudio() {
 
         <label className="flex flex-col gap-2 font-mono text-sm">
           Versión optimizada
-          <textarea
-            value={optimizada}
-            onChange={(event) => {
-              setOptimizada(event.target.value);
-              setResultado(null);
-            }}
-            rows={9}
-            spellCheck={false}
-            aria-label="Código de la versión optimizada"
-            className="min-h-44 w-full border border-line bg-paper p-3 font-mono text-sm leading-6 text-ink"
-          />
+          <EditorCodigo valor={optimizada} lenguaje="javascript" etiqueta="Código de la versión optimizada"
+            onChange={(valor) => { setOptimizada(valor); setResultado(null); }} />
           <span className={cn("font-mono text-sm", optimizadaExcedida ? "text-copper" : "text-muted")}>
             {optimizada.length} de {limitesEntrada.codigo} caracteres
             {optimizadaExcedida && ": no cabe, acótalo."}
@@ -167,14 +154,14 @@ export function CompararStudio() {
         <Button
           tone="primary"
           disabled={
-            comparando ||
+            !sesion.data || comparando ||
             !original.trim() ||
             !optimizada.trim() ||
             originalExcedido ||
             optimizadaExcedida ||
             !workerDisponible
           }
-          onClick={() => void comparar()}
+          onClick={() => { setPanel("resultado"); void comparar(); }}
         >
           {comparando ? "Midiendo 24 corridas…" : "Comparar mediciones"}
         </Button>
@@ -184,6 +171,10 @@ export function CompararStudio() {
         </p>
       </div>
 
+      <CuentaJuez />
+      </div>} resultado={<div className="grid gap-3" aria-live="polite">
+      <h2 className="font-mono text-sm">Resultado</h2>
+      {comparando && <p role="status">Midiendo…</p>}
       {aviso && (
         <div className="border-l border-copper pl-4">
           <p className="text-pretty">{aviso}</p>
@@ -202,6 +193,7 @@ export function CompararStudio() {
           <p className="mt-5 max-w-2xl text-pretty text-muted">{resultado.notas}</p>
         </article>
       )}
-    </div>
+      </div>}
+    />
   );
 }

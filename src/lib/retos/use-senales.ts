@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useCallback, useRef, useState } from "react";
-import type { ClipboardEvent, KeyboardEvent } from "react";
+import type { KeyboardEvent } from "react";
 import { observacionDe, observacionVacia, type ObservacionIntegridad } from "./integridad.ts";
 import type { SenalIntegridad } from "./tipos.ts";
 
@@ -12,7 +12,7 @@ export function usarSenales(): {
   señales: SenalIntegridad[];
   observacion: ObservacionIntegridad;
   eventos: {
-    onPaste: (evento: ClipboardEvent<unknown>) => void;
+    onPaste: (evento: Pick<ClipboardEvent, "clipboardData">) => void;
     onKeyDown: (evento: KeyboardEvent<unknown>) => void;
     onBlur: () => void;
   };
@@ -33,7 +33,7 @@ export function usarSenales(): {
     return () => window.removeEventListener("blur", perdioElFoco);
   }, []);
 
-  const onPaste = useCallback((evento: React.ClipboardEvent<unknown>) => {
+  const onPaste = useCallback((evento: Pick<ClipboardEvent, "clipboardData">) => {
     const texto = evento.clipboardData?.getData("text") ?? "";
     const ahora = performance.now();
     setSeñales((lasQueHabia) =>

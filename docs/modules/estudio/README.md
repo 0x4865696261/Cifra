@@ -18,6 +18,14 @@ El módulo de estudio es la capa de explicación y comprensión del código: tom
 - Funcional como eje principal del producto.
 - La evolución central es la mejora de trazabilidad y de separación entre comprobado/inferido/opinión.
 
+## Comprueba (0.8)
+
+La pestaña Comprueba analiza programas del lenguaje Cifra en el navegador. Usa la sintaxis de TypeScript con un conjunto acotado de tipos básicos, listas, funciones con firmas explícitas y condiciones. Devuelve regla, mensaje, línea, columna y concepto de biblioteca. Los diagnósticos se pueden abrir en Estudia el fallo. La práctica de tipos se enlaza desde Retos, donde cada reto ejecutable conserva su veredicto basado en pruebas.
+
+## Estudio en Cifra 1.0
+
+Estudio separa el contexto del código y los resultados. Ejecuta usa el juez de servidor con una cuenta de Google. JavaScript y Python pueden añadir una traza local. El selector incluye SQLite con una tabla de ejemplo y HTML/CSS con vista previa aislada. Los diagnósticos de ejecución pueden abrirse en Estudia el fallo con el código y el lenguaje del intento.
+
 ## Limitaciones conocidas
 - El análisis sigue siendo dependiente del formato del código y del contexto que se aporta.
 - La claridad pedagógica requiere que cada respuesta explique su origen.

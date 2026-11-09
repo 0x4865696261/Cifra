@@ -119,7 +119,8 @@ escribe una IA, y leer la arquitectura de un sistema.** Va desde cero hasta nive
 | 0.5 | Retos profesionales: leer qué pasó | en la rama `version/0.5` |
 | 0.6 | Plataforma modular | hecha en la rama; pendiente de revisión y fusión |
 | 0.7 | La red de conocimiento, completa | hecha |
-| 0.8 | Un compilador que comprueba | pendiente |
+| 0.8 | Un compilador que comprueba | hecha, validada localmente |
+| 0.8.1 | Editor de código para ejercicios y retos reales | planificada |
 | 0.9 | Pulido y endurecimiento | pendiente |
 | 1.0 | Lanzamiento público | pendiente |
 
@@ -875,6 +876,16 @@ que un compilador real aplicaría antes de dejarlo pasar.
 
 **Criterio de terminación:** un programa inválido se rechaza con un mensaje que enseña la regla y su
 ubicación; un programa válido se acepta sin promesas de más. Sin ejecución, sin milagros.
+
+---
+
+### Verificación local de la 0.8
+
+El comprobador usa el analizador de TypeScript con un subconjunto de sintaxis y una biblioteca virtual de listas. Revisa tipos y flujo sin generar ni ejecutar código. Las 611 pruebas, `typecheck` y `build` pasaron. Se recorrieron 12 rutas en escritorio y móvil y se comprobó el flujo desde Retos hasta Estudia el fallo. El ejecutor local de Rust usa la ruta de salida de Cargo y el nombre de binario de cada plataforma.
+
+### 0.8.1 — Editor de código para ejercicios y retos reales
+
+Planificada. El alcance y el criterio de finalización están en [CIFRA Roadmap](CIFRA_ROADMAP.md#081--editor-de-código-para-ejercicios-y-retos-reales).
 
 ---
 

@@ -73,6 +73,11 @@ const env = (key: string): string | undefined => {
 // Explicit off-switch. The deployer sets `VITE_AUTH_ENABLED=true` when it
 // provisions auth; set it to "false" to force auth off everywhere (dev user).
 const authDisabled = env("VITE_AUTH_ENABLED") === "false";
+const cifraPublica = env("VITE_CIFRA_PUBLIC") === "1";
+const googleId = env("GOOGLE_CLIENT_ID");
+const googleSecret = env("GOOGLE_CLIENT_SECRET");
+const googlePropio = Boolean(googleId && googleSecret && env("BETTER_AUTH_SECRET") &&
+  env("BETTER_AUTH_URL") && env("DATABASE_URL"));
 
 // Broker federation creds: the deployer injects a per-app client when deployed;
 // otherwise fall back to the shared live-preview client, which the broker accepts
@@ -83,7 +88,7 @@ const grokClientSecret = env("GROK_AUTH_CLIENT_SECRET") ?? PREVIEW_CLIENT_SECRET
 
 /** True when federated sign-in is active (real auth is enforced). */
 export const authConfigured =
-  !authDisabled && Boolean(grokClientId && grokClientSecret);
+  !authDisabled && (cifraPublica ? googlePropio : Boolean(grokClientId && grokClientSecret));
 
 // This app's own Better Auth origin. When deployed the deployer injects the
 // public URL. In the sandbox live preview there's no fixed URL (each preview gets
@@ -116,7 +121,7 @@ const baseURL = explicitBaseURL ?? {
 // Origins Better Auth accepts on credentialed POSTs (sign-up/sign-in, etc.).
 // Missing entries here surface as FORBIDDEN "Invalid origin".
 const trustedOrigins: string[] = explicitBaseURL
-  ? [explicitBaseURL, ...LOCAL_DEV_ORIGINS]
+  ? cifraPublica ? [explicitBaseURL] : [explicitBaseURL, ...LOCAL_DEV_ORIGINS]
   : [
       // Host wildcards (matched against Origin's host)
       ...previewAllowedHosts,
@@ -150,7 +155,7 @@ export const SESSION_TOKEN_COOKIE = "__Host-grok-auth.session_token";
 
 // Built separately so the `betterAuth({...})` call stays easy to edit without
 // breaking brackets (models often trip on the conditional plugin spread).
-const grokOAuthPlugin = authConfigured
+const grokOAuthPlugin = authConfigured && !cifraPublica
   ? genericOAuth({
       config: GROK_PROVIDERS.map(({ providerId, idp }) => ({
         providerId,
@@ -178,6 +183,9 @@ export const auth = betterAuth({
   // globalThis so HMR doesn't invalidate PGLite-backed sessions (see above).
   secret: env("BETTER_AUTH_SECRET") ?? previewAuthSecret(),
   database,
+  ...(cifraPublica && googlePropio
+    ? { socialProviders: { google: { clientId: googleId!, clientSecret: googleSecret! } } }
+    : {}),
 
   // CSRF / origin check for credentialed auth POSTs (email sign-up/sign-in, …).
   // See `trustedOrigins` construction above — must cover live preview hosts AND

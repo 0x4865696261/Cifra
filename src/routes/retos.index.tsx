@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
-import { EntregaEditor, type EntregaResultado } from "@/components/retos/entrega";
+import { TallerReto } from "@/components/retos/taller";
+import { retosEspeciales } from "@/lib/retos/especiales";
 import { nivelEstimadoDePrueba, siguienteTramo, tramosDePrueba } from "@/lib/retos/prueba-nivel";
 import { umbralProfesional } from "@/lib/retos/progreso";
 import { definiciones, familias } from "@/lib/retos/retos";
 import { notasFamilias } from "@/lib/retos/contenido/utiles";
 import { useProgreso } from "@/lib/retos/use-progreso";
 import type { Plan } from "@/lib/retos/tipos";
-import type { TestSpec } from "@/lib/ejecucion/tipos";
 
 /**
  * Entrada de la 0.4.A: los dos caminos. Aquí se elige el plan, se toma la prueba de nivel
@@ -41,13 +41,16 @@ function RetosPage() {
     <main id="contenido" className="mx-auto max-w-6xl px-5 py-10">
       <p className="font-mono text-sm text-copper">Retos</p>
       <h1 className="mt-3 max-w-2xl font-serif text-4xl">
-        Fundamentos con veredicto real: pruebas que corren en tu navegador.
+        Resuelve retos de programación en tu lenguaje.
       </h1>
       <p className="mt-4 max-w-2xl text-pretty">
-        El veredicto de cada reto sale de la ejecución contra sus pruebas fijas, de este
-        navegador. La IA lo explica y pregunta en la defensa, pero no decide nada. El progreso
-        vive solo aquí y se puede exportar desde Ajustes.
+        Prueba tus ejemplos y envía el código al juez para recibir un veredicto.
+        La IA puede explicar el resultado. Tu progreso vive en este navegador y se puede exportar desde Ajustes.
       </p>
+
+      <Link to="/estudio" search={{ modo: "comprobar" }} className="mt-4 inline-block underline">
+        Practicar tipos con el comprobador de Cifra
+      </Link>
 
       {vista.tipo === "cargar" && (
         <p className="mt-10 font-mono text-sm text-muted">Leyendo tu progreso de este navegador…</p>
@@ -78,6 +81,16 @@ function RetosPage() {
         <>
           <Resumen camino={progreso.plan} />
           <ListaRetos />
+          <section className="mt-8">
+            <h2 className="font-serif text-2xl">SQL y web</h2>
+            <ul className="mt-3 divide-y divide-line border border-line">
+              {retosEspeciales.map((reto) => <li key={reto.id}>
+                <Link to="/retos/$id" params={{ id: reto.id }} className="block px-4 py-3">
+                  {reto.titulo} · {reto.lenguaje === "sql" ? "SQLite" : "HTML y CSS"}
+                </Link>
+              </li>)}
+            </ul>
+          </section>
           {!progreso.profesionalDesbloqueado && (
             <div className="mt-10 flex flex-wrap gap-2">
               <Button tone="ghost" onClick={() => setVista({ tipo: "prueba" })}>
@@ -291,18 +304,16 @@ function PruebaDeNivel({ onTerminar, onElegirOtro }: { onTerminar: () => void; o
           </li>
         ))}
       </ol>
-      <div className="mt-6 max-w-3xl">
-        <p className="text-pretty">{tramo.enunciado}</p>
-        <p className="mt-2 font-mono text-sm text-muted">
-          Si fallas, la prueba para y te coloca. También puedes dejarla: el nivel queda guardado
-          con lo que ya tengas en serie.
-        </p>
-        <EntregaEditor
-          key={tramo.id}
-          codigoInicial={tramo.codigoDePartida}
-          pruebas={tramo.pruebas}
-          boton="Entregar el tramo"
-          onVeredicto={(entrega: EntregaResultado) => aPasar(tramo.id, entrega.superado)}
+      <div className="mt-6">
+        <TallerReto key={tramo.id} id={tramo.id} esNivel lenguajes={["javascript"]}
+          contexto={<>
+            <p className="text-pretty">{tramo.enunciado}</p>
+            <p className="mt-2 font-mono text-sm text-muted">
+              Si fallas, la prueba para y te coloca. También puedes dejarla y guardar los tramos superados.
+            </p>
+          </>}
+          codigoInicial={() => tramo.codigoDePartida}
+          onVeredicto={(entrega) => aPasar(tramo.id, entrega.superado)}
         />
       </div>
       <div className="mt-6 flex flex-wrap gap-2">

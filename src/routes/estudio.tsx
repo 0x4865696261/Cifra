@@ -1,27 +1,35 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Studio } from "@/components/studio/studio";
 import { DebugStudio } from "@/components/studio/debug";
 import { RunStudio } from "@/components/studio/run";
 import { CompararStudio } from "@/components/studio/comparar";
-import type { LanguageId } from "@/lib/analyze/structure";
+import { ComprobarStudio } from "@/components/studio/comprobar";
+import { isLanguageId, type LanguageId } from "@/lib/analyze/structure";
 import { cn } from "@/lib/cn";
-
-export const Route = createFileRoute("/estudio")({
-  head: () => ({ meta: [{ title: "Estudio â€” Cifra" }] }),
-  component: EstudioPage,
-});
 
 const modes = [
   { id: "lee", label: "Lee el programa" },
   { id: "fallo", label: "Estudia el fallo" },
   { id: "ejecuta", label: "Ejecuta" },
   { id: "compara", label: "Compara" },
+  { id: "comprueba", label: "Comprueba" },
 ] as const;
+
+type Modo = (typeof modes)[number]["id"];
+export const Route = createFileRoute("/estudio")({
+  head: () => ({ meta: [{ title: "Estudio — Cifra" }] }),
+  validateSearch: (search): { modo?: Modo | "comprobar" } => {
+    const modo = search.modo;
+    if (modo === "comprobar") return { modo };
+    return { modo: modes.find((opcion) => opcion.id === modo)?.id };
+  },
+  component: EstudioPage,
+});
 
 type PendienteFallo = { code: string; errorMessage: string; language: LanguageId };
 
-/** La llave con la que un fallo viaja aquÃ­ desde los retos (0.4.C): la escribe `/retos/$id`. */
+/** La llave con la que un fallo viaja aquí desde los retos (0.4.C): la escribe `/retos/$id`. */
 const CLAVE_FALLO_ESTUDIO = "cifra.fallo-estudio";
 
 function falloDeLaSesion(): PendienteFallo | null {
@@ -43,7 +51,7 @@ function falloDeLaSesion(): PendienteFallo | null {
       return {
         code: (leido as { code: string }).code,
         errorMessage: (leido as { errorMessage: string }).errorMessage,
-        language: language === "python" || language === "rust" ? language : "javascript",
+        language: typeof language === "string" && isLanguageId(language) ? language : "javascript",
       };
     }
     return null;
@@ -53,35 +61,32 @@ function falloDeLaSesion(): PendienteFallo | null {
 }
 
 function EstudioPage() {
-  const [mode, setMode] = useState<(typeof modes)[number]["id"]>("lee");
+  const { modo } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const mode: Modo = modo === "comprobar" ? "comprueba" : modo ?? "lee";
+  const setMode = (siguiente: Modo) => { void navigate({ search: { modo: siguiente }, replace: true }); };
   const [pendienteFallo, setPendienteFallo] = useState<PendienteFallo | null>(null);
 
-  // Un fallo que llega de los retos (0.4.C) aterriza directamente en Â«Estudia el falloÂ».
+  // Un fallo que llega de los retos (0.4.C) aterriza directamente en «Estudia el fallo».
   useEffect(() => {
     const vendido = falloDeLaSesion();
     if (vendido) {
       setPendienteFallo(vendido);
-      setMode("fallo");
+      void navigate({ search: { modo: "fallo" }, replace: true });
     }
-  }, []);
+  }, [navigate]);
 
   const llevarAlFallo = (codigo: string, mensaje: string, lenguaje: string) => {
-    if (lenguaje === "javascript" || lenguaje === "python" || lenguaje === "rust") {
-      setPendienteFallo({ code: codigo, errorMessage: mensaje, language: lenguaje });
-    }
+    const language = lenguaje === "web" ? "html" : lenguaje;
+    if (isLanguageId(language)) setPendienteFallo({ code: codigo, errorMessage: mensaje, language });
     setMode("fallo");
   };
 
   return (
-    <main id="contenido" className="mx-auto max-w-6xl px-5 py-10">
+    <main id="contenido" className="mx-auto max-w-[100rem] px-3 py-4 sm:px-5">
       <p className="font-mono text-sm text-copper">Estudio</p>
-      <h1 className="mt-3 max-w-2xl font-serif text-4xl">Lee un programa antes de reescribirlo. Y cuando falla, entiende el fallo antes de taparlo.</h1>
-      <p className="mt-4 max-w-2xl text-pretty">
-        El anÃ¡lisis y la guÃ­a leen el texto y el mensaje del error, y usan el modelo solo cuando
-        pulsas. La pestaÃ±a Ejecuta corre el cÃ³digo en tu propio navegador, aislado y con lÃ­mites,
-        y si falla lleva el mensaje a Â«Estudia el falloÂ».
-      </p>
-      <div className="mt-6 grid grid-cols-2 max-w-xl border border-line sm:grid-cols-4">
+      <h1 className="mt-2 font-serif text-3xl">Estudia tu código</h1>
+      <div className="mt-6 grid grid-cols-2 max-w-xl border border-line sm:grid-cols-5">
         {modes.map((option) => (
           <button
             key={option.id}
@@ -97,13 +102,19 @@ function EstudioPage() {
           </button>
         ))}
       </div>
-      <div className="mt-10">
+      <div className="mt-4">
         {mode === "lee" && <Studio />}
-        {mode === "fallo" && <DebugStudio inicial={pendienteFallo ?? undefined} />}
+        {mode === "fallo" && <DebugStudio key={pendienteFallo ? "importado" : "local"} inicial={pendienteFallo ?? undefined} />}
         {mode === "ejecuta" && (
           <RunStudio onEstudiarFallo={(codigo, mensaje, lenguaje) => llevarAlFallo(codigo, mensaje, lenguaje)} />
         )}
         {mode === "compara" && <CompararStudio />}
+        <div hidden={mode !== "comprueba"}>
+          <ComprobarStudio onEstudiarFallo={(code, errorMessage) => {
+            setPendienteFallo({ code, errorMessage, language: "typescript" });
+            setMode("fallo");
+          }} />
+        </div>
       </div>
     </main>
   );
