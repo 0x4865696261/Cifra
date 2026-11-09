@@ -1,3 +1,8 @@
+ version/1.0
+import type { LenguajeJuez } from "@/lib/ejecucion/catalogo";
+import { todasPasadas, textoDe } from "@/lib/ejecucion/pruebas";
+import type { RunResult, TestSpec } from "@/lib/ejecucion/tipos";
+=======
 import { useEffect, useState } from "react";
 import { correrPruebasJavaScript, todasPasadas } from "@/lib/ejecucion/pruebas";
 import { limitesDefecto } from "@/lib/ejecucion/limites";
@@ -5,23 +10,19 @@ import type { RunRequest, RunResult, TestSpec } from "@/lib/ejecucion/tipos";
 import { EditorCodigo } from "@/components/editor-codigo";
 import { cn } from "@/lib/cn";
 import { usarSenales } from "@/lib/retos/use-senales";
-import type { SenalIntegridad } from "@/lib/retos/tipos";
 
-/**
- * La entrega de un reto (0.4.C): el código de partida con los casos plantados, el botón
- * «Entregar» y la corrida real en el navegador contra las pruebas fijas del reto. El
- * veredicto sale aquí y de aquí, con `todasPasadas`; sube hacia arriba y nadie lo negocia.
- *
- * Las señales de integridad (0.4.D) se anotan mientras se escribe y suben con el veredicto
- * para que la defensa tenga contexto. Nunca bloquean un envío.
- */
+import type { SenalIntegridad } from "@/lib/retos/tipos";
+import { cn } from "@/lib/cn";
 
 export type EntregaResultado = {
   resultado: RunResult;
   superado: boolean;
   codigo: string;
+  lenguaje: LenguajeJuez;
   señales: SenalIntegridad[];
 };
+
+
 
 export function EntregaEditor({
   codigoInicial,
@@ -144,58 +145,67 @@ export function EntregaEditor({
   );
 }
 
+
 const etiquetasEstado: Record<RunResult["estado"], string> = {
-  ok: "El programa terminó bien",
-  error: "El programa falló",
-  tiempo: "Corte por tiempo",
-  memoria: "Corte por memoria",
-  "salida-excedida": "Salida enorme",
-  "no-soportado": "Aquí no se puede ejecutar",
+  ok: "El programa terminó",
+  error: "Error de compilación o ejecución",
+  tiempo: "Límite de tiempo",
+  memoria: "Límite de memoria",
+  "salida-excedida": "Límite de salida",
+  "no-soportado": "Ejecución no disponible",
 };
 
-export function Corrida({ corrida, pruebas }: { corrida: RunResult; pruebas: TestSpec[] }) {
-  const superado = todasPasadas(corrida);
-  const nombreDe = new Map(pruebas.map((prueba) => [prueba.id, prueba.nombre]));
+export function Corrida({ corrida, pruebas = [] }: { corrida: RunResult; pruebas?: TestSpec[] }) {
+  const paso = todasPasadas(corrida);
+  const nombres = new Map(pruebas.map((prueba) => [prueba.id, prueba.nombre]));
   return (
-    <section className="border-t border-line pt-4">
-      <p className={cn("font-mono text-sm", superado ? "text-copper" : "text-muted")}>
-        Veredicto: {superado ? "todas las pruebas pasaron" : "no pasó"} · {etiquetasEstado[corrida.estado]} ·{" "}
-        {corrida.duracionMs} ms
+    <section className="min-w-0 border-t border-line pt-3">
+      <p className={cn("font-mono text-sm", paso ? "text-copper" : "text-muted")}>
+        {corrida.pruebas?.length
+          ? paso
+            ? "Todas las pruebas pasaron"
+            : "Hay pruebas sin superar"
+          : etiquetasEstado[corrida.estado]}
       </p>
       <p className="mt-1 font-mono text-xs text-muted">
-        {corrida.motor.nombre} · {corrida.motor.version} · ejecución real en tu navegador
+        {corrida.motor.nombre} · {corrida.motor.version} · {corrida.duracionMs} ms
       </p>
-
-      <ol className="mt-4 grid gap-2">
-        {(corrida.pruebas ?? []).map((prueba, indice) => {
-          const nombre = nombreDe.get(prueba.id) ?? `prueba ${indice + 1}`;
-          return (
-            <li key={prueba.id} className="border border-line px-3 py-2">
-              <p className={cn("font-mono text-sm", prueba.pasada ? "text-copper" : "text-muted")}>
-                {prueba.pasada ? "✓" : "✗"} {nombre}
+      {corrida.pruebas?.length ? (
+        <ol className="mt-3 grid gap-2">
+          {corrida.pruebas.map((prueba, indice) => (
+            <li key={prueba.id} className="min-w-0 rounded border border-line px-3 py-2">
+              <p className="font-mono text-sm">
+                {prueba.pasada ? "✓" : "✗"}{" "}
+                {nombres.get(prueba.id) ??
+                  (prueba.id.startsWith("oculto") ? "Caso oculto" : `Caso ${indice + 1}`)}
               </p>
               {!prueba.pasada && (
-                <p className="mt-1 text-pretty text-muted">
-                  {prueba.error
-                    ? `El programa dijo: ${prueba.error}`
-                    : `Lo que salió: ${textoCorto(prueba.obtenido)}. Lo que pedía la prueba: ${textoCorto(prueba.esperado)}.`}
+                <p className="mt-1 break-words text-sm text-muted">
+                  {prueba.obtenido === undefined
+                    ? prueba.error
+                    : `Salida: ${textoDe(prueba.obtenido).slice(0, 200)}. Esperado: ${textoDe(prueba.esperado).slice(0, 200)}.`}
                 </p>
               )}
             </li>
-          );
-        })}
-      </ol>
-
-      {corrida.stderr.trim().length > 0 && (
-        <pre className="mt-4 max-h-40 overflow-auto border border-copper bg-paper p-3 font-mono text-sm leading-6 whitespace-pre-wrap text-ink">
+          ))}
+        </ol>
+      ) : null}
+      {corrida.stdout && (
+        <pre
+          aria-label="Salida"
+          className="mt-3 max-h-52 overflow-auto whitespace-pre-wrap break-words rounded border border-line p-3 text-sm"
+        >
+          {corrida.stdout}
+        </pre>
+      )}
+      {corrida.stderr && (
+        <pre
+          aria-label="Diagnóstico"
+          className="mt-3 max-h-52 overflow-auto whitespace-pre-wrap break-words rounded border border-copper p-3 text-sm"
+        >
           {corrida.stderr}
         </pre>
       )}
     </section>
   );
-}
-
-function textoCorto(valor: unknown): string {
-  const texto = typeof valor === "string" ? valor : JSON.stringify(valor);
-  return texto.length > 200 ? `${texto.slice(0, 200)}…` : texto;
 }

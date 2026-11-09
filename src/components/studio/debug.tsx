@@ -1,4 +1,9 @@
+ version/1.0
+import { EditorCodigo, useBorrador } from "@/components/codigo/editor";
+import { PanelesCodigo, type PanelCodigo } from "@/components/codigo/paneles";
+
 import { EditorCodigo } from "@/components/editor-codigo";
+ main
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import type { DebugResult } from "@/lib/ai/debug";
@@ -70,7 +75,11 @@ export function DebugStudio({
   const { level, setLevel } = useLevel();
   const [sampleId, setSampleId] = useState("");
   const [language, setLanguage] = useState<LanguageId>(inicial?.language ?? "javascript");
-  const [code, setCode] = useState(inicial?.code ?? "");
+  const [codigoGuardado, editarCodigo] = useBorrador("cifra.estudio.fallo", "");
+  const [codigoImportado, setCodigoImportado] = useState(inicial?.code);
+  const code = codigoImportado ?? codigoGuardado;
+  const setCode = (valor: string) => { setCodigoImportado(undefined); editarCodigo(valor); };
+  const [panel, setPanel] = useState<PanelCodigo>(inicial ? "codigo" : "problema");
   const [errorMessage, setErrorMessage] = useState(inicial?.errorMessage ?? "");
   const [question, setQuestion] = useState("");
   const [pending, setPending] = useState(false);
@@ -131,8 +140,7 @@ export function DebugStudio({
   };
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-      <section className="min-w-0">
+    <PanelesCodigo titulo="Contexto" panel={panel} onPanel={setPanel} contexto={<>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <label className="flex flex-col gap-2 font-mono text-sm">
             Lenguaje
@@ -170,6 +178,8 @@ export function DebugStudio({
           tocar el código.
         </p>
 
+ version/1.0
+
         <div className="mt-6 flex flex-col gap-2 font-mono text-sm">
           Código
           <EditorCodigo
@@ -187,6 +197,7 @@ export function DebugStudio({
             {codigoExcedido && ": te pasas. Acorta o parte el fragmento: no se envía hasta que quepa."}
           </p>
         </div>
+ main
         <label className="mt-4 flex flex-col gap-2 font-mono text-sm">
           Mensaje del error
           <textarea
@@ -208,6 +219,63 @@ export function DebugStudio({
           </p>
         </label>
 
+
+        <fieldset>
+          <legend className="font-mono text-sm">Nivel</legend>
+          <div className="mt-2 grid grid-cols-3 border border-line">
+            {levelOptions.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                aria-pressed={level === option.id}
+                onClick={() => setLevel(option.id)}
+                className={cn(
+                  "tap min-h-11 px-2 font-mono text-sm",
+                  level === option.id ? "bg-ink text-paper" : "text-muted",
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-pretty text-muted">{levelOptions.find((option) => option.id === level)?.hint}</p>
+        </fieldset>
+
+        <label className="mt-6 flex flex-col gap-2 font-mono text-sm">
+          Sospechas, si ya tienes
+          <textarea
+            value={question}
+            onChange={(event) => setQuestion(event.target.value)}
+            rows={3}
+            maxLength={limitesEntrada.pregunta}
+            className="w-full border border-line bg-paper p-3 font-serif text-base text-ink"
+            placeholder="Opcional: «mira la línea 6, no entiendo por qué ahí»."
+          />
+        </label>
+
+        <p className="mt-6 font-mono text-sm text-muted">
+          Skill fija en la guía: <span className="text-ink">Depuración</span>, junto a Pedagogía y Análisis.
+        </p>
+
+        <Button
+          tone="primary"
+          className="mt-6 w-full"
+          disabled={pending || !code.trim() || !errorMessage.trim() || codigoExcedido || mensajeExcedido}
+          onClick={() => { setPanel("resultado"); void submit(); }}
+        >
+          {pending ? "Conduciendo el análisis…" : "Estudiar este fallo"}
+        </Button>
+        <p className="mt-2 font-mono text-sm text-muted">
+          Usa {settings.apiKey.trim() ? `${providerLabel(settings.providerId)} · ${modelInUse(settings)}` : "la clave de plataforma, si existe"}. Una
+          llamada cuando pulsas, nunca parte sola.
+        </p>
+
+      </>} codigo={<>
+        <EditorCodigo valor={code} lenguaje={language} onChange={(valor) => {
+          setCode(valor); setSampleId(""); setResult(null);
+        }} />
+        <p className="mt-2 text-sm text-muted">{code.length} de {limitesEntrada.codigo} caracteres</p>
+      </>} resultado={<>
         {code.trim() && (
           <div className="mt-6">
             <h2 className="font-serif text-2xl">El fragmento, en sus líneas</h2>
@@ -256,59 +324,6 @@ export function DebugStudio({
         <p className="mt-4 text-pretty text-muted">
           Ninguna de estas observaciones es una ejecución. La guía del lado derecho tiene que decir lo que supone.
         </p>
-      </section>
-
-      <section>
-        <fieldset>
-          <legend className="font-mono text-sm">Nivel</legend>
-          <div className="mt-2 grid grid-cols-3 border border-line">
-            {levelOptions.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                aria-pressed={level === option.id}
-                onClick={() => setLevel(option.id)}
-                className={cn(
-                  "tap min-h-11 px-2 font-mono text-sm",
-                  level === option.id ? "bg-ink text-paper" : "text-muted",
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-          <p className="mt-2 text-pretty text-muted">{levelOptions.find((option) => option.id === level)?.hint}</p>
-        </fieldset>
-
-        <label className="mt-6 flex flex-col gap-2 font-mono text-sm">
-          Sospechas, si ya tienes
-          <textarea
-            value={question}
-            onChange={(event) => setQuestion(event.target.value)}
-            rows={3}
-            maxLength={limitesEntrada.pregunta}
-            className="w-full border border-line bg-paper p-3 font-serif text-base text-ink"
-            placeholder="Opcional: «mira la línea 6, no entiendo por qué ahí»."
-          />
-        </label>
-
-        <p className="mt-6 font-mono text-sm text-muted">
-          Skill fija en la guía: <span className="text-ink">Depuración</span>, junto a Pedagogía y Análisis.
-        </p>
-
-        <Button
-          tone="primary"
-          className="mt-6 w-full"
-          disabled={pending || !code.trim() || !errorMessage.trim() || codigoExcedido || mensajeExcedido}
-          onClick={() => void submit()}
-        >
-          {pending ? "Conduciendo el análisis…" : "Estudiar este fallo"}
-        </Button>
-        <p className="mt-2 font-mono text-sm text-muted">
-          Usa {settings.apiKey.trim() ? `${providerLabel(settings.providerId)} · ${modelInUse(settings)}` : "la clave de plataforma, si existe"}. Una
-          llamada cuando pulsas, nunca parte sola.
-        </p>
-
         {result && !result.ok && (
           <div className="mt-6 border-l border-copper pl-4">
             <p className="text-pretty">{result.error}</p>
@@ -318,8 +333,8 @@ export function DebugStudio({
           </div>
         )}
         {result?.ok && <DebugGuideView guide={result.guide} cached={result.cached} />}
-      </section>
-    </div>
+      </>}
+    />
   );
 }
 

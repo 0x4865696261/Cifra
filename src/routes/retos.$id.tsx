@@ -1,13 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+
+import type { EntregaResultado } from "@/components/retos/entrega";
+import { TallerReto } from "@/components/retos/taller";
+import { lenguajesAlgoritmo, type LenguajeAlgoritmo, type LenguajeJuez } from "@/lib/ejecucion/catalogo";
+import { retoEspecial } from "@/lib/retos/especiales";
+import { firmas } from "@/lib/retos/firmas";
+import { plantillaAlgoritmo } from "@/lib/retos/plantillas";
+=======
 import { RetoProyecto } from "@/components/retos/proyecto";
 import { proyectoPedidos } from "@/lib/retos/proyecto-pedidos";
 import { EntregaEditor, Corrida, type EntregaResultado } from "@/components/retos/entrega";
+
 import { explicarVeredicto, defenderSolucion } from "@/lib/ai/retos";
 import type { GuiaVeredicto, JuicioDefensa } from "@/lib/ai/retos-parse";
 import { limitesEntrada } from "@/lib/ai/limits";
-import { todasPasadas } from "@/lib/ejecucion/pruebas";
 import { getConcept } from "@/lib/content/concepts";
 import type { RunResult } from "@/lib/ejecucion/tipos";
 import { definicionPorId, instanciaReto } from "@/lib/retos/retos";
@@ -39,16 +47,45 @@ function RetoPage() {
 
 function RetoClasico({ id }: { id: string }) {
   const definicion = definicionPorId(id);
+  const especial = retoEspecial(id);
   const navigate = useNavigate();
 
   // La instancia nace en el navegador: la semilla por persona vive en localStorage y el
   // servidor no debe inventarse ninguna.
-  const [instancia, setInstancia] = useState<InstanciaReto | null>(null);
+  const [variante, setVariante] = useState<{ instancia: InstanciaReto; semilla: string } | null>(null);
   const { progreso, cargado, superar, proponerRepaso } = useProgreso();
 
   useEffect(() => {
-    if (definicion) setInstancia(instanciaReto(definicion, semillaPorPersona()));
+    if (definicion) {
+      const semilla = semillaPorPersona();
+      setVariante({ instancia: instanciaReto(definicion, semilla), semilla });
+    }
   }, [definicion]);
+
+  const alEstudiarFallo = (codigo: string, mensaje: string, lenguaje: LenguajeJuez) => {
+    sessionStorage.setItem(
+      CLAVE_FALLO_ESTUDIO,
+      JSON.stringify({ code: codigo, errorMessage: mensaje, language: lenguaje === "web" ? "html" : lenguaje }),
+    );
+    void navigate({ to: "/estudio", search: { modo: "fallo" } });
+  };
+
+  if (especial) {
+    return <main id="contenido" className="mx-auto max-w-[100rem] px-3 py-4 sm:px-5">
+      <TallerReto key={especial.id} id={especial.id} lenguajes={[especial.lenguaje]}
+        codigoInicial={() => especial.codigo} cssInicial={"css" in especial ? especial.css : undefined}
+        ejemplos={especial.ejemplos}
+        onEstudiarFallo={alEstudiarFallo}
+        contexto={<>
+          <Link to="/retos" className="font-mono text-sm text-copper underline">Retos</Link>
+          <h1 className="mt-3 font-serif text-3xl">{especial.titulo}</h1>
+          <p className="mt-4 text-pretty">{especial.enunciado}</p>
+          {progreso.retos[id] && <p className="mt-3 text-sm text-copper">{entiquetaEstado(progreso.retos[id].estado)}</p>}
+        </>}
+        onVeredicto={(entrega) => { if (entrega.superado) superar(id, especial.nivel, false); }}
+      />
+    </main>;
+  }
 
   if (!definicion) {
     return (
@@ -63,7 +100,7 @@ function RetoClasico({ id }: { id: string }) {
     );
   }
 
-  if (!cargado || !instancia) {
+  if (!cargado || !variante || variante.instancia.id !== id) {
     return (
       <main id="contenido" className="mx-auto max-w-6xl px-5 py-10">
         <p className="font-mono text-sm text-muted">Preparando tu variante del reto…</p>
@@ -73,18 +110,14 @@ function RetoClasico({ id }: { id: string }) {
 
   return (
     <RetoViva
-      instancia={instancia}
+      key={id}
+      instancia={variante.instancia}
+      semilla={variante.semilla}
       estadoGuardado={progreso.retos[id]?.estado ?? "pendiente"}
       profesionalYa={progreso.profesionalDesbloqueado}
       onSuperar={superar}
       proponerRepaso={proponerRepaso}
-      alEstudiarFallo={(codigo, mensaje) => {
-        sessionStorage.setItem(
-          CLAVE_FALLO_ESTUDIO,
-          JSON.stringify({ code: codigo, errorMessage: mensaje, language: "javascript" }),
-        );
-        void navigate({ to: "/estudio" });
-      }}
+      alEstudiarFallo={alEstudiarFallo}
     />
   );
 }
@@ -97,6 +130,7 @@ function RetoClasico({ id }: { id: string }) {
  */
 function RetoViva({
   instancia,
+  semilla,
   estadoGuardado,
   profesionalYa,
   onSuperar,
@@ -104,11 +138,12 @@ function RetoViva({
   alEstudiarFallo,
 }: {
   instancia: InstanciaReto;
+  semilla: string;
   estadoGuardado: "pendiente" | "superado" | "superado-sin-comprender";
   profesionalYa: boolean;
   onSuperar: (id: string, nivel: number, sinComprender: boolean) => boolean;
   proponerRepaso: (conceptos: string[]) => void;
-  alEstudiarFallo: (codigo: string, mensaje: string) => void;
+  alEstudiarFallo: (codigo: string, mensaje: string, lenguaje: LenguajeJuez) => void;
 }) {
   const [entrega, setEntrega] = useState<EntregaResultado | null>(null);
   const [juiciosDefensa, setJuiciosDefensa] = useState<JuicioDefensa[] | null>(null);
@@ -126,16 +161,30 @@ function RetoViva({
   };
 
   return (
+ version/1.0
+    <main id="contenido" className="mx-auto max-w-[100rem] px-3 py-4 sm:px-5">
+      <TallerReto id={instancia.id} semilla={semilla} lenguajes={lenguajesAlgoritmo}
+        codigoInicial={(lenguaje) => plantillaAlgoritmo(lenguaje as LenguajeAlgoritmo, firmas[instancia.id])}
+        onVeredicto={(dada) => { setJuiciosDefensa(null); setEntrega(dada); }}
+        onEstudiarFallo={alEstudiarFallo}
+        contexto={<>
+      <p className="font-mono text-sm text-copper">
+=======
     <main id="contenido" className="cifra-workspace">
       <div className="cifra-split">
         <section className="cifra-brief" aria-label="Enunciado del reto">
       <p className="font-mono text-sm text-copper" >
+
         <Link to="/retos" className="underline">
           Retos
         </Link>{" "}
         · {tituloFamilia(instancia.familia)} · nivel {instancia.nivel} ·{" "}
         {entiquetaEstado(estadoGuardado)}
       </p>
+ version/1.0
+      <h1 className="my-4 font-serif text-3xl">{instancia.titulo}</h1>
+          <h2 className="font-serif text-2xl">El enunciado</h2>
+=======
       <h1 className="mt-3 max-w-2xl font-serif text-4xl">{instancia.titulo}</h1>
 
           <a href="#editor-reto" className="mt-4 inline-block font-semibold text-copper underline lg:hidden">Saltar al editor</a>
@@ -179,6 +228,10 @@ function RetoViva({
               ))}
             </ul>
           </div>
+ version/1.0
+        </>}
+        extra={<>
+=======
         </section>
 
         <section id="editor-reto" className="min-w-0 scroll-mt-4" aria-label="Editor del reto">
@@ -193,13 +246,25 @@ function RetoViva({
             }}
           />
 
+
           {fase === "defensa" && entrega && (
             <Defensa
               instancia={instancia}
               codigo={entrega.codigo}
               señales={entrega.señales}
+ version/1.0
+              onCerrada={(defendido, juicios) => {
+                setJuiciosDefensa(juicios);
+                cerrarDefensa(defendido);
+              }}
+              onPlana={() => {
+                setJuiciosDefensa([]);
+                cerrarDefensa(false);
+              }}
+=======
               onCerrada={cerrarDefensa}
               onPlana={() => cerrarDefensa(false)}
+
             />
           )}
 
@@ -217,7 +282,7 @@ function RetoViva({
                   className="mt-3"
                   tone="ghost"
                   onClick={() =>
-                    alEstudiarFallo(entrega.codigo, mensajeDelFallo(entrega.resultado))
+                    alEstudiarFallo(entrega.codigo, mensajeDelFallo(entrega.resultado), entrega.lenguaje)
                   }
                 >
                   Estudiar este fallo →
@@ -251,8 +316,8 @@ function RetoViva({
               )}
             </section>
           )}
-        </section>
-      </div>
+        </>}
+      />
     </main>
   );
 }
@@ -270,7 +335,7 @@ function Defensa({
   instancia: InstanciaReto;
   codigo: string;
   señales: SenalIntegridad[];
-  onCerrada: (defendido: boolean) => void;
+  onCerrada: (defendido: boolean, juicios: JuicioDefensa[]) => void;
   /** Sin modelo no hay juicio: en vez de esperar, queda con la marca de repaso. */
   onPlana: () => void;
 }) {
@@ -363,7 +428,7 @@ function Defensa({
           </>
         )}
         {defendido !== null && (
-          <Button tone="primary" onClick={() => onCerrada(defendido)}>
+          <Button tone="primary" onClick={() => onCerrada(defendido, juicios ?? [])}>
             Cerrar el reto
           </Button>
         )}

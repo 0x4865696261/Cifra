@@ -21,6 +21,7 @@ import { Route as MatematicasIndexRouteImport } from './routes/matematicas.index
 import { Route as MatematicasSlugRouteImport } from './routes/matematicas.$slug'
 import { Route as RetosIndexRouteImport } from './routes/retos.index'
 import { Route as RetosIdRouteImport } from './routes/retos.$id'
+import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -82,6 +83,11 @@ const RetosIdRoute = RetosIdRouteImport.update({
   path: '/retos/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/incidentes/': typeof IncidentesIndexRoute
   '/matematicas/': typeof MatematicasIndexRoute
   '/retos/': typeof RetosIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/incidentes': typeof IncidentesIndexRoute
   '/matematicas': typeof MatematicasIndexRoute
   '/retos': typeof RetosIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/incidentes/': typeof IncidentesIndexRoute
   '/matematicas/': typeof MatematicasIndexRoute
   '/retos/': typeof RetosIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/incidentes/'
     | '/matematicas/'
     | '/retos/'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/incidentes'
     | '/matematicas'
     | '/retos'
+    | '/api/auth/$'
   id:
     | '__root__'
     | '/'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/incidentes/'
     | '/matematicas/'
     | '/retos/'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -184,6 +196,7 @@ export interface RootRouteChildren {
   IncidentesIndexRoute: typeof IncidentesIndexRoute
   MatematicasIndexRoute: typeof MatematicasIndexRoute
   RetosIndexRoute: typeof RetosIndexRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -272,6 +285,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RetosIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -288,6 +308,7 @@ const rootRouteChildren: RootRouteChildren = {
   IncidentesIndexRoute: IncidentesIndexRoute,
   MatematicasIndexRoute: MatematicasIndexRoute,
   RetosIndexRoute: RetosIndexRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

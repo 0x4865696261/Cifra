@@ -1,4 +1,9 @@
+ version/1.0
+import { EditorCodigo, useBorrador } from "@/components/codigo/editor";
+import { PanelesCodigo, type PanelCodigo } from "@/components/codigo/paneles";
+
 import { EditorCodigo } from "@/components/editor-codigo";
+ main
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { analyze, isLanguageId, languageIds, languageLabels, type LanguageId } from "@/lib/analyze/structure";
@@ -23,7 +28,13 @@ export function Studio() {
   const { level, setLevel } = useLevel();
   const [sampleId, setSampleId] = useState(samples[0].id);
   const [language, setLanguage] = useState<LanguageId>(samples[0].language);
+ version/1.0
+  const [code, setCode] = useBorrador("cifra.estudio.lee", samples[0].code);
+  const [panel, setPanel] = useState<PanelCodigo>("codigo");
+  const [editing, setEditing] = useState(false);
+
   const [code, setCode] = useState(samples[0].code);
+ main
   const [question, setQuestion] = useState("");
   const [fromLine, setFromLine] = useState(1);
   const [toLine, setToLine] = useState(1);
@@ -116,8 +127,9 @@ export function Studio() {
   const high = Math.max(fromLine, toLine);
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-      <section className="min-w-0">
+    <PanelesCodigo titulo="Contexto" panel={panel} onPanel={setPanel}
+      contexto={<>
+
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <label className="flex flex-col gap-2 font-mono text-sm">
             Lenguaje
@@ -144,6 +156,14 @@ export function Studio() {
               {sample.title}
             </Button>
           ))}
+ version/1.0
+          <Button tone="ghost" onClick={() => { setEditing((value) => !value); setPanel("codigo"); }}>
+            {editing ? "Cerrar editor" : "Editar el texto"}
+          </Button>
+        </div>
+        <p className="mt-3 text-pretty text-muted">{samples.find((sample) => sample.id === sampleId)?.hint}</p>
+
+
         </div>
         <p className="mt-3 text-pretty text-muted">{samples.find((sample) => sample.id === sampleId)?.hint}</p>
 
@@ -185,6 +205,7 @@ export function Studio() {
         <p className="mt-2 font-mono text-sm text-muted">
           Pulsa una línea. Con la tecla de mayúsculas, alargas el tramo. Ahora: {selection}.
         </p>
+ main
         <div className="mt-3 grid grid-cols-2 gap-3">
           <label className="flex flex-col gap-1 font-mono text-sm">
             Desde
@@ -225,9 +246,7 @@ export function Studio() {
           Esto no ejecuta el programa. Se equivoca con cadenas de varias líneas y con sintaxis rara. Si una
           explicación necesita un valor concreto, tiene que decir que lo supone.
         </p>
-      </section>
 
-      <section>
         <fieldset>
           <legend className="font-mono text-sm">Nivel</legend>
           <div className="mt-2 grid grid-cols-3 border border-line">
@@ -303,11 +322,42 @@ export function Studio() {
           </div>
         )}
 
-        <Button tone="primary" className="mt-6 w-full" disabled={pending || !code.trim()} onClick={() => void submit()}>
+        <Button tone="primary" className="mt-6 w-full" disabled={pending || !code.trim()} onClick={() => { setPanel("resultado"); void submit(); }}>
           {pending ? "Leyendo el programa…" : "Explicar este programa"}
         </Button>
         <p className="mt-2 font-mono text-sm text-muted">Una llamada al modelo, solo cuando pulsas. No parte sola.</p>
 
+      </>}
+      codigo={<>
+        {editing && <EditorCodigo valor={code} lenguaje={language} onChange={(valor) => {
+          setCode(valor); setSampleId(""); setResult(null);
+        }} />}
+        <div className="mt-4 max-h-[32rem] overflow-auto border border-line">
+          {lines.map((line, index) => {
+            const number = index + 1;
+            const selected = number >= low && number <= high;
+            return (
+              <button
+                key={number}
+                type="button"
+                aria-pressed={selected}
+                onClick={(event) => pickLine(number, event.shiftKey)}
+                className={cn(
+                  "grid min-h-11 w-max min-w-full grid-cols-[3rem_1fr] items-start gap-3 border-l-2 px-3 py-2 text-left font-mono text-sm leading-6",
+                  selected ? "border-copper bg-line text-ink" : "border-transparent text-ink",
+                )}
+              >
+                <span className="text-muted tabular-nums">{number}</span>
+                <span className="whitespace-pre">{line || " "}</span>
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-2 font-mono text-sm text-muted">
+          Pulsa una línea. Con la tecla de mayúsculas, alargas el tramo. Ahora: {selection}.
+        </p>
+      </>}
+      resultado={<>
         {result && !result.ok && (
           <div className="mt-6 border-l border-copper pl-4">
             <p className="text-pretty">{result.error}</p>
@@ -330,7 +380,7 @@ export function Studio() {
             }}
           />
         )}
-      </section>
-    </div>
+      </>}
+    />
   );
 }

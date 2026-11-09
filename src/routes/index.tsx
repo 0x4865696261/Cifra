@@ -26,11 +26,61 @@ function Home() {
     : null;
 
   return (
+
+    <main id="contenido" className="mx-auto max-w-6xl px-5 py-12 sm:py-16">
+      <p className="font-mono text-sm text-copper">Versión 0.8 · Un compilador que comprueba</p>
+      <p className="mt-4 font-mono text-xs uppercase tracking-[0.24em] text-muted">
+        Una plataforma para leer software
+      </p>
+      <h1 className="mt-4 max-w-3xl font-serif text-4xl leading-tight sm:text-5xl">
+        Entender el código es tan importante como escribirlo.
+      </h1>
+      <p className="mt-6 max-w-2xl border-l border-copper pl-5 text-lg leading-relaxed text-pretty">
+        Generar un programa ya es rápido. Cifra existe para la otra mitad: leerlo, saber qué se está
+        suponiendo y poder ir de una ecuación a los pasos que la calculan. En esta versión, la
+        biblioteca funciona como red: cada concepto enlaza con el que lo sostiene y con el siguiente
+        paso.
+      </p>
+      <Link to="/estudio" search={{ modo: "comprobar" }} className="mt-4 inline-block underline">
+        Probar el comprobador de Cifra
+      </Link>
+
+      <div className="mt-12 grid gap-10 border-t border-line pt-8 md:grid-cols-3">
+        <Link to="/retos" className="group block min-h-11">
+          <p className="font-mono text-sm text-muted">01</p>
+          <h2 className="mt-2 font-serif text-3xl group-hover:text-copper">Retos</h2>
+          <p className="mt-3 max-w-md text-pretty">
+            Fundamentos con veredicto real: pruebas que ejecuta el juez y una defensa que
+            comprueba que entiendes lo que escribiste.
+          </p>
+        </Link>
+        <Link to="/estudio" className="group block min-h-11">
+          <p className="font-mono text-sm text-muted">02</p>
+          <h2 className="mt-2 font-serif text-3xl group-hover:text-copper">Un programa</h2>
+          <p className="mt-3 max-w-md text-pretty">
+            Pega un fragmento. Cifra separa lo que está escrito de lo que solo se puede deducir, y
+            lo explica al nivel que elijas.
+          </p>
+        </Link>
+        <Link to="/matematicas" className="group block min-h-11">
+          <p className="font-mono text-sm text-muted">03</p>
+          <h2 className="mt-2 font-serif text-3xl group-hover:text-copper">Una ecuación</h2>
+          <p className="mt-3 max-w-md text-pretty">
+            De la fórmula al razonamiento, al pseudocódigo y a una implementación cuyos valores
+            puedes mover.
+          </p>
+        </Link>
+      </div>
+
+      <section className="mt-16">
+        <h2 className="font-serif text-3xl">Hilos</h2>
+=======
     <main id="contenido" className="curso-contenedor">
       <PortadaCursos />
 
       <section className="curso-seccion">
         <h2>Por temática</h2>
+
         <p className="mt-3 max-w-2xl text-pretty text-muted">
           La biblioteca no es una lista suelta. Cada concepto empuja hacia el siguiente.
         </p>

@@ -1,6 +1,6 @@
 # CIFRA Roadmap
 
-## Estado actual (0.9 en validación)
+
 - Estado: funcional y consolidado en la parte de navegación documental y red de conocimiento.
 - Base consolidada en estudio, retos, incidentes, matemática, biblioteca, módulos y ejecución segura.
 - La prioridad actual es cerrar validación, endurecimiento y preparación para la 1.0.
@@ -22,7 +22,7 @@
 
 ## 0.8.1 — Editor de código para ejercicios y retos reales
 
-- Estado: implementada. El reto Pedidos de una tienda estrena el editor multiarchivo y las entregas con pruebas locales.
+
 - Editor integrado con árbol de carpetas, pestañas y búsqueda de archivos.
 - Borradores locales por reto. Cambiar de archivo o recargar conserva los cambios.
 - Resaltado por lenguaje, números de línea, atajos y acceso al archivo y línea de un diagnóstico.
@@ -30,13 +30,6 @@
 - Primer reto realista con dos archivos que editar. Sus pruebas usarán el ejecutor aislado con límites y un contrato de entrega para proyectos multiarchivo.
 - Criterio de finalización: resolver el reto editando ambos archivos, recuperar el borrador tras recargar, cambiar de tema y obtener un veredicto de las pruebas.
 
-## 0.8.2 — Portal de tutoriales
-
-La portada reúne accesos, itinerarios y temas con la navegación editorial de la referencia visual. Biblioteca sirve el artículo y el ejemplo desde el servidor. El editor avanzado se carga por separado y el ejemplo se puede seguir leyendo y editando con el editor básico si falla esa carga. El progreso local es opcional para la lectura.
-
-## 0.8.3 — Animaciones y detalles de interacción
-
-La portada incorpora entradas escalonadas y realce de tarjetas con ratón y teclado. Biblioteca muestra el avance de lectura y el editor distingue la ejecución en curso. Las animaciones respetan la preferencia de movimiento reducido.
 
 ## 0.9 — Pulido y robustez
 - Descripción: mejorar UX, rendimiento, claridad y consistencia visual antes del primer lanzamiento público.
@@ -49,8 +42,8 @@ La portada incorpora entradas escalonadas y realce de tarjetas con ratón y tecl
 ## 1.0 — Lanzamiento público
 - Descripción: primer despliegue público con la promesa pedagógica establecida.
 - Prioridad: crítica
-- Estado: no iniciada
-- Dependencias: 0.7–0.9, validación, seguridad y preparación operativa
+- Estado: candidata preparada para validación en Preview de Vercel.
+- Dependencias: cuenta de GitHub, Neon, snapshot del juez y pruebas de Preview
 - Módulos afectados: toda la app
 - Criterio de finalización: lanzamiento consistente, pruebas de flujo cubiertas y documentación final verificada
 

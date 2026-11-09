@@ -1,3 +1,6 @@
+ version/1.0
+import { useEffect, useMemo, useState } from "react";
+
 import { EditorCodigo } from "@/components/editor-codigo";
 import { useEffect, useMemo, useState } from "react";
 import { limitesDefecto } from "@/lib/ejecucion/limites";
@@ -11,62 +14,87 @@ import {
   motorDe,
   type LanguageId,
 } from "@/lib/modulos/lenguajes";
+ main
 import { Button } from "@/components/ui/button";
+import { CuentaJuez } from "@/components/codigo/cuenta-juez";
+import { EditorCodigo, useBorrador } from "@/components/codigo/editor";
+import { PanelesCodigo, type PanelCodigo } from "@/components/codigo/paneles";
+import { VistaWeb } from "@/components/codigo/vista-web";
+import { Corrida } from "@/components/retos/entrega";
+import {
+  etiquetasJuez,
+  esLenguajeJuez,
+  lenguajesJuez,
+  type LenguajeJuez,
+} from "@/lib/ejecucion/catalogo";
+import { juzgarCodigo } from "@/lib/ejecucion/juez";
+import { limitesDefecto } from "@/lib/ejecucion/limites";
+import type { RunResult, TraceStep } from "@/lib/ejecucion/tipos";
+import { ejecutarLenguaje } from "@/lib/modulos/lenguajes";
 import { cn } from "@/lib/cn";
 
-/**
- * «Ejecuta con seguridad» (0.3.G, tarea 8): un botón Ejecutar en el estudio. El código corre
- * en el navegador (Worker aislado, sin red), la salida y la traza se ven bajo el editor, y si
- * el programa falla, el puente lleva al mensaje y el código a «Estudia el fallo» con un clic.
- *
- * 0.6: ni el selector ni el disparo conocen un lenguaje concreto. Salen del registro de
- * módulos (`lenguajesConMotor`) y el disparo pasa por `ejecutarLenguaje`, que aplica el
- * motor de cada módulo o devuelve `no-soportado`.
- */
-
-const opcionesRun = lenguajesConMotor();
-
-const muestras = [
+const muestras: Record<LenguajeJuez, string> = {
+  javascript: "for (const n of [2, 4, 6]) console.log(n * n);\n",
+  typescript: "const numeros: number[] = [2, 4, 6];\nconsole.log(numeros.map(n => n * n));\n",
+  python: "for n in [2, 4, 6]:\n    print(n * n)\n",
+  rust: 'fn main() {\n    for n in [2, 4, 6] {\n        println!("{}", n * n);\n    }\n}\n',
+  go: 'package main\nimport "fmt"\nfunc main() { fmt.Println("Hola, Cifra") }\n',
+  c: '#include <stdio.h>\nint main(void) { puts("Hola, Cifra"); }\n',
+  cpp: '#include <iostream>\nint main() { std::cout << "Hola, Cifra\\n"; }\n',
+  java: 'class Main {\n    public static void main(String[] args) {\n        System.out.println("Hola, Cifra");\n    }\n}\n',
+  csharp: 'System.Console.WriteLine("Hola, Cifra");\n',
+  ruby: 'puts "Hola, Cifra"\n',
+  php: '<?php\necho "Hola, Cifra\\n";\n',
+  sql: "SELECT titulo, paginas FROM libros ORDER BY paginas DESC;\n",
+  web: '<article class="tarjeta">\n  <h2>Hola, Cifra</h2>\n  <p>Una tarjeta de ejemplo.</p>\n</article>\n',
+};
+const cssInicial = ".tarjeta { padding: 16px; background: #f0f4ff; }\n";
+const ejemplosJavaScript = [
   {
-    id: "media",
-    lenguaje: "javascript" as const,
     titulo: "Una media con un fallo escondido",
     codigo:
-      "function media(numeros) {\n  let suma = 0;\n  for (let i = 0; i < numeros.length; i++) {\n    suma = suma + numeros[i];\n  }\n  return suma / numeros.length;\n}\n\nconsole.log(media([2, 4, 6]));\nconsole.log(media([]));\n",
-    preguntaAlEjecutar: true,
+      "function media(numeros) {\n  const suma = numeros.reduce((a, n) => a + n, 0);\n  return suma / numeros.length;\n}\n\nconsole.log(media([2, 4, 6]));\nconsole.log(media([]));\n",
   },
   {
-    id: "bucle",
-    lenguaje: "javascript" as const,
     titulo: "Un bucle que no termina",
-    codigo:
-      "let vueltas = 0;\nwhile (vueltas >= 0) {\n  vueltas = vueltas + 1;\n}\nconsole.log(vueltas);\n",
-    preguntaAlEjecutar: false,
-  },
-  {
-    id: "sabor",
-    lenguaje: "python" as const,
-    titulo: "Python: trazo de una lista",
-    codigo:
-      'sabor = ["pera", "limón", "melón"]\nfor fruta in sabor:\n    print(fruta, len(fruta))\nprint("total", len(sabor))\n',
-    preguntaAlEjecutar: false,
+    codigo: "let vueltas = 0;\nwhile (vueltas >= 0) {\n  vueltas = vueltas + 1;\n}\n",
   },
 ];
-
-const etiquetasEstado: Record<RunResult["estado"], string> = {
-  ok: "Terminó bien",
-  error: "Fallo del programa",
-  tiempo: "Corte por tiempo",
-  memoria: "Corte por memoria",
-  "salida-excedida": "Salida enorme",
-  "no-soportado": "Aquí no se puede",
-};
 
 export function RunStudio({
   onEstudiarFallo,
 }: {
   onEstudiarFallo: (codigo: string, mensaje: string, lenguaje: string) => void;
 }) {
+ version/1.0
+  const [lenguaje, setLenguaje] = useState<LenguajeJuez>("javascript");
+  useEffect(() => {
+    try {
+      const guardado = localStorage.getItem("cifra.estudio.ejecuta.lenguaje");
+      if (esLenguajeJuez(guardado)) setLenguaje(guardado);
+    } catch {
+      /* almacenamiento bloqueado */
+    }
+  }, []);
+  const [panel, setPanel] = useState<PanelCodigo>("codigo");
+  const [archivo, setArchivo] = useState<"html" | "css">("html");
+  const [entrada, setEntrada] = useBorrador("cifra.estudio.ejecuta.stdin", "");
+  const [codigo, editarCodigo] = useBorrador(
+    `cifra.estudio.ejecuta:${lenguaje}`,
+    muestras[lenguaje],
+  );
+  const [css, editarCss] = useBorrador("cifra.estudio.ejecuta:css", cssInicial);
+  const [trazar, setTrazar] = useState(false);
+  const [ocupado, setOcupado] = useState(false);
+  const [aviso, setAviso] = useState("");
+  const [resultado, setResultado] = useState<{
+    corrida: RunResult;
+    codigo: string;
+    lenguaje: LenguajeJuez;
+  }>();
+  const [traza, setTraza] = useState<RunResult>();
+  const trazable = lenguaje === "javascript" || lenguaje === "python";
+=======
   const [muestraId, setMuestraId] = useState(muestras[0].id);
   const [language, setLanguage] = useState<LanguageId>("javascript");
   const [code, setCode] = useState(muestras[0].codigo);
@@ -88,63 +116,181 @@ export function RunStudio({
     setResultado(null);
     setAviso(null);
   };
+ main
 
   const ejecutar = async () => {
-    setCorriendo(true);
-    setResultado(null);
-    setAviso(null);
-    const pedido: RunRequest = {
-      lenguaje: language,
-      codigo: code,
-      limites: limitesDefecto(),
-      trazar,
-    };
+    setOcupado(true);
+    setAviso("");
+    setResultado(undefined);
+    setTraza(undefined);
+    setPanel("resultado");
     try {
-      const respuesta = await ejecutarLenguaje(pedido);
-      setResultado(respuesta);
+      const respuesta = await juzgarCodigo({
+        data: {
+          modo: "libre",
+          codigo,
+          lenguaje,
+          css: lenguaje === "web" ? css : undefined,
+          entrada: lenguaje !== "web" && lenguaje !== "sql" ? entrada : undefined,
+        },
+      });
+      if (!respuesta.ok) {
+        setAviso(respuesta.mensaje);
+        return;
+      }
+      setResultado({ corrida: respuesta.resultado, codigo, lenguaje });
+      if (trazar && trazable) {
+        try {
+          setTraza(
+            await ejecutarLenguaje({
+              codigo,
+              lenguaje,
+              entrada,
+              limites: limitesDefecto(),
+              trazar: true,
+            }),
+          );
+        } catch {
+          setAviso("No se pudo generar la traza local.");
+        }
+      }
     } catch (error) {
-      setAviso(error instanceof Error ? error.message : "No se ha podido ejecutar aquí.");
+      setAviso(error instanceof Error ? error.message : "No se pudo ejecutar el programa.");
     } finally {
-      setCorriendo(false);
+      setOcupado(false);
     }
   };
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-      <section className="min-w-0">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <label className="flex flex-col gap-2 font-mono text-sm">
+    <PanelesCodigo
+      titulo="Contexto"
+      panel={panel}
+      onPanel={setPanel}
+      contexto={
+        <div className="grid gap-4">
+          <h2 className="font-serif text-2xl">Ejecuta un programa</h2>
+          <p>
+            Escribe un programa y consulta su salida. El código se ejecuta en un servidor aislado
+            con límites de tiempo y salida.
+          </p>
+          {lenguaje === "sql" && (
+            <p className="text-sm text-muted">
+              SQLite incluye libros(titulo, paginas) con Luz (120), Arena (95) y Mar (180). Usa una
+              consulta de lectura.
+            </p>
+          )}
+          {lenguaje !== "sql" && lenguaje !== "web" && (
+            <label className="grid gap-2 font-mono text-sm">
+              Entrada estándar (stdin)
+              <textarea
+                rows={4}
+                value={entrada}
+                onChange={(e) => setEntrada(e.target.value)}
+                className="rounded border border-line bg-paper p-3"
+              />
+            </label>
+          )}
+          {trazable && (
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={trazar}
+                onChange={(e) => setTrazar(e.target.checked)}
+              />
+              Añadir una traza local en el navegador
+            </label>
+          )}
+          <Button
+            tone="ghost"
+            onClick={() => {
+              editarCodigo(muestras[lenguaje]);
+              if (lenguaje === "web") editarCss(cssInicial);
+              setPanel("codigo");
+            }}
+          >
+            Cargar ejemplo
+          </Button>
+          {lenguaje === "javascript" && (
+            <div className="flex flex-wrap gap-2">
+              {ejemplosJavaScript.map((ejemplo) => (
+                <Button
+                  key={ejemplo.titulo}
+                  tone="ghost"
+                  onClick={() => {
+                    editarCodigo(ejemplo.codigo);
+                    setPanel("codigo");
+                  }}
+                >
+                  {ejemplo.titulo}
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
+      }
+      codigo={
+        <div className="grid gap-3">
+          <label className="flex items-center gap-2 font-mono text-sm">
             Lenguaje
             <select
-              className="min-h-11 border border-line bg-paper px-3 text-ink"
-              value={language}
-              onChange={(event) => {
-                const id = event.target.value;
-                if (isLanguageId(id) && motorDe(id)) {
-                  setLanguage(id);
-                  setResultado(null);
+              value={lenguaje}
+              disabled={ocupado}
+              className="min-h-11 rounded border border-line bg-paper px-2"
+              onChange={(e) => {
+                if (!esLenguajeJuez(e.target.value)) return;
+                setLenguaje(e.target.value);
+                try {
+                  localStorage.setItem("cifra.estudio.ejecuta.lenguaje", e.target.value);
+                } catch {
+                  /* bloqueado */
                 }
+                setResultado(undefined);
+                setTraza(undefined);
+                setAviso("");
               }}
             >
-              {opcionesRun.map((id) => (
+              {lenguajesJuez.map((id) => (
                 <option key={id} value={id}>
-                  {languageLabels[id]}
+                  {etiquetasJuez[id]}
                 </option>
               ))}
             </select>
           </label>
-          <p className="font-mono text-sm text-muted">{motorDe(language)?.notas}</p>
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          {muestras.map((muestra) => (
+          {lenguaje === "web" && (
+            <div className="flex gap-2">
+              <Button
+                tone="ghost"
+                aria-pressed={archivo === "html"}
+                onClick={() => setArchivo("html")}
+              >
+                index.html
+              </Button>
+              <Button
+                tone="ghost"
+                aria-pressed={archivo === "css"}
+                onClick={() => setArchivo("css")}
+              >
+                styles.css
+              </Button>
+            </div>
+          )}
+          <EditorCodigo
+            key={lenguaje + archivo}
+            etiqueta="Código de Estudio"
+            lenguaje={lenguaje === "web" ? archivo : lenguaje}
+            valor={lenguaje === "web" && archivo === "css" ? css : codigo}
+            onChange={lenguaje === "web" && archivo === "css" ? editarCss : editarCodigo}
+          />
+          <div>
             <Button
-              key={muestra.id}
-              tone={muestra.id === muestraId ? "quiet" : "ghost"}
-              onClick={() => carga(muestra)}
+              tone="primary"
+              disabled={ocupado || !codigo.trim()}
+              onClick={() => void ejecutar()}
             >
-              {muestra.titulo}
+              Ejecutar
             </Button>
+ version/1.0
+
           ))}
         </div>
 
@@ -199,97 +345,48 @@ export function RunStudio({
         {aviso && (
           <div className="mt-6 border-l border-copper pl-4">
             <p className="text-pretty">{aviso}</p>
+ main
           </div>
-        )}
-
-        {resultado && (
-          <ResultadoView
-            resultado={resultado}
-            codigo={code}
-            lenguaje={language}
-            onEstudiarFallo={onEstudiarFallo}
-          />
-        )}
-      </section>
-    </div>
-  );
-}
-
-function ResultadoView({
-  resultado,
-  codigo,
-  lenguaje,
-  onEstudiarFallo,
-}: {
-  resultado: RunResult;
-  codigo: string;
-  lenguaje: string;
-  onEstudiarFallo: (codigo: string, mensaje: string, lenguaje: string) => void;
-}) {
-  const elFallo = resultado.estado === "error" && resultado.stderr.trim().length > 0;
-  const puedeEstudiar = elFallo && resultado.stderr.length <= limitesEntrada.mensaje;
-
-  return (
-    <article className="mt-8 border-t border-line pt-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="font-mono text-sm text-copper">
-          {etiquetasEstado[resultado.estado]} · {resultado.duracionMs} ms
-        </p>
-        {puedeEstudiar && (
-          <Button
-            tone="ghost"
-            onClick={() => onEstudiarFallo(codigo, resultado.stderr.trim(), lenguaje)}
-          >
-            Estudiar este fallo →
-          </Button>
-        )}
-      </div>
-      {elFallo && !puedeEstudiar && (
-        <p className="mt-2 text-pretty text-muted">
-          El mensaje del fallo es más largo de lo que la guía admite: cópialo a mano y recorta la
-          parte de la pila que se repite.
-        </p>
-      )}
-
-      <p className="mt-3 font-mono text-xs text-muted">
-        {resultado.motor.nombre} · {resultado.motor.version} · ejecución real en tu navegador
-        {resultado.estado === "ok" && resultado.memoriaMBUsada === undefined
-          ? " · heap no medido en este motor"
-          : ""}
-      </p>
-
-      <div className="mt-4 grid gap-4">
-        {resultado.stdout.trim().length > 0 && (
-          <section>
-            <h3 className="font-mono text-sm text-copper">Salida</h3>
-            <pre className="mt-2 max-h-72 overflow-auto border border-line bg-paper p-3 font-mono text-sm leading-6 whitespace-pre-wrap text-ink">
-              {resultado.stdout}
-            </pre>
-          </section>
-        )}
-        {resultado.stderr.trim().length > 0 && (
-          <section>
-            <h3 className="font-mono text-sm text-copper">Errores y avisos</h3>
-            <pre className="mt-2 max-h-72 overflow-auto border border-copper bg-paper p-3 font-mono text-sm leading-6 whitespace-pre-wrap text-ink">
-              {resultado.stderr}
-            </pre>
-          </section>
-        )}
-        {resultado.stdout.trim().length === 0 && resultado.stderr.trim().length === 0 && (
-          <p className="text-pretty text-muted">Sin salida: el programa no escribió nada.</p>
-        )}
-      </div>
-
-      {resultado.traza && resultado.traza.length > 0 && (
-        <TrazaView traza={resultado.traza} truncada={resultado.trazaTruncada === true} />
-      )}
-      {resultado.trazaTruncada === true && (
-        <p className="mt-3 text-pretty text-copper">
-          La traza se trunca en {limitesDefecto().pasosTraza} pasos (0.3.B): es un mapa, no la
-          película completa.
-        </p>
-      )}
-    </article>
+          <CuentaJuez />
+        </div>
+      }
+      resultado={
+        <div className="grid gap-3" aria-live="polite">
+          <h2 className="font-mono text-sm">Resultado</h2>
+          {ocupado && <p role="status">Ejecutando…</p>}
+          {aviso && (
+            <>
+              <p role="alert">{aviso}</p>
+              <CuentaJuez />
+            </>
+          )}
+          {lenguaje === "web" && <VistaWeb html={codigo} css={css} />}
+          {!resultado && !aviso && !ocupado && lenguaje !== "web" && (
+            <p className="text-sm text-muted">Aquí aparecerán la salida y los diagnósticos.</p>
+          )}
+          {resultado && <Corrida corrida={resultado.corrida} />}
+          {resultado?.corrida.stderr.trim() && resultado.corrida.estado !== "ok" && (
+            <div>
+              <Button
+                tone="ghost"
+                onClick={() =>
+                  onEstudiarFallo(
+                    resultado.codigo,
+                    resultado.corrida.stderr.trim().slice(0, 4_000),
+                    resultado.lenguaje,
+                  )
+                }
+              >
+                Estudiar este fallo →
+              </Button>
+            </div>
+          )}
+          {traza?.traza?.length ? (
+            <TrazaView traza={traza.traza} truncada={traza.trazaTruncada === true} />
+          ) : null}
+        </div>
+      }
+    />
   );
 }
 

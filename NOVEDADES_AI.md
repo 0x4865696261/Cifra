@@ -175,7 +175,7 @@ escribe una IA, y leer la arquitectura de un sistema.** Va desde cero hasta nive
 | 0.6 | Plataforma modular | hecha en la rama; pendiente de revisión y fusión |
 | 0.7 | La red de conocimiento, completa | hecha |
 | 0.8 | Un compilador que comprueba | hecha, validada localmente |
-| 0.8.1 | Editor de código para ejercicios y retos reales | implementada |
+
 | 0.9 | Pulido y endurecimiento | pendiente |
 | 1.0 | Lanzamiento público | pendiente |
 
@@ -938,8 +938,13 @@ ubicación; un programa válido se acepta sin promesas de más. Sin ejecución, 
 
 El comprobador usa el analizador de TypeScript con un subconjunto de sintaxis y una biblioteca virtual de listas. Revisa tipos y flujo sin generar ni ejecutar código. Las 611 pruebas, `typecheck` y `build` pasaron. Se recorrieron 12 rutas en escritorio y móvil y se comprobó el flujo desde Retos hasta Estudia el fallo. El ejecutor local de Rust usa la ruta de salida de Cargo y el nombre de binario de cada plataforma.
 
-### 0.8.1 — Editor de código para ejercicios y retos reales
+### 0.8.1 — Editor de código para ejercicios y retos reale
+version/1.0
+Planificada. El alcance y el criterio de finalización están en [CIFRA Roadmap](CIFRA_ROADMAP.md#081--editor-de-código-para-ejercicios-y-retos-reales).
 
+---
+
+=======
 El reto `pedidos-de-tienda` usa dos módulos JavaScript con `require` relativo y una entrada `resolver(caso)`. El cargador solo lee los archivos de la plantilla, y el ejecutor da a cada caso un Worker y sus límites habituales. El editor conserva código, archivo activo, tema y tamaño de letra en el navegador.
 
 ---
@@ -952,6 +957,7 @@ La portada reúne accesos, itinerarios y temas con la navegación editorial de l
 
 La portada incorpora entradas escalonadas y realce de tarjetas con ratón y teclado. Biblioteca muestra el avance de lectura y el editor distingue la ejecución en curso. Las animaciones respetan la preferencia de movimiento reducido.
 
+ 
 ### 0.9 — Pulido y endurecimiento
 
 **Objetivo:** dejar Cifra lista para exponerse. Lo que funcionaba en una sola máquina debe aguantar a
@@ -1517,3 +1523,10 @@ reproducible de todos los grupos de pruebas en Windows.
 - **Previsualización de producción:** `preview:restart` no funciona en Windows porque depende de
   `/proc`; se usó `npm run preview` en un puerto libre para servir el build y completar el humo.
 - **Queda para después:** revisión y fusión a `main`; esta rama no se fusiona como parte de la 0.6.
+
+
+## 1.0 — Publicación de la candidata
+
+1. Preparar la candidata con Retos y Estudio en dos paneles y el juez multilenguaje de Vercel.
+2. Corregir el acceso visible y conectar GitHub OAuth.
+3. Guardar logros confirmados por el juez y añadir la publicación optativa en GitHub.

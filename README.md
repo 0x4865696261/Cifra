@@ -30,6 +30,7 @@ La referencia rápida del proyecto se encuentra en:
 - [`CIFRA_AI.md`](CIFRA_AI.md)
 - [`CIFRA_ARCHITECTURE.md`](CIFRA_ARCHITECTURE.md)
 - [`CIFRA_ROADMAP.md`](CIFRA_ROADMAP.md)
+- [Preparación de Cifra 1.0 para Vercel](docs/cifra-1.0-vercel.md)
 - [`docs/modules/README.md`](docs/modules/README.md)
 - [`docs/history/README.md`](docs/history/README.md)
 
@@ -37,9 +38,9 @@ La documentación histórica sigue en [`NOVEDADES.md`](NOVEDADES.md) y [`NOVEDAD
 
 ## Principios
 
-- La plataforma no ejecuta el código del usuario y lo dice por escrito; no simula lo que no hace.
+- Los retos y Estudio ejecutan código autenticado en máquinas aisladas con límites.
 - Cada llamada al modelo es explícita y limitada: cuota real, caché y respuestas con forma comprobada.
-- El progreso de lectura se guarda solo en este navegador. No hay cuentas sin necesidad.
+- El progreso y los borradores se guardan en este navegador. La cuenta de GitHub habilita la ejecución.
 - El código fuente sigue los mismos principios que enseña: simple, legible, con decisiones explicadas.
 
 ## Stack

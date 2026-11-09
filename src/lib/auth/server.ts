@@ -30,6 +30,7 @@
  * a verified id via `@/lib/auth/middleware`.
  */
 import { betterAuth } from "better-auth";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { bearer, genericOAuth } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { getCookie } from "@tanstack/react-start/server";
@@ -73,6 +74,12 @@ const env = (key: string): string | undefined => {
 // Explicit off-switch. The deployer sets `VITE_AUTH_ENABLED=true` when it
 // provisions auth; set it to "false" to force auth off everywhere (dev user).
 const authDisabled = env("VITE_AUTH_ENABLED") === "false";
+const cifraPublica = env("VITE_CIFRA_PUBLIC") === "1";
+const githubId = env("GITHUB_CLIENT_ID");
+const githubSecret = env("GITHUB_CLIENT_SECRET");
+export const githubLoginConfigured = cifraPublica && !authDisabled && Boolean(
+  githubId && githubSecret && env("BETTER_AUTH_SECRET") && env("BETTER_AUTH_URL") && env("DATABASE_URL"),
+);
 
 // Broker federation creds: the deployer injects a per-app client when deployed;
 // otherwise fall back to the shared live-preview client, which the broker accepts
@@ -83,7 +90,7 @@ const grokClientSecret = env("GROK_AUTH_CLIENT_SECRET") ?? PREVIEW_CLIENT_SECRET
 
 /** True when federated sign-in is active (real auth is enforced). */
 export const authConfigured =
-  !authDisabled && Boolean(grokClientId && grokClientSecret);
+  !authDisabled && (cifraPublica ? githubLoginConfigured : Boolean(grokClientId && grokClientSecret));
 
 // This app's own Better Auth origin. When deployed the deployer injects the
 // public URL. In the sandbox live preview there's no fixed URL (each preview gets
@@ -116,7 +123,7 @@ const baseURL = explicitBaseURL ?? {
 // Origins Better Auth accepts on credentialed POSTs (sign-up/sign-in, etc.).
 // Missing entries here surface as FORBIDDEN "Invalid origin".
 const trustedOrigins: string[] = explicitBaseURL
-  ? [explicitBaseURL, ...LOCAL_DEV_ORIGINS]
+  ? cifraPublica ? [explicitBaseURL] : [explicitBaseURL, ...LOCAL_DEV_ORIGINS]
   : [
       // Host wildcards (matched against Origin's host)
       ...previewAllowedHosts,
@@ -150,7 +157,7 @@ export const SESSION_TOKEN_COOKIE = "__Host-grok-auth.session_token";
 
 // Built separately so the `betterAuth({...})` call stays easy to edit without
 // breaking brackets (models often trip on the conditional plugin spread).
-const grokOAuthPlugin = authConfigured
+const grokOAuthPlugin = authConfigured && !cifraPublica
   ? genericOAuth({
       config: GROK_PROVIDERS.map(({ providerId, idp }) => ({
         providerId,
@@ -173,11 +180,29 @@ const grokOAuthPlugin = authConfigured
   : null;
 
 export const auth = betterAuth({
+  ...(cifraPublica ? {
+    disabledPaths: ["/get-access-token", "/refresh-token", "/link-social"],
+    hooks: {
+      before: createAuthMiddleware(async (ctx) => {
+        if (ctx.path !== "/sign-in/social" || ctx.body?.provider !== "github") return;
+        const scopes = ctx.body.scopes;
+        if (Array.isArray(scopes) && scopes.some((scope) => scope !== "public_repo")) {
+          throw new APIError("BAD_REQUEST", { message: "Permiso de GitHub no admitido." });
+        }
+        if (ctx.body.additionalParams) {
+          throw new APIError("BAD_REQUEST", { message: "Parámetros de GitHub no admitidos." });
+        }
+      }),
+    },
+  } : {}),
   baseURL,
   // Deployed apps inject BETTER_AUTH_SECRET. Preview: process-stable secret on
   // globalThis so HMR doesn't invalidate PGLite-backed sessions (see above).
   secret: env("BETTER_AUTH_SECRET") ?? previewAuthSecret(),
   database,
+  ...(githubLoginConfigured
+    ? { socialProviders: { github: { clientId: githubId!, clientSecret: githubSecret! } } }
+    : {}),
 
   // CSRF / origin check for credentialed auth POSTs (email sign-up/sign-in, …).
   // See `trustedOrigins` construction above — must cover live preview hosts AND
